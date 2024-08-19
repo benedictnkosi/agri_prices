@@ -2,12 +2,13 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Seedling
  *
- * @ORM\Table(name="seedling", indexes={@ORM\Index(name="seedling_grow_mix_idx", columns={"grow_mix"}), @ORM\Index(name="seedling_seed_idx", columns={"seed"})})
+ * @ORM\Table(name="seedling", indexes={@ORM\Index(name="seedling_seed_idx", columns={"seed"}), @ORM\Index(name="seedling_grow_mix_idx", columns={"grow_mix"})})
  * @ORM\Entity
  */
 class Seedling
@@ -54,6 +55,59 @@ class Seedling
      * })
      */
     private $seed;
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getQuantity(): ?int
+    {
+        return $this->quantity;
+    }
+
+    public function setQuantity(?int $quantity): static
+    {
+        $this->quantity = $quantity;
+
+        return $this;
+    }
+
+    public function getDate(): ?\DateTimeInterface
+    {
+        return $this->date;
+    }
+
+    public function setDate(?\DateTimeInterface $date): static
+    {
+        $this->date = $date;
+
+        return $this;
+    }
+
+    public function getGrowMix(): ?GrowMix
+    {
+        return $this->growMix;
+    }
+
+    public function setGrowMix(?GrowMix $growMix): static
+    {
+        $this->growMix = $growMix;
+
+        return $this;
+    }
+
+    public function getSeed(): ?Seed
+    {
+        return $this->seed;
+    }
+
+    public function setSeed(?Seed $seed): static
+    {
+        $this->seed = $seed;
+
+        return $this;
+    }
 
 
 }

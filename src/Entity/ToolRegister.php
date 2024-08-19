@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -58,6 +59,71 @@ class ToolRegister
      * })
      */
     private $tool;
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getQuantity(): ?int
+    {
+        return $this->quantity;
+    }
+
+    public function setQuantity(?int $quantity): static
+    {
+        $this->quantity = $quantity;
+
+        return $this;
+    }
+
+    public function getDate(): ?\DateTimeInterface
+    {
+        return $this->date;
+    }
+
+    public function setDate(?\DateTimeInterface $date): static
+    {
+        $this->date = $date;
+
+        return $this;
+    }
+
+    public function getPerson(): ?string
+    {
+        return $this->person;
+    }
+
+    public function setPerson(?string $person): static
+    {
+        $this->person = $person;
+
+        return $this;
+    }
+
+    public function isReturned(): ?bool
+    {
+        return $this->returned;
+    }
+
+    public function setReturned(?bool $returned): static
+    {
+        $this->returned = $returned;
+
+        return $this;
+    }
+
+    public function getTool(): ?Tools
+    {
+        return $this->tool;
+    }
+
+    public function setTool(?Tools $tool): static
+    {
+        $this->tool = $tool;
+
+        return $this;
+    }
 
 
 }

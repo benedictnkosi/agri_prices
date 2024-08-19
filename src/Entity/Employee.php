@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -66,16 +67,117 @@ class Employee
     /**
      * @var string|null
      *
-     * @ORM\Column(name="employeecol", type="string", length=45, nullable=true)
+     * @ORM\Column(name="gender", type="string", length=45, nullable=true)
      */
-    private $employeecol;
+    private $gender;
 
     /**
      * @var string|null
      *
-     * @ORM\Column(name="gender", type="string", length=45, nullable=true)
+     * @ORM\Column(name="status", type="string", length=45, nullable=true)
      */
-    private $gender;
+    private $status;
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(?string $name): static
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getSurname(): ?string
+    {
+        return $this->surname;
+    }
+
+    public function setSurname(?string $surname): static
+    {
+        $this->surname = $surname;
+
+        return $this;
+    }
+
+    public function getCreateTime(): ?\DateTimeInterface
+    {
+        return $this->createTime;
+    }
+
+    public function setCreateTime(?\DateTimeInterface $createTime): static
+    {
+        $this->createTime = $createTime;
+
+        return $this;
+    }
+
+    public function getBank(): ?string
+    {
+        return $this->bank;
+    }
+
+    public function setBank(?string $bank): static
+    {
+        $this->bank = $bank;
+
+        return $this;
+    }
+
+    public function getAccount(): ?string
+    {
+        return $this->account;
+    }
+
+    public function setAccount(?string $account): static
+    {
+        $this->account = $account;
+
+        return $this;
+    }
+
+    public function getPhoneNumber(): ?string
+    {
+        return $this->phoneNumber;
+    }
+
+    public function setPhoneNumber(?string $phoneNumber): static
+    {
+        $this->phoneNumber = $phoneNumber;
+
+        return $this;
+    }
+
+    public function getGender(): ?string
+    {
+        return $this->gender;
+    }
+
+    public function setGender(?string $gender): static
+    {
+        $this->gender = $gender;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?string $status): static
+    {
+        $this->status = $status;
+
+        return $this;
+    }
 
 
 }

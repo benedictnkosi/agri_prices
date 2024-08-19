@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -54,6 +55,59 @@ class Planting
      * })
      */
     private $seedling;
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getQuantity(): ?int
+    {
+        return $this->quantity;
+    }
+
+    public function setQuantity(?int $quantity): static
+    {
+        $this->quantity = $quantity;
+
+        return $this;
+    }
+
+    public function getDate(): ?\DateTimeInterface
+    {
+        return $this->date;
+    }
+
+    public function setDate(?\DateTimeInterface $date): static
+    {
+        $this->date = $date;
+
+        return $this;
+    }
+
+    public function getPlot(): ?Plot
+    {
+        return $this->plot;
+    }
+
+    public function setPlot(?Plot $plot): static
+    {
+        $this->plot = $plot;
+
+        return $this;
+    }
+
+    public function getSeedling(): ?Seedling
+    {
+        return $this->seedling;
+    }
+
+    public function setSeedling(?Seedling $seedling): static
+    {
+        $this->seedling = $seedling;
+
+        return $this;
+    }
 
 
 }

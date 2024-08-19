@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -37,6 +38,35 @@ class PesticideSpraying
      * })
      */
     private $pesticide;
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getDate(): ?\DateTimeInterface
+    {
+        return $this->date;
+    }
+
+    public function setDate(?\DateTimeInterface $date): static
+    {
+        $this->date = $date;
+
+        return $this;
+    }
+
+    public function getPesticide(): ?Fertilizer
+    {
+        return $this->pesticide;
+    }
+
+    public function setPesticide(?Fertilizer $pesticide): static
+    {
+        $this->pesticide = $pesticide;
+
+        return $this;
+    }
 
 
 }
