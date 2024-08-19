@@ -21,21 +21,10 @@ class PricesController extends AbstractController
             return new JsonResponse("Method Not Allowed" , 405, array());
         }
 
-
-        $startDate = new \DateTime('2024-08-08');
-        $endDate = new \DateTime('2024-08-31'); // Current date
-
-        // Create an interval of 1 day
-        $interval = new \DateInterval('P1D');
-        $dateRange = new \DatePeriod($startDate, $interval, $endDate->add($interval));
-
-        foreach ($dateRange as $date) {
-            $formattedDate = $date->format('m/d/Y');
-            $logger->info("Starting Method: " . $formattedDate);
-            $api->getDurbanPrices($formattedDate);
-        }
-
+        $today = new \DateTime();
+        $formattedDate = $today->format('m/d/Y');
+        $api->getDurbanPrices($formattedDate);
+   
         return new JsonResponse("Done" , 200, array());
     }
-
 }
