@@ -95,20 +95,20 @@ class PricesApi extends AbstractController
                         if ($totalQuantitySold != 0) {
                             // $this->logger->debug("Cells: " . $cells->item(0)->nodeValue);
                             $commodity = new DurbanMarket();
-                            $commodity->setCommodity($cells->item(0)->nodeValue);
-                            $commodity->setWeight($cells->item(1)->nodeValue);
-                            $commodity->setSizeGrade($cells->item(2)->nodeValue);
-                            $commodity->setContainer($cells->item(3)->nodeValue);
-                            $commodity->setProvince($cells->item(4)->nodeValue);
-                            $commodity->setLowPrice($cells->item(5)->nodeValue);
-                            $commodity->setHighPrice($cells->item(6)->nodeValue);
-                            $commodity->setAveragePrice($cells->item(7)->nodeValue);
-                            $commodity->setSalesTotal($cells->item(8)->nodeValue);
-                            $commodity->setTotalQuantitySold($cells->item(9)->nodeValue);
-                            $commodity->setTotalKgSold($cells->item(10)->nodeValue);
-                            $commodity->setStockOnHand($cells->item(11)->nodeValue);
+                            $commodity->setCommodity(trim($cells->item(0)->nodeValue));
+                            $commodity->setWeight(trim($cells->item(1)->nodeValue));
+                            $commodity->setGrade(trim($cells->item(2)->nodeValue));
+                            $commodity->setContainer(trim($cells->item(3)->nodeValue));
+                            $commodity->setProvince(trim($cells->item(4)->nodeValue));
+                            $commodity->setLowPrice(trim($cells->item(5)->nodeValue));
+                            $commodity->setHighPrice(trim($cells->item(6)->nodeValue));
+                            $commodity->setAveragePrice(trim($cells->item(7)->nodeValue));
+                            $commodity->setSalesTotal(trim($cells->item(8)->nodeValue));
+                            $commodity->setTotalQuantitySold(trim($cells->item(9)->nodeValue));
+                            $commodity->setTotalKgSold(trim($cells->item(10)->nodeValue));
+                            $commodity->setStockOnHand(trim($cells->item(11)->nodeValue));
                             $commodity->setDate(\DateTime::createFromFormat('d/M/Y', trim($cells->item(12)->nodeValue))); // Convert to DateTime
-                            $this->em->persist($commodity);  // Persist each entity
+                            $this->em->persist($commodity); // Persist each entity
                         }
                     }
                 }
@@ -136,8 +136,13 @@ class PricesApi extends AbstractController
         }
     }
 
-    public function getCropPrices(string $crop, string $grade, string $weight, string $period)
+    public function getCropPrices(Request $request)
     {
+
+        $crop = $request->query->get('crop');
+        $grade = $request->query->get('grade');
+        $weight = $request->query->get('weight');
+        $period = $request->query->get('period');
 
         $date = $this->getDate($period);
         /** @var QueryBuilder $qb */
@@ -152,12 +157,12 @@ class PricesApi extends AbstractController
                 ->setParameter('crop', '%' . $crop . '%');
         }
 
-        if ($grade !== null) {
+        if ($grade !== null && !empty($grade)) {
             $qb->andWhere('c.grade LIKE :grade')
                 ->setParameter('grade', $grade);
         }
 
-        if ($weight !== null) {
+        if ($weight !== null && !empty($weight)) {
             $qb->andWhere('c.weight LIKE :weight')
                 ->setParameter('weight', $weight);
         }
@@ -191,7 +196,7 @@ class PricesApi extends AbstractController
         }
 
         $qb->groupBy("c.$field")
-        ->orderBy("c.$field", 'ASC');
+            ->orderBy("c.$field", 'ASC');
 
         return $qb->getQuery()->getResult();
     }
@@ -218,7 +223,7 @@ class PricesApi extends AbstractController
         }
 
         $qb->groupBy('c.province')
-        ->orderBy('totalSales', 'DESC');
+            ->orderBy('totalSales', 'DESC');
 
         return $qb->getQuery()->getResult();
     }

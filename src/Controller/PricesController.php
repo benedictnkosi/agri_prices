@@ -24,19 +24,22 @@ class PricesController extends AbstractController
         }
 
 
-        $startDate = new \DateTime('2024-08-08');
-        $endDate = new \DateTime('2024-08-31'); // Current date
+        // $startDate = new \DateTime('2024-08-08');
+        // $endDate = new \DateTime('2024-08-31'); // Current date
 
-        // Create an interval of 1 day
-        $interval = new \DateInterval('P1D');
-        $dateRange = new \DatePeriod($startDate, $interval, $endDate->add($interval));
+        // // Create an interval of 1 day
+        // $interval = new \DateInterval('P1D');
+        // $dateRange = new \DatePeriod($startDate, $interval, $endDate->add($interval));
 
-        foreach ($dateRange as $date) {
-            $formattedDate = $date->format('m/d/Y');
-            $logger->info("Starting Method: " . $formattedDate);
-            $api->getDurbanPrices($formattedDate);
-        }
+        // foreach ($dateRange as $date) {
+        //     $formattedDate = $date->format('m/d/Y');
+        //     $logger->info("Starting Method: " . $formattedDate);
+        //     $api->getDurbanPrices($formattedDate);
+        // }
 
+        $date = new \DateTime();
+        $formattedDate = $date->format('m/d/Y');
+        $api->getDurbanPrices($formattedDate);
         return new JsonResponse("Done", 200, array());
     }
 
@@ -61,7 +64,7 @@ class PricesController extends AbstractController
             return new JsonResponse("Bad Request: Missing required parameters", 400, array());
         }
 
-        $response = $api->getCropPrices($crop, $grade, $size, $period);
+        $response = $api->getCropPrices($request);
         $serializer = SerializerBuilder::create()->build();
         $jsonContent = $serializer->serialize($response, 'json');
         return new JsonResponse($jsonContent , 200, array(), true);
@@ -78,7 +81,6 @@ class PricesController extends AbstractController
         }
 
         $crop = $request->query->get('crop');
-        $grade = $request->query->get('grade');
         $period = $request->query->get('period');
 
         
@@ -104,7 +106,6 @@ class PricesController extends AbstractController
         }
 
         $crop = $request->query->get('crop');
-        $grade = $request->query->get('grade');
         $period = $request->query->get('period');
 
         
