@@ -3,15 +3,11 @@
 namespace App\Service;
 
 use App\Entity\DurbanMarket;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
-use JetBrains\PhpStorm\ArrayShape;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use DOMDocument;
-use Symfony\Component\HttpFoundation\Request;
 
 class PricesApi extends AbstractController
 {
@@ -124,10 +120,12 @@ class PricesApi extends AbstractController
 
             // Close the cURL session
             curl_close($ch);
-
-            return $this->em->getRepository(DurbanMarket::class)->findAll();
+            return array(
+                'result_message' => "Done",
+                'result_code' => 0
+            );
         } catch (Exception $ex) {
-            $this->logger->error("Error " . print_r($ex, true));
+            // $this->logger->error("Error " . print_r($ex, true));
             return array(
                 'result_message' => $ex->getMessage(),
                 'result_code' => 1

@@ -2,22 +2,15 @@
 
 namespace App\Controller;
 
-use App\Service\PropertyApi;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Filesystem\Filesystem;
-require_once(__DIR__ . '/../app/application.php');
 
 class CommandsController extends AbstractController
 {
-
-
     /**
      * @Route("public/runcommand/clear")
      */
@@ -123,11 +116,7 @@ class CommandsController extends AbstractController
                 'result_code' => 0
             );
 
-            if(str_contains(SERVER_NAME,"qa")){
-                $command = 'git pull https://'.GIT_TOKEN.'@github.com/benedictnkosi/agri_prices.git main --force';
-            }else{
-                $command = 'git pull https://'.GIT_TOKEN.'@github.com/benedictnkosi/agri_prices.git main --force';
-            }
+            $command = 'git pull https://github.com/benedictnkosi/agri_prices.git main --force';
 
             $result = $this->execute($command);
             $responseArray[] = array(

@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class PricesController extends AbstractController
 {
     /**
-     * @Route("public/prices/get/{market}", name="get_prices_durban", methods={"GET"})
+     * @Route("api/prices/get/{market}", name="get_prices_durban", methods={"GET"})
      */
     public function getPrices(string $market, Request $request, LoggerInterface $logger, PricesApi $api): Response{
         $logger->info("Starting Method: " . __METHOD__);
