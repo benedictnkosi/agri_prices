@@ -3,11 +3,16 @@
 namespace App\Service;
 
 use App\Entity\DurbanMarket;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
 use Exception;
+use JetBrains\PhpStorm\ArrayShape;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use DOMDocument;
+use Symfony\Component\HttpFoundation\Request;
 
 class PricesApi extends AbstractController
 {
@@ -120,16 +125,136 @@ class PricesApi extends AbstractController
 
             // Close the cURL session
             curl_close($ch);
-            return array(
-                'result_message' => "Done",
-                'result_code' => 0
-            );
+
+            return $this->em->getRepository(DurbanMarket::class)->findAll();
         } catch (Exception $ex) {
-            // $this->logger->error("Error " . print_r($ex, true));
+            $this->logger->error("Error " . print_r($ex, true));
             return array(
                 'result_message' => $ex->getMessage(),
                 'result_code' => 1
             );
         }
+    }
+
+    public function getCropPrices(string $crop, string $grade, string $weight, string $period)
+    {
+
+        $date = $this->getDate($period);
+        /** @var QueryBuilder $qb */
+        $qb = $this->em->createQueryBuilder();
+        $qb->select('c')
+            ->from(DurbanMarket::class, 'c')
+            ->where('c.date >= :monthsAgo')
+            ->setParameter('monthsAgo', $date);
+
+        if ($crop !== null) {
+            $qb->andWhere('c.commodity LIKE :crop')
+                ->setParameter('crop', '%' . $crop . '%');
+        }
+
+        if ($grade !== null) {
+            $qb->andWhere('c.grade LIKE :grade')
+                ->setParameter('grade', $grade);
+        }
+
+        if ($weight !== null) {
+            $qb->andWhere('c.weight LIKE :weight')
+                ->setParameter('weight', $weight);
+        }
+
+
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function getFiltersForCrop(Request $request)
+    {
+        $date = $this->getDate($request->query->get('period'));
+        $qb = $this->em->createQueryBuilder();
+        $field = $request->query->get('field');
+        $qb->select("c.$field")
+            ->from(DurbanMarket::class, 'c')
+            ->where('c.date >= :monthsAgo')
+            ->setParameter('monthsAgo', $date)
+            ->andWhere('c.commodity LIKE :crop')
+            ->setParameter('crop', '%' . $request->query->get('crop') . '%');
+
+
+        if ($field !== "grade" && !empty($request->query->get('grade'))) {
+            $qb->andWhere('c.grade LIKE :grade')
+                ->setParameter('grade', $request->query->get('grade'));
+        }
+
+        if ($field !== "weight" && !empty($request->query->get('weight'))) {
+            $qb->andWhere('c.weight LIKE :weight')
+                ->setParameter('weight', $request->query->get('weight'));
+        }
+
+        $qb->groupBy("c.$field")
+        ->orderBy("c.$field", 'ASC');
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function getTotalsByProvince(Request $request)
+    {
+        $date = $this->getDate($request->query->get('period'));
+        $qb = $this->em->createQueryBuilder();
+        $qb->select('c.province, SUM(c.salesTotal) as totalSales') // Select province and sum of salesTotal
+            ->from(DurbanMarket::class, 'c')
+            ->where('c.date >= :monthsAgo')
+            ->setParameter('monthsAgo', $date)
+            ->andWhere('c.commodity LIKE :crop')
+            ->setParameter('crop', '%' . $request->query->get('crop') . '%');
+
+        if (!empty($request->query->get('grade'))) {
+            $qb->andWhere('c.grade LIKE :grade')
+                ->setParameter('grade', $request->query->get('grade'));
+        }
+
+        if (!empty($request->query->get('weight'))) {
+            $qb->andWhere('c.weight LIKE :weight')
+                ->setParameter('weight', $request->query->get('weight'));
+        }
+
+        $qb->groupBy('c.province')
+        ->orderBy('totalSales', 'DESC');
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function isSalesUp(Request $request)
+    {
+
+        $monthsAgo = (int)$request->query->get('period');
+        $crop = $request->query->get('crop');
+        $currentStartDate = (new \DateTime())->modify("-$monthsAgo months");
+        $previousStartDate = (new \DateTime())->modify("-" . ($monthsAgo * 2) . " months");
+
+        $qb = $this->em->createQueryBuilder();
+        $qb->select('SUM(c.totalKgSold) as currentPeriodSales, SUM(p.totalKgSold) as previousPeriodSales')
+            ->from(DurbanMarket::class, 'c')
+            ->leftJoin(DurbanMarket::class, 'p', 'WITH', 'p.date >= :previousStartDate AND p.date < :currentStartDate')
+            ->where('c.date >= :currentStartDate')
+            ->andWhere('c.commodity LIKE :commodity')
+            ->setParameter('currentStartDate', $currentStartDate->format('Y-m-d'))
+            ->setParameter('previousStartDate', $previousStartDate->format('Y-m-d'))
+            ->setParameter('commodity', '%' . $crop . '%');
+
+        $results = $qb->getQuery()->getSingleResult();
+
+
+        // Calculate the difference and determine if sales are up or down
+        $results['difference'] = $results['currentPeriodSales'] - $results['previousPeriodSales'];
+        $results['trend'] = $results['difference'] >= 0 ? 'up' : 'down';
+
+        return $results;
+    }
+
+    private function getDate(string $period)
+    {
+        $monthsAgo = new \DateTime();
+        $monthsAgo->modify("-$period month");
+        return $monthsAgo;
     }
 }

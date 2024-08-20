@@ -39,9 +39,9 @@ class DurbanMarket
     /**
      * @var string|null
      *
-     * @ORM\Column(name="size_grade", type="string", length=45, nullable=true)
+     * @ORM\Column(name="grade", type="string", length=45, nullable=true)
      */
-    private $sizeGrade;
+    private $grade;
 
     /**
      * @var string|null
@@ -142,14 +142,14 @@ class DurbanMarket
         return $this;
     }
 
-    public function getSizeGrade(): ?string
+    public function getGrade(): ?string
     {
-        return $this->sizeGrade;
+        return $this->grade;
     }
 
-    public function setSizeGrade(?string $sizeGrade): static
+    public function setGrade(?string $grade): static
     {
-        $this->sizeGrade = $sizeGrade;
+        $this->grade = $grade;
 
         return $this;
     }
