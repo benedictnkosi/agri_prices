@@ -138,11 +138,13 @@ class PricesApi extends AbstractController
 
     public function getCropPrices(Request $request)
     {
-
         $crop = $request->query->get('crop');
         $grade = $request->query->get('grade');
         $weight = $request->query->get('weight');
         $period = $request->query->get('period');
+        $cultivar = $request->query->get('cultivar');
+        
+        $this->logger->debug("Cultivar - " .  $cultivar);
 
         $date = $this->getDate($period);
         /** @var QueryBuilder $qb */
@@ -167,7 +169,15 @@ class PricesApi extends AbstractController
                 ->setParameter('weight', $weight);
         }
 
+        if ($cultivar !== null && !empty($cultivar)) {
+            $qb->andWhere('c.commodity LIKE :cultivar')
+                ->setParameter('cultivar', $cultivar);
+        }
 
+        if ($crop == "Potato") {
+            $qb->andWhere('c.commodity NOT LIKE :commodity')
+                ->setParameter('commodity', "%SWEET%");
+        }
 
         return $qb->getQuery()->getResult();
     }
@@ -177,12 +187,14 @@ class PricesApi extends AbstractController
         $date = $this->getDate($request->query->get('period'));
         $qb = $this->em->createQueryBuilder();
         $field = $request->query->get('field');
+        $crop = $request->query->get('crop');
+
         $qb->select("c.$field AS filterField, COUNT(c.id) AS count")
         ->from(DurbanMarket::class, 'c')
             ->where('c.date >= :monthsAgo')
             ->setParameter('monthsAgo', $date)
             ->andWhere('c.commodity LIKE :crop')
-            ->setParameter('crop', '%' . $request->query->get('crop') . '%');
+            ->setParameter('crop', '%' . $crop . '%');
 
 
         if ($field !== "grade" && !empty($request->query->get('grade'))) {
@@ -193,6 +205,16 @@ class PricesApi extends AbstractController
         if ($field !== "weight" && !empty($request->query->get('weight'))) {
             $qb->andWhere('c.weight LIKE :weight')
                 ->setParameter('weight', $request->query->get('weight'));
+        }
+
+        if ($field !== "commodity" && !empty($request->query->get('commodity'))) {
+            $qb->andWhere('c.commodity LIKE :commodity')
+                ->setParameter('commodity', $request->query->get('commodity'));
+        }
+
+        if ($field == "commodity" && $crop == "Potatoes") {
+            $qb->andWhere('c.commodity NOT LIKE :commodity')
+                ->setParameter('commodity', "%SWEET%");
         }
 
         $qb->groupBy("c.$field")
