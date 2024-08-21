@@ -20,7 +20,7 @@ class PricesController extends AbstractController
     {
         $logger->info("Starting Method: " . __METHOD__);
         if (!$request->isMethod('GET')) {
-            return new JsonResponse("Method Not Allowed", 405, array());
+            return new JsonResponse("Method Not Allowed", 405, array('Access-Control-Allow-Origin' => '*'));
         }
 
 
@@ -40,7 +40,7 @@ class PricesController extends AbstractController
         $date = new \DateTime();
         $formattedDate = $date->format('m/d/Y');
         $api->getDurbanPrices($formattedDate);
-        return new JsonResponse("Done", 200, array());
+        return new JsonResponse("Done", 200, array('Access-Control-Allow-Origin' => '*'));
     }
 
     /**
@@ -50,7 +50,7 @@ class PricesController extends AbstractController
     {
         $logger->info("Starting Method: " . __METHOD__);
         if (!$request->isMethod('GET')) {
-            return new JsonResponse("Method Not Allowed", 405, array());
+            return new JsonResponse("Method Not Allowed", 405, array('Access-Control-Allow-Origin' => '*'));
         }
 
         $crop = $request->query->get('crop');
@@ -61,13 +61,13 @@ class PricesController extends AbstractController
         
         // Validate that all parameters are present
         if (empty($crop) || !$request->query->has('grade') || !$request->query->has('weight') || empty($period)) {
-            return new JsonResponse("Bad Request: Missing required parameters", 400, array());
+            return new JsonResponse("Bad Request: Missing required parameters", 400, array('Access-Control-Allow-Origin' => '*'));
         }
 
         $response = $api->getCropPrices($request);
         $serializer = SerializerBuilder::create()->build();
         $jsonContent = $serializer->serialize($response, 'json');
-        return new JsonResponse($jsonContent , 200, array(), true);
+        return new JsonResponse($jsonContent , 200, array('Access-Control-Allow-Origin' => '*'), true);
     }
 
     /**
@@ -77,7 +77,7 @@ class PricesController extends AbstractController
     {
         $logger->info("Starting Method: " . __METHOD__);
         if (!$request->isMethod('GET')) {
-            return new JsonResponse("Method Not Allowed", 405, array());
+            return new JsonResponse("Method Not Allowed", 405, array('Access-Control-Allow-Origin' => '*'));
         }
 
         $crop = $request->query->get('crop');
@@ -86,13 +86,13 @@ class PricesController extends AbstractController
         
         // Validate that all parameters are present
         if (empty($crop) || !$request->query->has('grade') || !$request->query->has('weight') || empty($period)) {
-            return new JsonResponse("Bad Request: Missing required parameters", 400, array());
+            return new JsonResponse("Bad Request: Missing required parameters", 400, array('Access-Control-Allow-Origin' => '*'));
         }
 
         $response = $api->getFiltersForCrop($request);
         $serializer = SerializerBuilder::create()->build();
         $jsonContent = $serializer->serialize($response, 'json');
-        return new JsonResponse($jsonContent , 200, array(), true);
+        return new JsonResponse($jsonContent , 200, array('Access-Control-Allow-Origin' => '*'), true);
     }
 
     /**
@@ -102,7 +102,7 @@ class PricesController extends AbstractController
     {
         $logger->info("Starting Method: " . __METHOD__);
         if (!$request->isMethod('GET')) {
-            return new JsonResponse("Method Not Allowed", 405, array());
+            return new JsonResponse("Method Not Allowed", 405, array('Access-Control-Allow-Origin' => '*'));
         }
 
         $crop = $request->query->get('crop');
@@ -111,13 +111,13 @@ class PricesController extends AbstractController
         
         // Validate that all parameters are present
         if (empty($crop) || !$request->query->has('grade') || !$request->query->has('weight') || empty($period)) {
-            return new JsonResponse("Bad Request: Missing required parameters", 400, array());
+            return new JsonResponse("Bad Request: Missing required parameters", 400, array('Access-Control-Allow-Origin' => '*'));
         }
 
         $response = $api->getTotalsByProvince($request);
         $serializer = SerializerBuilder::create()->build();
         $jsonContent = $serializer->serialize($response, 'json');
-        return new JsonResponse($jsonContent , 200, array(), true);
+        return new JsonResponse($jsonContent , 200, array('Access-Control-Allow-Origin' => '*'), true);
     }
 
     /**
@@ -127,7 +127,7 @@ class PricesController extends AbstractController
     {
         $logger->info("Starting Method: " . __METHOD__);
         if (!$request->isMethod('GET')) {
-            return new JsonResponse("Method Not Allowed", 405, array());
+            return new JsonResponse("Method Not Allowed", 405, array('Access-Control-Allow-Origin' => '*'));
         }
 
         $crop = $request->query->get('crop');
@@ -136,12 +136,12 @@ class PricesController extends AbstractController
         
         // Validate that all parameters are present
         if (empty($crop) || empty($period)) {
-            return new JsonResponse("Bad Request: Missing required parameters", 400, array());
+            return new JsonResponse("Bad Request: Missing required parameters", 400, array('Access-Control-Allow-Origin' => '*'));
         }
 
         $response = $api->isSalesUp($request);
         $serializer = SerializerBuilder::create()->build();
         $jsonContent = $serializer->serialize($response, 'json');
-        return new JsonResponse($jsonContent , 200, array(), true);
+        return new JsonResponse($jsonContent , 200, array('Access-Control-Allow-Origin' => '*'), true);
     }
 }
