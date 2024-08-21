@@ -177,8 +177,8 @@ class PricesApi extends AbstractController
         $date = $this->getDate($request->query->get('period'));
         $qb = $this->em->createQueryBuilder();
         $field = $request->query->get('field');
-        $qb->select("c.$field")
-            ->from(DurbanMarket::class, 'c')
+        $qb->select("c.$field AS filterField, COUNT(c.id) AS count")
+        ->from(DurbanMarket::class, 'c')
             ->where('c.date >= :monthsAgo')
             ->setParameter('monthsAgo', $date)
             ->andWhere('c.commodity LIKE :crop')
@@ -196,7 +196,8 @@ class PricesApi extends AbstractController
         }
 
         $qb->groupBy("c.$field")
-            ->orderBy("c.$field", 'ASC');
+        ->orderBy('count', 'DESC')
+        ->setMaxResults(5);
 
         return $qb->getQuery()->getResult();
     }

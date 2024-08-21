@@ -71,9 +71,9 @@ class PricesController extends AbstractController
     }
 
     /**
-     * @Route("public/filters", name="getCropSizes", methods={"GET"})
+     * @Route("public/filters", name="getCropFilters", methods={"GET"})
      */
-    public function getCropSizes(Request $request, LoggerInterface $logger, PricesApi $api): Response
+    public function getCropFilters(Request $request, LoggerInterface $logger, PricesApi $api): Response
     {
         $logger->info("Starting Method: " . __METHOD__);
         if (!$request->isMethod('GET')) {
