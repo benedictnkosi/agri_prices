@@ -121,9 +121,9 @@ class PricesController extends AbstractController
     }
 
     /**
-     * @Route("public/salesup", name="isSalesUp", methods={"GET"})
+     * @Route("public/previousperiodsales", name="previousperiodsales", methods={"GET"})
      */
-    public function isSalesUp(Request $request, LoggerInterface $logger, PricesApi $api): Response
+    public function previousperiodsales(Request $request, LoggerInterface $logger, PricesApi $api): Response
     {
         $logger->info("Starting Method: " . __METHOD__);
         if (!$request->isMethod('GET')) {
@@ -139,7 +139,7 @@ class PricesController extends AbstractController
             return new JsonResponse("Bad Request: Missing required parameters", 400, array('Access-Control-Allow-Origin' => '*'));
         }
 
-        $response = $api->isSalesUp($request);
+        $response = $api->getPreviouSalesTotal($request);
         $serializer = SerializerBuilder::create()->build();
         $jsonContent = $serializer->serialize($response, 'json');
         return new JsonResponse($jsonContent , 200, array('Access-Control-Allow-Origin' => '*'), true);

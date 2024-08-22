@@ -251,7 +251,7 @@ class PricesApi extends AbstractController
         return $qb->getQuery()->getResult();
     }
 
-    public function isSalesUp(Request $request)
+    public function getPreviouSalesTotal(Request $request)
     {
 
         $monthsAgo = (int)$request->query->get('period');
@@ -259,23 +259,22 @@ class PricesApi extends AbstractController
         $currentStartDate = (new \DateTime())->modify("-$monthsAgo months");
         $previousStartDate = (new \DateTime())->modify("-" . ($monthsAgo * 2) . " months");
 
+        $date = $this->getDate($request->query->get('period'));
         $qb = $this->em->createQueryBuilder();
-        $qb->select('SUM(c.totalKgSold) as currentPeriodSales, SUM(p.totalKgSold) as previousPeriodSales')
+        $qb->select('SUM(c.salesTotal) as totalSales') // Select province and sum of salesTotal
             ->from(DurbanMarket::class, 'c')
-            ->leftJoin(DurbanMarket::class, 'p', 'WITH', 'p.date >= :previousStartDate AND p.date < :currentStartDate')
-            ->where('c.date >= :currentStartDate')
-            ->andWhere('c.commodity LIKE :commodity')
-            ->setParameter('currentStartDate', $currentStartDate->format('Y-m-d'))
-            ->setParameter('previousStartDate', $previousStartDate->format('Y-m-d'))
-            ->setParameter('commodity', '%' . $crop . '%');
+            ->where('c.date >= :previousMonthsAgo')
+            ->setParameter('previousMonthsAgo', $previousStartDate)
+            ->andWhere('c.date < :currentMonthsAgo')
+            ->setParameter('currentMonthsAgo', $currentStartDate)
+            ->andWhere('c.commodity LIKE :crop')
+            ->setParameter('crop', '%' . $request->query->get('crop') . '%');
 
         $results = $qb->getQuery()->getSingleResult();
 
 
         // Calculate the difference and determine if sales are up or down
-        $results['difference'] = $results['currentPeriodSales'] - $results['previousPeriodSales'];
-        $results['trend'] = $results['difference'] >= 0 ? 'up' : 'down';
-
+        $results['total'] = $results['totalSales'];
         return $results;
     }
 
