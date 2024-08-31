@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-use App\Entity\DurbanMarket;
+use App\Entity\Market;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -37,7 +37,7 @@ class PricesApi extends AbstractController
         $this->logger->debug("Starting Method: " . __METHOD__);
         try {
             // Make the POST request
-            $url = 'https://durbanmarkets.durban.gov.za/';
+            $url = 'https://Markets.durban.gov.za/';
 
             // Form data to be sent in the POST request
             $data = array(
@@ -94,12 +94,12 @@ class PricesApi extends AbstractController
                         // Only persist if TotalQuantitySold is not zero
                         if ($totalQuantitySold != 0) {
                             // $this->logger->debug("Cells: " . $cells->item(0)->nodeValue);
-                            $commodity = new DurbanMarket();
+                            $commodity = new Market();
                             $commodity->setCommodity(trim($cells->item(0)->nodeValue));
                             $commodity->setWeight(trim($cells->item(1)->nodeValue));
                             $commodity->setGrade(trim($cells->item(2)->nodeValue));
                             $commodity->setContainer(trim($cells->item(3)->nodeValue));
-                            $commodity->setProvince(trim($cells->item(4)->nodeValue));
+                            $commodity->setMarket(trim($cells->item(4)->nodeValue));
                             $commodity->setLowPrice(trim($cells->item(5)->nodeValue));
                             $commodity->setHighPrice(trim($cells->item(6)->nodeValue));
                             $commodity->setAveragePrice(trim($cells->item(7)->nodeValue));
@@ -126,7 +126,7 @@ class PricesApi extends AbstractController
             // Close the cURL session
             curl_close($ch);
 
-            return $this->em->getRepository(DurbanMarket::class)->findAll();
+            return $this->em->getRepository(Market::class)->findAll();
         } catch (Exception $ex) {
             $this->logger->error("Error " . print_r($ex, true));
             return array(
@@ -150,7 +150,7 @@ class PricesApi extends AbstractController
         /** @var QueryBuilder $qb */
         $qb = $this->em->createQueryBuilder();
         $qb->select('c')
-            ->from(DurbanMarket::class, 'c')
+            ->from(Market::class, 'c')
             ->where('c.date >= :monthsAgo')
             ->setParameter('monthsAgo', $date);
 
@@ -190,7 +190,7 @@ class PricesApi extends AbstractController
         $crop = $request->query->get('crop');
 
         $qb->select("c.$field AS filterField, COUNT(c.id) AS count")
-        ->from(DurbanMarket::class, 'c')
+        ->from(Market::class, 'c')
             ->where('c.date >= :monthsAgo')
             ->setParameter('monthsAgo', $date)
             ->andWhere('c.commodity LIKE :crop')
@@ -212,7 +212,7 @@ class PricesApi extends AbstractController
                 ->setParameter('commodity', $request->query->get('commodity'));
         }
 
-        if ($field == "commodity" && $crop == "Potatoes") {
+        if ($field == "commodity" && $crop == "Potato") {
             $qb->andWhere('c.commodity NOT LIKE :commodity')
                 ->setParameter('commodity', "%SWEET%");
         }
@@ -229,7 +229,7 @@ class PricesApi extends AbstractController
         $date = $this->getDate($request->query->get('period'));
         $qb = $this->em->createQueryBuilder();
         $qb->select('c.province, SUM(c.salesTotal) as totalSales') // Select province and sum of salesTotal
-            ->from(DurbanMarket::class, 'c')
+            ->from(Market::class, 'c')
             ->where('c.date >= :monthsAgo')
             ->setParameter('monthsAgo', $date)
             ->andWhere('c.commodity LIKE :crop')
@@ -262,7 +262,7 @@ class PricesApi extends AbstractController
         $date = $this->getDate($request->query->get('period'));
         $qb = $this->em->createQueryBuilder();
         $qb->select('SUM(c.salesTotal) as totalSales') // Select province and sum of salesTotal
-            ->from(DurbanMarket::class, 'c')
+            ->from(Market::class, 'c')
             ->where('c.date >= :previousMonthsAgo')
             ->setParameter('previousMonthsAgo', $previousStartDate)
             ->andWhere('c.date < :currentMonthsAgo')

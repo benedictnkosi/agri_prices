@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Employee
  *
- * @ORM\Table(name="employee")
+ * @ORM\Table(name="employee", indexes={@ORM\Index(name="employee_farm_fk_idx", columns={"farm"})})
  * @ORM\Entity
  */
 class Employee
@@ -28,13 +28,6 @@ class Employee
      * @ORM\Column(name="name", type="string", length=255, nullable=true)
      */
     private $name;
-
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="surname", type="string", length=32, nullable=true)
-     */
-    private $surname;
 
     /**
      * @var \DateTime|null
@@ -78,6 +71,23 @@ class Employee
      */
     private $status;
 
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="id_number", type="string", length=45, nullable=true)
+     */
+    private $idNumber;
+
+    /**
+     * @var \Farm
+     *
+     * @ORM\ManyToOne(targetEntity="Farm")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="farm", referencedColumnName="id")
+     * })
+     */
+    private $farm;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -91,18 +101,6 @@ class Employee
     public function setName(?string $name): static
     {
         $this->name = $name;
-
-        return $this;
-    }
-
-    public function getSurname(): ?string
-    {
-        return $this->surname;
-    }
-
-    public function setSurname(?string $surname): static
-    {
-        $this->surname = $surname;
 
         return $this;
     }
@@ -175,6 +173,30 @@ class Employee
     public function setStatus(?string $status): static
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    public function getIdNumber(): ?string
+    {
+        return $this->idNumber;
+    }
+
+    public function setIdNumber(?string $idNumber): static
+    {
+        $this->idNumber = $idNumber;
+
+        return $this;
+    }
+
+    public function getFarm(): ?Farm
+    {
+        return $this->farm;
+    }
+
+    public function setFarm(?Farm $farm): static
+    {
+        $this->farm = $farm;
 
         return $this;
     }

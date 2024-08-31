@@ -5,12 +5,12 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Fertilizer
+ * Farm
  *
- * @ORM\Table(name="fertilizer", indexes={@ORM\Index(name="fertiliser_farm_fk_idx", columns={"farm"})})
+ * @ORM\Table(name="farm")
  * @ORM\Entity
  */
-class Fertilizer
+class Farm
 {
     /**
      * @var int
@@ -29,21 +29,18 @@ class Fertilizer
     private $name;
 
     /**
-     * @var int|null
+     * @var bool|null
      *
-     * @ORM\Column(name="size", type="integer", nullable=true)
+     * @ORM\Column(name="allow_registration", type="boolean", nullable=true)
      */
-    private $size;
+    private $allowRegistration;
 
     /**
-     * @var \Farm
+     * @var string|null
      *
-     * @ORM\ManyToOne(targetEntity="Farm")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="farm", referencedColumnName="id")
-     * })
+     * @ORM\Column(name="uid", type="string", length=45, nullable=true)
      */
-    private $farm;
+    private $uid;
 
     public function getId(): ?int
     {
@@ -62,26 +59,26 @@ class Fertilizer
         return $this;
     }
 
-    public function getSize(): ?int
+    public function isAllowRegistration(): ?bool
     {
-        return $this->size;
+        return $this->allowRegistration;
     }
 
-    public function setSize(?int $size): static
+    public function setAllowRegistration(?bool $allowRegistration): static
     {
-        $this->size = $size;
+        $this->allowRegistration = $allowRegistration;
 
         return $this;
     }
 
-    public function getFarm(): ?Farm
+    public function getUid(): ?string
     {
-        return $this->farm;
+        return $this->uid;
     }
 
-    public function setFarm(?Farm $farm): static
+    public function setUid(?string $uid): static
     {
-        $this->farm = $farm;
+        $this->uid = $uid;
 
         return $this;
     }

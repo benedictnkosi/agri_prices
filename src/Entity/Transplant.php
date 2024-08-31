@@ -6,12 +6,12 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Harvest
+ * Transplant
  *
- * @ORM\Table(name="harvest", indexes={@ORM\Index(name="harvest_crop_fk_idx", columns={"crop"})})
+ * @ORM\Table(name="transplant", indexes={@ORM\Index(name="transplant_date_fk_idx", columns={"batch"})})
  * @ORM\Entity
  */
-class Harvest
+class Transplant
 {
     /**
      * @var int
@@ -32,19 +32,19 @@ class Harvest
     /**
      * @var \DateTime|null
      *
-     * @ORM\Column(name="date", type="datetime", nullable=true)
+     * @ORM\Column(name="transplant_date", type="date", nullable=true)
      */
-    private $date;
+    private $transplantDate;
 
     /**
-     * @var \Crop
+     * @var \Batch
      *
-     * @ORM\ManyToOne(targetEntity="Crop")
+     * @ORM\ManyToOne(targetEntity="Batch")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="crop", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="batch", referencedColumnName="id")
      * })
      */
-    private $crop;
+    private $batch;
 
     public function getId(): ?int
     {
@@ -63,26 +63,26 @@ class Harvest
         return $this;
     }
 
-    public function getDate(): ?\DateTimeInterface
+    public function getTransplantDate(): ?\DateTimeInterface
     {
-        return $this->date;
+        return $this->transplantDate;
     }
 
-    public function setDate(?\DateTimeInterface $date): static
+    public function setTransplantDate(?\DateTimeInterface $transplantDate): static
     {
-        $this->date = $date;
+        $this->transplantDate = $transplantDate;
 
         return $this;
     }
 
-    public function getCrop(): ?Crop
+    public function getBatch(): ?Batch
     {
-        return $this->crop;
+        return $this->batch;
     }
 
-    public function setCrop(?Crop $crop): static
+    public function setBatch(?Batch $batch): static
     {
-        $this->crop = $crop;
+        $this->batch = $batch;
 
         return $this;
     }

@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * PesticideSpraying
  *
- * @ORM\Table(name="pesticide_spraying", indexes={@ORM\Index(name="fertilizer_stock_fertilizer_idx", columns={"pesticide"})})
+ * @ORM\Table(name="pesticide_spraying", indexes={@ORM\Index(name="fertilizer_stock_fertilizer0_idx", columns={"pesticide"}), @ORM\Index(name="persticide_spraying_batch_idx", columns={"batch"})})
  * @ORM\Entity
  */
 class PesticideSpraying
@@ -30,9 +30,19 @@ class PesticideSpraying
     private $date;
 
     /**
-     * @var \Fertilizer
+     * @var \Batch
      *
-     * @ORM\ManyToOne(targetEntity="Fertilizer")
+     * @ORM\ManyToOne(targetEntity="Batch")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="batch", referencedColumnName="id")
+     * })
+     */
+    private $batch;
+
+    /**
+     * @var \Pesticide
+     *
+     * @ORM\ManyToOne(targetEntity="Pesticide")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="pesticide", referencedColumnName="id")
      * })
@@ -56,12 +66,24 @@ class PesticideSpraying
         return $this;
     }
 
-    public function getPesticide(): ?Fertilizer
+    public function getBatch(): ?Batch
+    {
+        return $this->batch;
+    }
+
+    public function setBatch(?Batch $batch): static
+    {
+        $this->batch = $batch;
+
+        return $this;
+    }
+
+    public function getPesticide(): ?Pesticide
     {
         return $this->pesticide;
     }
 
-    public function setPesticide(?Fertilizer $pesticide): static
+    public function setPesticide(?Pesticide $pesticide): static
     {
         $this->pesticide = $pesticide;
 

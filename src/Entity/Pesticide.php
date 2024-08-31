@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Pesticide
  *
- * @ORM\Table(name="pesticide")
+ * @ORM\Table(name="pesticide", indexes={@ORM\Index(name="pesticide_farm_fk_idx", columns={"farm"})})
  * @ORM\Entity
  */
 class Pesticide
@@ -35,6 +35,16 @@ class Pesticide
      */
     private $size;
 
+    /**
+     * @var \Farm
+     *
+     * @ORM\ManyToOne(targetEntity="Farm")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="farm", referencedColumnName="id")
+     * })
+     */
+    private $farm;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -60,6 +70,18 @@ class Pesticide
     public function setSize(?int $size): static
     {
         $this->size = $size;
+
+        return $this;
+    }
+
+    public function getFarm(): ?Farm
+    {
+        return $this->farm;
+    }
+
+    public function setFarm(?Farm $farm): static
+    {
+        $this->farm = $farm;
 
         return $this;
     }

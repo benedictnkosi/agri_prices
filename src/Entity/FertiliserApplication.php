@@ -6,12 +6,12 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Harvest
+ * FertiliserApplication
  *
- * @ORM\Table(name="harvest", indexes={@ORM\Index(name="harvest_crop_fk_idx", columns={"crop"})})
+ * @ORM\Table(name="fertiliser_application", indexes={@ORM\Index(name="fertiliser_app_fertiliser_idx", columns={"fertiliser"}), @ORM\Index(name="fertiliser_app_batch_idx", columns={"batch"})})
  * @ORM\Entity
  */
-class Harvest
+class FertiliserApplication
 {
     /**
      * @var int
@@ -32,19 +32,29 @@ class Harvest
     /**
      * @var \DateTime|null
      *
-     * @ORM\Column(name="date", type="datetime", nullable=true)
+     * @ORM\Column(name="date", type="date", nullable=true)
      */
     private $date;
 
     /**
-     * @var \Crop
+     * @var \Batch
      *
-     * @ORM\ManyToOne(targetEntity="Crop")
+     * @ORM\ManyToOne(targetEntity="Batch")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="crop", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="batch", referencedColumnName="id")
      * })
      */
-    private $crop;
+    private $batch;
+
+    /**
+     * @var \Fertilizer
+     *
+     * @ORM\ManyToOne(targetEntity="Fertilizer")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="fertiliser", referencedColumnName="id")
+     * })
+     */
+    private $fertiliser;
 
     public function getId(): ?int
     {
@@ -75,14 +85,26 @@ class Harvest
         return $this;
     }
 
-    public function getCrop(): ?Crop
+    public function getBatch(): ?Batch
     {
-        return $this->crop;
+        return $this->batch;
     }
 
-    public function setCrop(?Crop $crop): static
+    public function setBatch(?Batch $batch): static
     {
-        $this->crop = $crop;
+        $this->batch = $batch;
+
+        return $this;
+    }
+
+    public function getFertiliser(): ?Fertilizer
+    {
+        return $this->fertiliser;
+    }
+
+    public function setFertiliser(?Fertilizer $fertiliser): static
+    {
+        $this->fertiliser = $fertiliser;
 
         return $this;
     }
