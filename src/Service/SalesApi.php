@@ -142,7 +142,7 @@ class SalesApi extends AbstractController
                 ->leftJoin('App\Entity\Payment', 'p', Join::WITH, 's.id = p.sale')
                 ->where('s.farm = :farm')
                 ->groupBy('s.id', 'c.name', 'cust.name')  // Group by crop and customer name to avoid aggregation issues
-                ->setParameter('farm', 4)
+                ->setParameter('farm', $farm)
                 ->orderBy('s.date', 'DESC')
                 ->getQuery();
 
