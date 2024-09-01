@@ -32,9 +32,16 @@ class Payment
     /**
      * @var \DateTime|null
      *
-     * @ORM\Column(name="date", type="date", nullable=true)
+     * @ORM\Column(name="date", type="datetime", nullable=true)
      */
     private $date;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="paymentMethod", type="string", length=45, nullable=true)
+     */
+    private $paymentmethod;
 
     /**
      * @var \Sales
@@ -71,6 +78,18 @@ class Payment
     public function setDate(?\DateTimeInterface $date): static
     {
         $this->date = $date;
+
+        return $this;
+    }
+
+    public function getPaymentmethod(): ?string
+    {
+        return $this->paymentmethod;
+    }
+
+    public function setPaymentmethod(?string $paymentmethod): static
+    {
+        $this->paymentmethod = $paymentmethod;
 
         return $this;
     }

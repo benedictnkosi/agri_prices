@@ -166,6 +166,7 @@ class SalesApi extends AbstractController
 
             $requestBody = json_decode($request->getContent(), true);
             $amount = $requestBody['amount'];
+            $paymentMethod = $requestBody['paymentMethod'];
             $date = new \DateTimeImmutable($requestBody['date']);
             $farmUid = $requestBody['farm_uid'];
             $saleId = $requestBody['sale_id'];
@@ -197,6 +198,7 @@ class SalesApi extends AbstractController
             $payment->setSale($sale);
             $payment->setAmount($amount);
             $payment->setDate($date);
+            $payment->setPaymentMethod($paymentMethod);
 
             $this->em->persist($payment);
             $this->em->flush();
@@ -227,6 +229,7 @@ class SalesApi extends AbstractController
                     'message' => 'Sale id is required'
                 );
             }
+            
             $sale = $this->em->getRepository(Farm::class)->findOneBy(['id' => $saleId]);
             if (!$sale) {
                 return array(
