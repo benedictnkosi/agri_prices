@@ -11,8 +11,6 @@ use App\Entity\Farm;
 use App\Entity\CashWithdrawal;
 use App\Entity\Payment;
 
-
-
 class CashApi extends AbstractController
 {
 
