@@ -5,12 +5,12 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Fertilizer
+ * Customer
  *
- * @ORM\Table(name="fertilizer", indexes={@ORM\Index(name="fertiliser_farm_fk_idx", columns={"farm"})})
+ * @ORM\Table(name="customer", indexes={@ORM\Index(name="customer_farm_fk_idx", columns={"farm"})})
  * @ORM\Entity
  */
-class Fertilizer
+class Customer
 {
     /**
      * @var int
@@ -29,11 +29,18 @@ class Fertilizer
     private $name;
 
     /**
-     * @var int|null
+     * @var string|null
      *
-     * @ORM\Column(name="size", type="integer", nullable=true)
+     * @ORM\Column(name="contact_person", type="string", length=45, nullable=true)
      */
-    private $size;
+    private $contactPerson;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="contact_number", type="string", length=45, nullable=true)
+     */
+    private $contactNumber;
 
     /**
      * @var \Farm
@@ -62,14 +69,26 @@ class Fertilizer
         return $this;
     }
 
-    public function getSize(): ?int
+    public function getContactPerson(): ?string
     {
-        return $this->size;
+        return $this->contactPerson;
     }
 
-    public function setSize(?int $size): static
+    public function setContactPerson(?string $contactPerson): static
     {
-        $this->size = $size;
+        $this->contactPerson = $contactPerson;
+
+        return $this;
+    }
+
+    public function getContactNumber(): ?string
+    {
+        return $this->contactNumber;
+    }
+
+    public function setContactNumber(?string $contactNumber): static
+    {
+        $this->contactNumber = $contactNumber;
 
         return $this;
     }

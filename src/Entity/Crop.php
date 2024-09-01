@@ -5,12 +5,12 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Fertilizer
+ * Crop
  *
- * @ORM\Table(name="fertilizer", indexes={@ORM\Index(name="fertiliser_farm_fk_idx", columns={"farm"})})
+ * @ORM\Table(name="crop", indexes={@ORM\Index(name="crop_farm_fk_idx", columns={"farm"})})
  * @ORM\Entity
  */
-class Fertilizer
+class Crop
 {
     /**
      * @var int
@@ -27,13 +27,6 @@ class Fertilizer
      * @ORM\Column(name="name", type="string", length=45, nullable=true)
      */
     private $name;
-
-    /**
-     * @var int|null
-     *
-     * @ORM\Column(name="size", type="integer", nullable=true)
-     */
-    private $size;
 
     /**
      * @var \Farm
@@ -58,18 +51,6 @@ class Fertilizer
     public function setName(?string $name): static
     {
         $this->name = $name;
-
-        return $this;
-    }
-
-    public function getSize(): ?int
-    {
-        return $this->size;
-    }
-
-    public function setSize(?int $size): static
-    {
-        $this->size = $size;
 
         return $this;
     }

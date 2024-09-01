@@ -6,12 +6,12 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * DurbanMarket
+ * Market
  *
- * @ORM\Table(name="durban_market")
+ * @ORM\Table(name="market")
  * @ORM\Entity
  */
-class DurbanMarket
+class Market
 {
     /**
      * @var int
@@ -53,9 +53,9 @@ class DurbanMarket
     /**
      * @var string|null
      *
-     * @ORM\Column(name="province", type="string", length=45, nullable=true)
+     * @ORM\Column(name="market", type="string", length=45, nullable=true)
      */
-    private $province;
+    private $market;
 
     /**
      * @var string|null
@@ -166,14 +166,14 @@ class DurbanMarket
         return $this;
     }
 
-    public function getProvince(): ?string
+    public function getMarket(): ?string
     {
-        return $this->province;
+        return $this->market;
     }
 
-    public function setProvince(?string $province): static
+    public function setMarket(?string $market): static
     {
-        $this->province = $province;
+        $this->market = $market;
 
         return $this;
     }

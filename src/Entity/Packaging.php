@@ -5,12 +5,12 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Fertilizer
+ * Packaging
  *
- * @ORM\Table(name="fertilizer", indexes={@ORM\Index(name="fertiliser_farm_fk_idx", columns={"farm"})})
+ * @ORM\Table(name="packaging", indexes={@ORM\Index(name="packaging_crop_idx", columns={"crop"})})
  * @ORM\Entity
  */
-class Fertilizer
+class Packaging
 {
     /**
      * @var int
@@ -29,21 +29,21 @@ class Fertilizer
     private $name;
 
     /**
-     * @var int|null
+     * @var float|null
      *
-     * @ORM\Column(name="size", type="integer", nullable=true)
+     * @ORM\Column(name="weight", type="float", precision=10, scale=0, nullable=true)
      */
-    private $size;
+    private $weight;
 
     /**
-     * @var \Farm
+     * @var \Crop
      *
-     * @ORM\ManyToOne(targetEntity="Farm")
+     * @ORM\ManyToOne(targetEntity="Crop")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="farm", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="crop", referencedColumnName="id")
      * })
      */
-    private $farm;
+    private $crop;
 
     public function getId(): ?int
     {
@@ -62,26 +62,26 @@ class Fertilizer
         return $this;
     }
 
-    public function getSize(): ?int
+    public function getWeight(): ?float
     {
-        return $this->size;
+        return $this->weight;
     }
 
-    public function setSize(?int $size): static
+    public function setWeight(?float $weight): static
     {
-        $this->size = $size;
+        $this->weight = $weight;
 
         return $this;
     }
 
-    public function getFarm(): ?Farm
+    public function getCrop(): ?Crop
     {
-        return $this->farm;
+        return $this->crop;
     }
 
-    public function setFarm(?Farm $farm): static
+    public function setCrop(?Crop $crop): static
     {
-        $this->farm = $farm;
+        $this->crop = $crop;
 
         return $this;
     }

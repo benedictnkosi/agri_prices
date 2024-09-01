@@ -6,12 +6,12 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Seedling
+ * Transplant
  *
- * @ORM\Table(name="seedling", indexes={@ORM\Index(name="seedling_seed_idx", columns={"seed"})})
+ * @ORM\Table(name="transplant", indexes={@ORM\Index(name="transplant_date_fk_idx", columns={"seedling"})})
  * @ORM\Entity
  */
-class Seedling
+class Transplant
 {
     /**
      * @var int
@@ -32,33 +32,26 @@ class Seedling
     /**
      * @var \DateTime|null
      *
-     * @ORM\Column(name="seedling_date", type="datetime", nullable=true)
-     */
-    private $seedlingDate;
-
-    /**
-     * @var \DateTime|null
-     *
      * @ORM\Column(name="transplant_date", type="date", nullable=true)
      */
     private $transplantDate;
 
     /**
-     * @var bool|null
+     * @var \DateTime|null
      *
-     * @ORM\Column(name="transplanted", type="boolean", nullable=true)
+     * @ORM\Column(name="harvest_date", type="date", nullable=true)
      */
-    private $transplanted = '0';
+    private $harvestDate;
 
     /**
-     * @var \Seed
+     * @var \Seedling
      *
-     * @ORM\ManyToOne(targetEntity="Seed")
+     * @ORM\ManyToOne(targetEntity="Seedling")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="seed", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="seedling", referencedColumnName="id")
      * })
      */
-    private $seed;
+    private $seedling;
 
     public function getId(): ?int
     {
@@ -77,18 +70,6 @@ class Seedling
         return $this;
     }
 
-    public function getSeedlingDate(): ?\DateTimeInterface
-    {
-        return $this->seedlingDate;
-    }
-
-    public function setSeedlingDate(?\DateTimeInterface $seedlingDate): static
-    {
-        $this->seedlingDate = $seedlingDate;
-
-        return $this;
-    }
-
     public function getTransplantDate(): ?\DateTimeInterface
     {
         return $this->transplantDate;
@@ -101,26 +82,26 @@ class Seedling
         return $this;
     }
 
-    public function isTransplanted(): ?bool
+    public function getHarvestDate(): ?\DateTimeInterface
     {
-        return $this->transplanted;
+        return $this->harvestDate;
     }
 
-    public function setTransplanted(?bool $transplanted): static
+    public function setHarvestDate(?\DateTimeInterface $harvestDate): static
     {
-        $this->transplanted = $transplanted;
+        $this->harvestDate = $harvestDate;
 
         return $this;
     }
 
-    public function getSeed(): ?Seed
+    public function getSeedling(): ?Seedling
     {
-        return $this->seed;
+        return $this->seedling;
     }
 
-    public function setSeed(?Seed $seed): static
+    public function setSeedling(?Seedling $seedling): static
     {
-        $this->seed = $seed;
+        $this->seedling = $seedling;
 
         return $this;
     }

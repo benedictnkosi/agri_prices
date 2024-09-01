@@ -2,12 +2,13 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * User
  *
- * @ORM\Table(name="user")
+ * @ORM\Table(name="user", indexes={@ORM\Index(name="user_farm_fk_idx", columns={"farm"})})
  * @ORM\Entity
  */
 class User
@@ -27,13 +28,6 @@ class User
      * @ORM\Column(name="email", type="string", length=255, nullable=true)
      */
     private $email;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="password", type="string", length=255, nullable=false)
-     */
-    private $password;
 
     /**
      * @var string|null
@@ -56,6 +50,30 @@ class User
      */
     private $status;
 
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="googleUID", type="string", length=45, nullable=true)
+     */
+    private $googleuid;
+
+    /**
+     * @var \DateTime|null
+     *
+     * @ORM\Column(name="createdAt", type="date", nullable=true)
+     */
+    private $createdat;
+
+    /**
+     * @var \Farm
+     *
+     * @ORM\ManyToOne(targetEntity="Farm")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="farm", referencedColumnName="id")
+     * })
+     */
+    private $farm;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -69,18 +87,6 @@ class User
     public function setEmail(?string $email): static
     {
         $this->email = $email;
-
-        return $this;
-    }
-
-    public function getPassword(): ?string
-    {
-        return $this->password;
-    }
-
-    public function setPassword(string $password): static
-    {
-        $this->password = $password;
 
         return $this;
     }
@@ -117,6 +123,42 @@ class User
     public function setStatus(?string $status): static
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    public function getGoogleuid(): ?string
+    {
+        return $this->googleuid;
+    }
+
+    public function setGoogleuid(?string $googleuid): static
+    {
+        $this->googleuid = $googleuid;
+
+        return $this;
+    }
+
+    public function getCreatedat(): ?\DateTimeInterface
+    {
+        return $this->createdat;
+    }
+
+    public function setCreatedat(?\DateTimeInterface $createdat): static
+    {
+        $this->createdat = $createdat;
+
+        return $this;
+    }
+
+    public function getFarm(): ?Farm
+    {
+        return $this->farm;
+    }
+
+    public function setFarm(?Farm $farm): static
+    {
+        $this->farm = $farm;
 
         return $this;
     }

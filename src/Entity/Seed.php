@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Seed
  *
- * @ORM\Table(name="seed")
+ * @ORM\Table(name="seed", indexes={@ORM\Index(name="seed_crop_fk_idx", columns={"crop"})})
  * @ORM\Entity
  */
 class Seed
@@ -28,6 +28,23 @@ class Seed
      */
     private $name;
 
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="manufacture", type="string", length=45, nullable=true)
+     */
+    private $manufacture;
+
+    /**
+     * @var \Crop
+     *
+     * @ORM\ManyToOne(targetEntity="Crop")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="crop", referencedColumnName="id")
+     * })
+     */
+    private $crop;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -41,6 +58,30 @@ class Seed
     public function setName(?string $name): static
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function getManufacture(): ?string
+    {
+        return $this->manufacture;
+    }
+
+    public function setManufacture(?string $manufacture): static
+    {
+        $this->manufacture = $manufacture;
+
+        return $this;
+    }
+
+    public function getCrop(): ?Crop
+    {
+        return $this->crop;
+    }
+
+    public function setCrop(?Crop $crop): static
+    {
+        $this->crop = $crop;
 
         return $this;
     }

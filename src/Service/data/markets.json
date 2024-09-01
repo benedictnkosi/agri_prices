@@ -1,0 +1,20 @@
+[
+  {"id": "BLO", "name": "Bloemfontein (Mangaung) Fresh Produce Market (BLO)"},
+  {"id": "CAP", "name": "Cape Town Fresh Produce Market (CAP)"},
+  {"id": "DUR", "name": "Durban Fresh Produce Market (DUR)"},
+  {"id": "EAS", "name": "East London Fresh Produce Market (EAS)"},
+  {"id": "GEO", "name": "George Fresh Produce Market (GEO)"},
+  {"id": "JOH", "name": "Johannesburg Fresh Produce Market (JOH)"},
+  {"id": "KIM", "name": "Kimberley (Sol Plaatje) Fresh Produce Market (KIM)"},
+  {"id": "KLE", "name": "Klerksdorp Fresh Produce Market (KLE)"},
+  {"id": "NEA", "name": "Mpumalanga Fresh Produce Market (NEA)"},
+  {"id": "UMT", "name": "Mthatha (Kei) Fresh Produce Market (UMT)"},
+  {"id": "NEL", "name": "Nelspruit Fresh Produce Market (NEL)"},
+  {"id": "PIE", "name": "Pietermaritzburg Fresh Produce Market (PIE)"},
+  {"id": "POR", "name": "Port Elizabeth Fresh Produce Market (POR)"},
+  {"id": "SPR", "name": "Springs Fresh Produce Market (SPR)"},
+  {"id": "PRE", "name": "Tshwane Fresh Produce Market (PRE)"},
+  {"id": "VER", "name": "Vereeniging Fresh Produce Market (VER)"},
+  {"id": "WEL", "name": "Welkom (Matjhabeng) Fresh Produce Market (WEL)"},
+  {"id": "WIT", "name": "Witbank Fresh Produce Market (WIT)"}
+]

@@ -6,12 +6,12 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Harvest
+ * Payment
  *
- * @ORM\Table(name="harvest", indexes={@ORM\Index(name="harvest_crop_fk_idx", columns={"crop"})})
+ * @ORM\Table(name="payment", indexes={@ORM\Index(name="payment_sale_idx", columns={"sale"})})
  * @ORM\Entity
  */
-class Harvest
+class Payment
 {
     /**
      * @var int
@@ -23,42 +23,42 @@ class Harvest
     private $id;
 
     /**
-     * @var int|null
+     * @var float|null
      *
-     * @ORM\Column(name="quantity", type="integer", nullable=true)
+     * @ORM\Column(name="amount", type="float", precision=10, scale=0, nullable=true)
      */
-    private $quantity;
+    private $amount;
 
     /**
      * @var \DateTime|null
      *
-     * @ORM\Column(name="date", type="datetime", nullable=true)
+     * @ORM\Column(name="date", type="date", nullable=true)
      */
     private $date;
 
     /**
-     * @var \Crop
+     * @var \Sales
      *
-     * @ORM\ManyToOne(targetEntity="Crop")
+     * @ORM\ManyToOne(targetEntity="Sales")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="crop", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="sale", referencedColumnName="id")
      * })
      */
-    private $crop;
+    private $sale;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getQuantity(): ?int
+    public function getAmount(): ?float
     {
-        return $this->quantity;
+        return $this->amount;
     }
 
-    public function setQuantity(?int $quantity): static
+    public function setAmount(?float $amount): static
     {
-        $this->quantity = $quantity;
+        $this->amount = $amount;
 
         return $this;
     }
@@ -75,14 +75,14 @@ class Harvest
         return $this;
     }
 
-    public function getCrop(): ?Crop
+    public function getSale(): ?Sales
     {
-        return $this->crop;
+        return $this->sale;
     }
 
-    public function setCrop(?Crop $crop): static
+    public function setSale(?Sales $sale): static
     {
-        $this->crop = $crop;
+        $this->sale = $sale;
 
         return $this;
     }
