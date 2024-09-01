@@ -127,7 +127,7 @@ class CashApi extends AbstractController
                 $transactions[] = [
                     'date' => $payment->getDate(),
                     'amount' => $payment->getAmount(),
-                    'customer_name' => $payment->getSale()->getCustomer()->getName()
+                    'comment' => 'Payment: ' . $payment->getSale()->getCustomer()->getName()
                 ];
             }
 
