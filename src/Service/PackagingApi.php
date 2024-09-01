@@ -7,9 +7,10 @@ use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\Farm;
-use App\Entity\Customer;
+use App\Entity\Packaging;
+use App\Entity\Crop;
 
-class CustomerApi extends AbstractController
+class PackagingApi extends AbstractController
 {
 
     private $em;
@@ -21,22 +22,23 @@ class CustomerApi extends AbstractController
         $this->logger = $logger;
     }
 
-    public function createCustomer(Request $request): array
+    public function createPackaging(Request $request): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         try {
             $requestBody = json_decode($request->getContent(), true);
             $name = $requestBody['name'];
-            $contactPerson = $requestBody['contact_person'];
-            $phoneNumber = $requestBody['phone_number'];
+            $weight = $requestBody['weight'];
             $farmUid = $requestBody['farm_uid'];
+            $cropId = $requestBody['crop_id'];
 
-            if (empty($name) || empty($contactPerson) || empty($phoneNumber) || empty($farmUid)) {
+            if (empty($name) || empty($weight) || empty($farmUid) || empty($cropId)) {
                 return array(
                     'status' => 'NOK',
-                    'message' => 'Name, contact_person and phone_number values are required'
+                    'message' => 'All values are required'
                 );
             }
+        
 
             $farm = $this->em->getRepository(Farm::class)->findOneBy(['uid' => $farmUid]);
             if (!$farm) {
@@ -46,48 +48,48 @@ class CustomerApi extends AbstractController
                 );
             }
 
-            $Customer = $this->em->getRepository(Customer::class)->findOneBy(['name' => $name, 'farm' => $farm]);
-            if ($Customer) {
+            $crop = $this->em->getRepository(Crop::class)->findOneBy(['id' => $cropId, 'farm' => $farm]);
+            if (!$crop) {
                 return array(
                     'status' => 'NOK',
-                    'message' => 'Customer with the same name already exists'
+                    'message' => 'Crop not found'
                 );
             }
 
-            $customer = new Customer();
-            $customer->setName($name);
-            $customer->setContactPerson($contactPerson);
-            $customer->setContactNumber($phoneNumber);
-            $customer->setFarm($farm);
+            $packaging = new Packaging();
+            $packaging->setName($name);
+            $packaging->setWEight($weight);
+            $packaging->setCrop($crop);
 
-            $this->em->persist($customer);
+            $this->em->persist($packaging);
             $this->em->flush();
 
             return array(
                 'status' => 'OK',
-                'message' => 'Customer created successfully',
-                'id' => $customer->getId()
+                'message' => 'Packaging created successfully',
+                'id' => $packaging->getId()
             );
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
             return array(
                 'status' => 'NOK',
-                'message' => 'Error creating customer'
+                'message' => 'Error creating packaging'
             );
         }
     }
 
-    public function getCustomers(Request $request): array
+    public function getPackaging(Request $request): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         try {
         
             $farmUid = $request->query->get('farm_uid');
+            $cropId = $request->query->get('crop_id');
 
             if (empty($farmUid)) {
                 return array(
                     'status' => 'NOK',
-                    'message' => 'Farm uid values are required'
+                    'message' => 'Farm uid and crop id values are required'
                 );
             }
 
@@ -99,13 +101,33 @@ class CustomerApi extends AbstractController
                 );
             }
 
-            $customers = $this->em->getRepository(Customer::class)->findBy(['farm' => $farm]);
-            return $customers;
+            if($cropId){
+                $crop = $this->em->getRepository(Crop::class)->findOneBy(['id' => $cropId, 'farm' => $farm]);
+                if (!$crop) {
+                    return array(
+                        'status' => 'NOK',
+                        'message' => 'Crop not found'
+                    );
+                }
+                return $this->em->getRepository(Packaging::class)->findBy(['crop' => $crop]);
+            }else{
+                $queryBuilder = $this->em->createQueryBuilder();
+
+                $query = $queryBuilder
+                    ->select('p')
+                    ->from('App\Entity\Packaging', 'p')
+                    ->innerJoin('p.crop', 'c')
+                    ->where('c.farm = :farm')
+                    ->setParameter('farm', $farm)
+                    ->getQuery();
+                    return $query->getResult();
+            }
+            
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
             return array(
                 'status' => 'NOK',
-                'message' => 'Error getting customers'
+                'message' => 'Error getting packaging'
             );
         }
     }

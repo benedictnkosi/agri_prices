@@ -30,9 +30,9 @@ class PesticideSpraying
     private $date;
 
     /**
-     * @var \Batch
+     * @var \Seedling
      *
-     * @ORM\ManyToOne(targetEntity="Batch")
+     * @ORM\ManyToOne(targetEntity="Seedling")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="batch", referencedColumnName="id")
      * })
@@ -66,12 +66,12 @@ class PesticideSpraying
         return $this;
     }
 
-    public function getBatch(): ?Batch
+    public function getBatch(): ?Seedling
     {
         return $this->batch;
     }
 
-    public function setBatch(?Batch $batch): static
+    public function setBatch(?Seedling $batch): static
     {
         $this->batch = $batch;
 

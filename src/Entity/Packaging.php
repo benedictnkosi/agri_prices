@@ -5,12 +5,12 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Seed
+ * Packaging
  *
- * @ORM\Table(name="seed", indexes={@ORM\Index(name="seed_crop_fk_idx", columns={"crop"})})
+ * @ORM\Table(name="packaging", indexes={@ORM\Index(name="packaging_crop_idx", columns={"crop"})})
  * @ORM\Entity
  */
-class Seed
+class Packaging
 {
     /**
      * @var int
@@ -29,11 +29,11 @@ class Seed
     private $name;
 
     /**
-     * @var string|null
+     * @var float|null
      *
-     * @ORM\Column(name="manufacture", type="string", length=45, nullable=true)
+     * @ORM\Column(name="weight", type="float", precision=10, scale=0, nullable=true)
      */
-    private $manufacture;
+    private $weight;
 
     /**
      * @var \Crop
@@ -62,14 +62,14 @@ class Seed
         return $this;
     }
 
-    public function getManufacture(): ?string
+    public function getWeight(): ?float
     {
-        return $this->manufacture;
+        return $this->weight;
     }
 
-    public function setManufacture(?string $manufacture): static
+    public function setWeight(?float $weight): static
     {
-        $this->manufacture = $manufacture;
+        $this->weight = $weight;
 
         return $this;
     }

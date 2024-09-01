@@ -25,11 +25,12 @@ class FarmApi extends AbstractController
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         try {
-            $joiningCode = bin2hex(random_bytes(16));
-            $name = $request->query->get('name');
-            $allowRegistration = $request->query->get('allow_registration');
+            $requestBody = json_decode($request->getContent(), true);
+            $uid = bin2hex(random_bytes(16));
+            $name = $requestBody['name'];
+            $googleUID = $requestBody['google_uid'];
 
-            if (empty($name) || empty($allowRegistration)) {
+            if (empty($name) || empty($googleUID)) {
                 return array(
                     'status' => 'NOK',
                     'message' => 'Name and allow_registration values are required'
@@ -46,16 +47,22 @@ class FarmApi extends AbstractController
 
             $farm = new Farm();
             $farm->setName($name);
-            $farm->setAllowRegistration($allowRegistration);
-            $farm->setJoiningCode($joiningCode);
+            $farm->setAllowRegistration(1);
+            $farm->setUid($uid);
 
             $this->em->persist($farm);
+            $this->em->flush();
+
+            //join created farm
+            $user = $this->em->getRepository(User::class)->findOneBy(['googleuid' => $googleUID]);
+            $user->setFarm($farm);
+            $this->em->persist($user);
             $this->em->flush();
 
             return array(
                 'status' => 'OK',
                 'message' => 'Farm created successfully',
-                'uid' => $joiningCode
+                'farm_uid' => $uid
             );
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
@@ -70,10 +77,11 @@ class FarmApi extends AbstractController
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         try {
-            $joiningCode = $request->query->get('uid');
-            $googleUID = $request->query->get('google_uid');
+            $requestBody = json_decode($request->getContent(), true);
+            $farmUid = $requestBody['farm_uid'];
+            $googleUID = $requestBody['google_uid'];
 
-            if (empty($joiningCode) || empty($googleUID)) {
+            if (empty($farmUid) || empty($googleUID)) {
                 return array(
                     'status' => 'NOK',
                     'message' => 'joining_code and google_uid values are required'
@@ -88,7 +96,7 @@ class FarmApi extends AbstractController
                 );
             }
 
-            $farm = $this->em->getRepository(Farm::class)->findOneBy(['joiningCode' => $joiningCode]);
+            $farm = $this->em->getRepository(Farm::class)->findOneBy(['uid' => $farmUid]);
             if (!$farm) {
                 return array(
                     'status' => 'NOK',

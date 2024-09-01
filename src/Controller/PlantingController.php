@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Service\SalesApi;
+use App\Service\PlantingApi;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -11,49 +11,49 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use JMS\Serializer\SerializerBuilder;
 
-class SalesController extends AbstractController
+class PlantingController extends AbstractController
 {
     /**
-     * @Route("public/sale/record", name="recordSale", methods={"POST"})
+     * @Route("public/seedling/create", name="createSeedling", methods={"POST"})
      */
-    public function recordSale(Request $request, LoggerInterface $logger, SalesApi $api): Response
+    public function createSeedling(Request $request, LoggerInterface $logger, PlantingApi $api): Response
     {
         $logger->info("Starting Method: " . __METHOD__);
-        $response = $api->recordSale($request);
+        $response = $api->createSeedling($request);
         return new JsonResponse($response, 200, array('Access-Control-Allow-Origin' => '*'));
     }
 
     /**
-     * @Route("public/sales/get", name="getSales", methods={"GET"})
+     * @Route("public/seedlings/get", name="getSeedlings", methods={"GET"})
      */
-    public function getSales(Request $request, LoggerInterface $logger, SalesApi $api): Response
+    public function getSeedlings(Request $request, LoggerInterface $logger, PlantingApi $api): Response
     {
         $logger->info("Starting Method: " . __METHOD__);
-        $response = $api->getSales($request);
+        $response = $api->getSeedlings($request);
         $serializer = SerializerBuilder::create()->build();
         $jsonContent = $serializer->serialize($response, 'json');
         return new JsonResponse($jsonContent , 200, array('Access-Control-Allow-Origin' => '*'), true);
     }
 
     /**
-     * @Route("public/payment/add", name="addPayment", methods={"POST"})
+     * @Route("public/transplant/create", name="createTransplant", methods={"POST"})
      */
-    public function addPayment(Request $request, LoggerInterface $logger, SalesApi $api): Response
+    public function createTransplant(Request $request, LoggerInterface $logger, PlantingApi $api): Response
     {
         $logger->info("Starting Method: " . __METHOD__);
-        $response = $api->addPayment($request);
+        $response = $api->createTransplant($request);
         return new JsonResponse($response, 200, array('Access-Control-Allow-Origin' => '*'));
     }
+
     /**
-     * @Route("public/payments/get", name="getPayments", methods={"GET"})
+     * @Route("public/transplants/get", name="getTransplants", methods={"GET"})
      */
-    public function getPayments(Request $request, LoggerInterface $logger, SalesApi $api): Response
+    public function getTransplants(Request $request, LoggerInterface $logger, PlantingApi $api): Response
     {
         $logger->info("Starting Method: " . __METHOD__);
-        $response = $api->getPayments($request);
+        $response = $api->getTransplants($request);
         $serializer = SerializerBuilder::create()->build();
         $jsonContent = $serializer->serialize($response, 'json');
         return new JsonResponse($jsonContent , 200, array('Access-Control-Allow-Origin' => '*'), true);
     }
-
 }

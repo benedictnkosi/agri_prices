@@ -7,9 +7,9 @@ use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\Farm;
-use App\Entity\Customer;
+use App\Entity\Crop;
 
-class CustomerApi extends AbstractController
+class CropApi extends AbstractController
 {
 
     private $em;
@@ -21,20 +21,18 @@ class CustomerApi extends AbstractController
         $this->logger = $logger;
     }
 
-    public function createCustomer(Request $request): array
+    public function createCrop(Request $request): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         try {
             $requestBody = json_decode($request->getContent(), true);
             $name = $requestBody['name'];
-            $contactPerson = $requestBody['contact_person'];
-            $phoneNumber = $requestBody['phone_number'];
             $farmUid = $requestBody['farm_uid'];
 
-            if (empty($name) || empty($contactPerson) || empty($phoneNumber) || empty($farmUid)) {
+            if(empty($name) || empty($farmUid)) {
                 return array(
                     'status' => 'NOK',
-                    'message' => 'Name, contact_person and phone_number values are required'
+                    'message' => 'Name and farm_uid values are required'
                 );
             }
 
@@ -46,27 +44,17 @@ class CustomerApi extends AbstractController
                 );
             }
 
-            $Customer = $this->em->getRepository(Customer::class)->findOneBy(['name' => $name, 'farm' => $farm]);
-            if ($Customer) {
-                return array(
-                    'status' => 'NOK',
-                    'message' => 'Customer with the same name already exists'
-                );
-            }
+            $crop = new Crop();
+            $crop->setName($name);
+            $crop->setFarm($farm);
 
-            $customer = new Customer();
-            $customer->setName($name);
-            $customer->setContactPerson($contactPerson);
-            $customer->setContactNumber($phoneNumber);
-            $customer->setFarm($farm);
-
-            $this->em->persist($customer);
+            $this->em->persist($crop);
             $this->em->flush();
 
             return array(
                 'status' => 'OK',
-                'message' => 'Customer created successfully',
-                'id' => $customer->getId()
+                'message' => 'Crop created successfully',
+                'id' => $crop->getId()
             );
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
@@ -77,7 +65,7 @@ class CustomerApi extends AbstractController
         }
     }
 
-    public function getCustomers(Request $request): array
+    public function getCrops(Request $request): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         try {
@@ -99,13 +87,13 @@ class CustomerApi extends AbstractController
                 );
             }
 
-            $customers = $this->em->getRepository(Customer::class)->findBy(['farm' => $farm]);
-            return $customers;
+            $crops = $this->em->getRepository(Crop::class)->findBy(['farm' => $farm]);
+            return $crops;
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
             return array(
                 'status' => 'NOK',
-                'message' => 'Error getting customers'
+                'message' => 'Error getting crops'
             );
         }
     }

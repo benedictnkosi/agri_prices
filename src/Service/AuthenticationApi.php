@@ -22,15 +22,16 @@ class AuthenticationApi extends AbstractController
 
     public function createNewUserIfNotExists(Request $request): array
     {
-        $name = $request->query->get('name');
-        $email = $request->query->get('email');
-        $googleUID =$request->query->get('google_uid');
+        $data = json_decode($request->getContent(), true);
+        $name = $data['name'];
+        $email = $data['email'];
+        $googleUID = $data['google_uid'];
 
         $user = $this->em->getRepository(User::class)->findOneBy(['googleuid' => $googleUID]);
         if ($user) {
             return Array(
                 'status' => 'OK',
-                'message' => 'User already exists'
+                'message' => 'User already exists with this Google UID' . $googleUID
             );
         }
 
@@ -49,5 +50,18 @@ class AuthenticationApi extends AbstractController
             'status' => 'OK',
             'message' => 'User created successfully'
         );
+    }
+
+    public function getUserByUid($googleUID)
+    {
+        $user = $this->em->getRepository(User::class)->findOneBy(['googleuid' => $googleUID]);
+        if (!$user) {
+            return Array(
+                'status' => 'NOK',
+                'message' => 'User not found'
+            );
+        }
+
+        return $user;
     }
 }

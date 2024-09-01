@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Transplant
  *
- * @ORM\Table(name="transplant", indexes={@ORM\Index(name="transplant_date_fk_idx", columns={"batch"})})
+ * @ORM\Table(name="transplant", indexes={@ORM\Index(name="transplant_date_fk_idx", columns={"seedling"})})
  * @ORM\Entity
  */
 class Transplant
@@ -37,14 +37,21 @@ class Transplant
     private $transplantDate;
 
     /**
-     * @var \Batch
+     * @var \DateTime|null
      *
-     * @ORM\ManyToOne(targetEntity="Batch")
+     * @ORM\Column(name="harvest_date", type="date", nullable=true)
+     */
+    private $harvestDate;
+
+    /**
+     * @var \Seedling
+     *
+     * @ORM\ManyToOne(targetEntity="Seedling")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="batch", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="seedling", referencedColumnName="id")
      * })
      */
-    private $batch;
+    private $seedling;
 
     public function getId(): ?int
     {
@@ -75,14 +82,26 @@ class Transplant
         return $this;
     }
 
-    public function getBatch(): ?Batch
+    public function getHarvestDate(): ?\DateTimeInterface
     {
-        return $this->batch;
+        return $this->harvestDate;
     }
 
-    public function setBatch(?Batch $batch): static
+    public function setHarvestDate(?\DateTimeInterface $harvestDate): static
     {
-        $this->batch = $batch;
+        $this->harvestDate = $harvestDate;
+
+        return $this;
+    }
+
+    public function getSeedling(): ?Seedling
+    {
+        return $this->seedling;
+    }
+
+    public function setSeedling(?Seedling $seedling): static
+    {
+        $this->seedling = $seedling;
 
         return $this;
     }

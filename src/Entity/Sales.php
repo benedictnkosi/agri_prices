@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Sales
  *
- * @ORM\Table(name="sales", indexes={@ORM\Index(name="sale_customer_fk_idx", columns={"customer"}), @ORM\Index(name="sale_farm_idx", columns={"farm"}), @ORM\Index(name="sales_crop_fk_idx", columns={"crop"})})
+ * @ORM\Table(name="sales", indexes={@ORM\Index(name="sale_customer_fk_idx", columns={"customer"}), @ORM\Index(name="sale_farm_idx", columns={"farm"}), @ORM\Index(name="sales_crop_fk_idx", columns={"crop"}), @ORM\Index(name="sales_packaging_idx", columns={"packaging"})})
  * @ORM\Entity
  */
 class Sales
@@ -52,6 +52,16 @@ class Sales
      * })
      */
     private $crop;
+
+    /**
+     * @var \Packaging
+     *
+     * @ORM\ManyToOne(targetEntity="Packaging")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="packaging", referencedColumnName="id")
+     * })
+     */
+    private $packaging;
 
     /**
      * @var \Customer
@@ -122,6 +132,18 @@ class Sales
     public function setCrop(?Crop $crop): static
     {
         $this->crop = $crop;
+
+        return $this;
+    }
+
+    public function getPackaging(): ?Packaging
+    {
+        return $this->packaging;
+    }
+
+    public function setPackaging(?Packaging $packaging): static
+    {
+        $this->packaging = $packaging;
 
         return $this;
     }

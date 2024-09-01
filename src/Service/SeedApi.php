@@ -7,9 +7,10 @@ use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\Farm;
-use App\Entity\Customer;
+use App\Entity\Seed;
+use App\Entity\Crop;
 
-class CustomerApi extends AbstractController
+class SeedApi extends AbstractController
 {
 
     private $em;
@@ -21,20 +22,20 @@ class CustomerApi extends AbstractController
         $this->logger = $logger;
     }
 
-    public function createCustomer(Request $request): array
+    public function createSeed(Request $request): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         try {
             $requestBody = json_decode($request->getContent(), true);
             $name = $requestBody['name'];
-            $contactPerson = $requestBody['contact_person'];
-            $phoneNumber = $requestBody['phone_number'];
+            $manufacture = $requestBody['manufacture'];
             $farmUid = $requestBody['farm_uid'];
+            $cropId = $requestBody['crop_id'];
 
-            if (empty($name) || empty($contactPerson) || empty($phoneNumber) || empty($farmUid)) {
+            if(empty($name) || empty($manufacture) ||  empty($farmUid) || empty($cropId)) {
                 return array(
                     'status' => 'NOK',
-                    'message' => 'Name, contact_person and phone_number values are required'
+                    'message' => 'Name, manufacture, farm_uid and crop_id values are required'
                 );
             }
 
@@ -46,38 +47,37 @@ class CustomerApi extends AbstractController
                 );
             }
 
-            $Customer = $this->em->getRepository(Customer::class)->findOneBy(['name' => $name, 'farm' => $farm]);
-            if ($Customer) {
+            $crop = $this->em->getRepository(Crop::class)->findOneBy(['id' => $cropId, 'farm' => $farm]);
+            if (!$crop) {
                 return array(
                     'status' => 'NOK',
-                    'message' => 'Customer with the same name already exists'
+                    'message' => 'Crop not found'
                 );
             }
 
-            $customer = new Customer();
-            $customer->setName($name);
-            $customer->setContactPerson($contactPerson);
-            $customer->setContactNumber($phoneNumber);
-            $customer->setFarm($farm);
+            $seed = new Seed();
+            $seed->setName($name);
+            $seed->setManufacture($manufacture);
+            $seed->setCrop($crop);
 
-            $this->em->persist($customer);
+            $this->em->persist($seed);
             $this->em->flush();
 
             return array(
                 'status' => 'OK',
-                'message' => 'Customer created successfully',
-                'id' => $customer->getId()
+                'message' => 'Seed created successfully',
+                'id' => $seed->getId()
             );
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
             return array(
                 'status' => 'NOK',
-                'message' => 'Error creating customer'
+                'message' => 'Error creating seed'
             );
         }
     }
 
-    public function getCustomers(Request $request): array
+    public function getSeeds(Request $request): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         try {
@@ -98,14 +98,24 @@ class CustomerApi extends AbstractController
                     'message' => 'Farm not found'
                 );
             }
+            $queryBuilder = $this->em->createQueryBuilder();
 
-            $customers = $this->em->getRepository(Customer::class)->findBy(['farm' => $farm]);
-            return $customers;
+            $query = $queryBuilder
+                ->select('s')
+                ->from('App\Entity\Seed', 's')
+                ->innerJoin('s.crop', 'c')
+                ->where('c.farm = :farm')
+                ->setParameter('farm', $farm)
+                ->getQuery();
+
+                $results = $query->getResult();
+
+                return $results;
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
             return array(
                 'status' => 'NOK',
-                'message' => 'Error getting customers'
+                'message' => 'Error getting seeds'
             );
         }
     }

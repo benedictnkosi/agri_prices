@@ -14,7 +14,7 @@ use JMS\Serializer\SerializerBuilder;
 class FarmController extends AbstractController
 {
     /**
-     * @Route("public/create/farm", name="createFarm", methods={"POST"})
+     * @Route("public/farm/create", name="createFarm", methods={"POST"})
      */
     public function createFarm(Request $request, LoggerInterface $logger, FarmApi $api): Response
     {

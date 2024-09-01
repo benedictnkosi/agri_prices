@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * FertiliserApplication
  *
- * @ORM\Table(name="fertiliser_application", indexes={@ORM\Index(name="fertiliser_app_fertiliser_idx", columns={"fertiliser"}), @ORM\Index(name="fertiliser_app_batch_idx", columns={"batch"})})
+ * @ORM\Table(name="fertiliser_application", indexes={@ORM\Index(name="fertiliser_app_batch_idx", columns={"batch"}), @ORM\Index(name="fertiliser_app_fertiliser_idx", columns={"fertiliser"})})
  * @ORM\Entity
  */
 class FertiliserApplication
@@ -37,9 +37,9 @@ class FertiliserApplication
     private $date;
 
     /**
-     * @var \Batch
+     * @var \Seedling
      *
-     * @ORM\ManyToOne(targetEntity="Batch")
+     * @ORM\ManyToOne(targetEntity="Seedling")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="batch", referencedColumnName="id")
      * })
@@ -85,12 +85,12 @@ class FertiliserApplication
         return $this;
     }
 
-    public function getBatch(): ?Batch
+    public function getBatch(): ?Seedling
     {
         return $this->batch;
     }
 
-    public function setBatch(?Batch $batch): static
+    public function setBatch(?Seedling $batch): static
     {
         $this->batch = $batch;
 

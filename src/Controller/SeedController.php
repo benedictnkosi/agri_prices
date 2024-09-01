@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Service\AuthenticationApi;
+use App\Service\SeedApi;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -11,25 +11,25 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use JMS\Serializer\SerializerBuilder;
 
-class AuthenticationController extends AbstractController
+class SeedController extends AbstractController
 {
     /**
-     * @Route("public/users/create", name="createNewUser", methods={"POST"})
+     * @Route("public/seeds/create", name="createSeeds", methods={"POST"})
      */
-    public function createNewUser(Request $request, LoggerInterface $logger, AuthenticationApi $api): Response
+    public function createSeeds(Request $request, LoggerInterface $logger, SeedApi $api): Response
     {
         $logger->info("Starting Method: " . __METHOD__);
-        $response = $api->createNewUserIfNotExists($request);
+        $response = $api->createSeed($request);
         return new JsonResponse($response, 200, array('Access-Control-Allow-Origin' => '*'));
     }
 
     /**
-     * @Route("public/users/{uid}", name="getUserByUid", methods={"GET"})
+     * @Route("public/seeds/get", name="getSeeds", methods={"GET"})
      */
-    public function getUserByUid($uid, Request $request, LoggerInterface $logger, AuthenticationApi $api): Response
+    public function getSeeds(Request $request, LoggerInterface $logger, SeedApi $api): Response
     {
         $logger->info("Starting Method: " . __METHOD__);
-        $response = $api->getUserByUid($uid);
+        $response = $api->getSeeds($request);
         $serializer = SerializerBuilder::create()->build();
         $jsonContent = $serializer->serialize($response, 'json');
         return new JsonResponse($jsonContent , 200, array('Access-Control-Allow-Origin' => '*'), true);

@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Seedling
  *
- * @ORM\Table(name="seedling", indexes={@ORM\Index(name="seedling_seed_idx", columns={"seed"}), @ORM\Index(name="seedling_grow_mix_idx", columns={"grow_mix"})})
+ * @ORM\Table(name="seedling", indexes={@ORM\Index(name="seedling_seed_idx", columns={"seed"})})
  * @ORM\Entity
  */
 class Seedling
@@ -32,19 +32,23 @@ class Seedling
     /**
      * @var \DateTime|null
      *
-     * @ORM\Column(name="date", type="datetime", nullable=true)
+     * @ORM\Column(name="seedling_date", type="datetime", nullable=true)
      */
-    private $date;
+    private $seedlingDate;
 
     /**
-     * @var \GrowMix
+     * @var \DateTime|null
      *
-     * @ORM\ManyToOne(targetEntity="GrowMix")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="grow_mix", referencedColumnName="id")
-     * })
+     * @ORM\Column(name="transplant_date", type="date", nullable=true)
      */
-    private $growMix;
+    private $transplantDate;
+
+    /**
+     * @var bool|null
+     *
+     * @ORM\Column(name="transplanted", type="boolean", nullable=true)
+     */
+    private $transplanted = '0';
 
     /**
      * @var \Seed
@@ -73,26 +77,38 @@ class Seedling
         return $this;
     }
 
-    public function getDate(): ?\DateTimeInterface
+    public function getSeedlingDate(): ?\DateTimeInterface
     {
-        return $this->date;
+        return $this->seedlingDate;
     }
 
-    public function setDate(?\DateTimeInterface $date): static
+    public function setSeedlingDate(?\DateTimeInterface $seedlingDate): static
     {
-        $this->date = $date;
+        $this->seedlingDate = $seedlingDate;
 
         return $this;
     }
 
-    public function getGrowMix(): ?GrowMix
+    public function getTransplantDate(): ?\DateTimeInterface
     {
-        return $this->growMix;
+        return $this->transplantDate;
     }
 
-    public function setGrowMix(?GrowMix $growMix): static
+    public function setTransplantDate(?\DateTimeInterface $transplantDate): static
     {
-        $this->growMix = $growMix;
+        $this->transplantDate = $transplantDate;
+
+        return $this;
+    }
+
+    public function isTransplanted(): ?bool
+    {
+        return $this->transplanted;
+    }
+
+    public function setTransplanted(?bool $transplanted): static
+    {
+        $this->transplanted = $transplanted;
 
         return $this;
     }
