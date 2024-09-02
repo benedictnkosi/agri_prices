@@ -62,19 +62,19 @@ class DataApi extends AbstractController
             ini_set('max_execution_time', '600');
 
             // Read JSON file
-            $jsonFilePath = __DIR__ . '\data\commodities.json';
-            if (!file_exists($jsonFilePath)) {
-                throw new \Exception("File not found: " . $jsonFilePath);
-            }
+            // $jsonFilePath = __DIR__ . '\data\commodities.json';
+            // if (!file_exists($jsonFilePath)) {
+            //     throw new \Exception("File not found: " . $jsonFilePath);
+            // }
 
-            $jsonData = file_get_contents($jsonFilePath);
-            $commodities = json_decode($jsonData, true);
+            // $jsonData = file_get_contents($jsonFilePath);
+            // $commodities = json_decode($jsonData, true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
                 throw new \Exception("JSON decode error: " . json_last_error_msg());
             }
 
-            $this->logger->debug("Commodities: " . print_r($commodities, true));
+            // $this->logger->debug("Commodities: " . print_r($commodities, true));
 
             // Make the POST request
             $dateObject = new \DateTime();
