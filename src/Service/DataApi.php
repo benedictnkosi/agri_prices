@@ -35,23 +35,24 @@ class DataApi extends AbstractController
 
     public function singleImport(){
         $this->logger->debug("Starting Method: " . __METHOD__);
-        $crop = $this->em->getRepository(MarketCropsImport::class)->findOneBy([], ['lastUpdate' => 'DESC', 'id' => 'DESC'], 1);
+        $crop = $this->em->getRepository(MarketCropsImport::class)->findOneBy([], ['lastUpdate' => 'ASC', 'id' => 'DESC']);
         
-        $response =  $this->importBulkData($crop->getCropId(), $crop->getCropName(), 90);
+        $response =  $this->importBulkData($crop->getCropId(), $crop->getCropName(), 90, $crop->getMarket());
 
-        $crop->setLastUpdate(new \DateTime());
         if ($response['result_code'] === 0) {
             $crop->setStatus("Imported. " . $response['number_of_records']);
+            $crop->setLastUpdate(new \DateTime());
         }else{
             $crop->setStatus(substr($response['result_message'],0,45)); 
         }
+
         $this->em->persist($crop);
         $this->em->flush();
 
         return $response;
     }
 
-    public function importBulkData($productId, $productName, $days): array
+    public function importBulkData($productId, $productName, $days, $market): array
     {
         $this->logger->debug("Starting Method: " . __METHOD__);
         try {
@@ -77,7 +78,6 @@ class DataApi extends AbstractController
 
             // Make the POST request
             $dateObject = new \DateTime();
-            $market = "DUR";
             $periodName = "Last 90 Days";
             $marketName = "Durban Fresh Produce Market";
 
