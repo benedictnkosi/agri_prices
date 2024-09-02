@@ -3,6 +3,7 @@
 namespace App\Service;
 
 
+use App\Entity\MarketCropsImport;
 use App\Entity\Market;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
@@ -32,6 +33,23 @@ class DataApi extends AbstractController
         }
     }
 
+    public function singleImport(){
+        $this->logger->debug("Starting Method: " . __METHOD__);
+        $crop = $this->em->getRepository(MarketCropsImport::class)->findOneBy([], ['lastUpdate' => 'DESC', 'id' => 'DESC'], 1);
+        
+        $response =  $this->importBulkData($crop->getCropId(), $crop->getCropName(), 90);
+
+        $crop->setLastUpdate(new \DateTime());
+        if ($response['result_code'] === 0) {
+            $crop->setStatus("Imported. " . $response['number_of_records']);
+        }else{
+            $crop->setStatus(substr($response['result_message'],0,45)); 
+        }
+        $this->em->persist($crop);
+        $this->em->flush();
+
+        return $response;
+    }
 
     public function importBulkData($productId, $productName, $days): array
     {
@@ -66,7 +84,6 @@ class DataApi extends AbstractController
             // Construct the URL
             $url = "http://webapps.daff.gov.za/amis/MarketPricesAJAX.jsp?period=$days&market=$market&sid=0.1397918394592692&product=$productId&variety=&class=00&size=&container=00&period-name=Last%207%20Days&market-name=Durban%20Fresh%20Produce%20Market%20(DUR)&product-name=cabbage&variety-name=All%20Varieties&class-name=All%20Classes&size-name=All%20Sizes&container-name=All%20Packages";
 
-
             $this->logger->debug("URL: " . $url);
 
             // Initialize cURL session
@@ -93,27 +110,36 @@ class DataApi extends AbstractController
             // Execute cURL session
             $response = curl_exec($ch);
 
-            // Check for cURL errors
-            if ($response === false) {
-                $error = curl_error($ch);
-                echo "cURL error: $error";
-            } else {
-                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                $this->logger->debug("HTTP Code: $httpCode");
-                // $this->logger->debug("Response: $response");
-            }
-
-            // Close cURL session
+                 // Close cURL session
             curl_close($ch);
 
 
+            // Check for cURL errors
+            if ($response === false) {
+                $error = curl_error($ch);
+                $this->logger->error("cURL error: $error");
+                return array(
+                    'result_message' => "Server is down",
+                    'result_code' => 1
+                );
+            }
 
 
             // Load the HTML into a DOMDocument object
             $dom = new \DOMDocument();
-            libxml_use_internal_errors(true); // Suppress warnings for malformed HTML
-            @$dom->loadHTML($response, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
-            libxml_clear_errors();
+            try {
+                libxml_use_internal_errors(true); // Suppress warnings for malformed HTML
+                @$dom->loadHTML($response, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+                libxml_clear_errors();
+            } catch (Exception $ex) {
+                $this->logger->error("Error loading HTML: " . $ex->getMessage());
+                return array(
+                    'result_message' => $ex->getMessage(),
+                    'result_code' => 1
+                );
+            }
+            
+            $numberOfRecords = 0;
 
             // Get the table by tag name
             $tables = $dom->getElementsByTagName('table');
@@ -186,6 +212,7 @@ class DataApi extends AbstractController
                                 );
                                 $this->em->persist($commodity); // Persist each entity
                                 $this->logger->debug("added commodity to persist " . $cells->item(0)->nodeValue);
+                                $numberOfRecords++;
                             }
                         }
                     }
@@ -196,7 +223,11 @@ class DataApi extends AbstractController
             $this->logger->debug("Done writing to database");
             // }
             $this->em->flush();
-            return $this->em->getRepository(Market::class)->findAll();
+            return array(
+                'result_message' => "Success",
+                'result_code' => 0,
+                'number_of_records' => $numberOfRecords
+            );
         } catch (Exception $ex) {
             $this->logger->error("Error " . $ex->getMessage());
             return array(

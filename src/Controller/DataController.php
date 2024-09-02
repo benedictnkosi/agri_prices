@@ -14,6 +14,21 @@ use JMS\Serializer\SerializerBuilder;
 
 class DataController extends AbstractController
 {
+    
+    /**
+     * @Route("public/prices/singleinport", name="getSingleImport", methods={"GET"})
+     */
+    public function getSingleImport(Request $request, LoggerInterface $logger, DataApi $api): Response
+    {
+        $logger->info("Starting Method: " . __METHOD__);
+        if (!$request->isMethod('GET')) {
+            return new JsonResponse("Method Not Allowed", 405, array('Access-Control-Allow-Origin' => '*'));
+        }
+
+       $response =  $api->singleImport();
+        return new JsonResponse($response, 200, array('Access-Control-Allow-Origin' => '*'));
+    }
+
     /**
      * @Route("public/prices/get/{market}", name="get_prices_durban", methods={"GET"})
      */
