@@ -116,7 +116,7 @@ class CommandsController extends AbstractController
                 'result_code' => 0
             );
 
-            $command = 'git pull https://github.com/benedictnkosi/agri_prices.git management_app_main --force';
+            $command = 'git pull https://github.com/benedictnkosi/agri_prices.git main --force';
 
             $result = $this->execute($command);
             $responseArray[] = array(
