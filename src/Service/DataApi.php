@@ -37,7 +37,7 @@ class DataApi extends AbstractController
         $this->logger->debug("Starting Method: " . __METHOD__);
         $crop = $this->em->getRepository(MarketCropsImport::class)->findOneBy([], ['lastUpdate' => 'ASC', 'id' => 'DESC']);
         
-        $response =  $this->importBulkData($crop->getCropId(), $crop->getCropName(), 90, $crop->getMarket());
+        $response =  $this->importBulkData($crop->getCropId(), $crop->getCropName(), 7, $crop->getMarket());
 
         if ($response['result_code'] === 0) {
             $crop->setStatus("Imported. " . $response['number_of_records']);
