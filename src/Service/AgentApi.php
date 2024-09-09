@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\AgentSales;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\Expr\Join;
 use Psr\Log\LoggerInterface;
@@ -16,7 +17,7 @@ use App\Entity\Packaging;
 use App\Entity\MarketDelivery;
 
 
-class SalesApi extends AbstractController
+class AgentApi extends AbstractController
 {
 
     private $em;
@@ -28,14 +29,14 @@ class SalesApi extends AbstractController
         $this->logger = $logger;
     }
 
-    public function recordSale(Request $request): array
+
+    public function deliverToAgents(Request $request): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         try {
             $requestBody = json_decode($request->getContent(), true);
 
             $customerId = $requestBody['customer_id'];
-            $price = $requestBody['price'];
             $date = new \DateTimeImmutable($requestBody['date']);
             $cropId = $requestBody['crop_id'];
             $packagingId = $requestBody['packaging_id'];
@@ -43,7 +44,7 @@ class SalesApi extends AbstractController
             $farmUid = $requestBody['farm_uid'];
 
 
-            if (empty($customerId) || empty($price) || empty($date) || empty($cropId) || empty($quantity) || empty($farmUid)) {
+            if (empty($customerId) || empty($date) || empty($cropId) || empty($quantity) || empty($farmUid)) {
                 return array(
                     'status' => 'NOK',
                     'message' => 'All fields are required'
@@ -66,6 +67,13 @@ class SalesApi extends AbstractController
                 );
             }
 
+            if(!$Customer->isAgent()){
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Customer is not an agent'
+                );
+            }
+
             $crop = $this->em->getRepository(Crop::class)->findOneBy(['id' => $cropId, 'farm' => $farm]);
             if (!$crop) {
                 return array(
@@ -82,14 +90,109 @@ class SalesApi extends AbstractController
                 );
             }
 
-            $sale = new Sales();
-            $sale->setCrop($crop);
-            $sale->setCustomer($Customer);
-            $sale->setFarm($farm);
+            $marketDelivery = new MarketDelivery();
+            $marketDelivery->setCrop($crop);
+            $marketDelivery->setCustomer($Customer);
+            $marketDelivery->setFarm($farm);
+            $marketDelivery->setDate($date);
+            $marketDelivery->setQuantity($quantity);
+            $marketDelivery->setPackaging($packaging);
+
+            $this->em->persist($marketDelivery);
+            $this->em->flush();
+
+            return array(
+                'status' => 'OK',
+                'message' => 'Market delivery recorded successfully',
+                'id' => $marketDelivery->getId()
+            );
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return array(
+                'status' => 'NOK',
+                'message' => 'Error recording Market delivery'
+            );
+        }
+    }
+
+
+
+    public function getMarketDeliveries(Request $request): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        try {
+
+            $farmUid = $request->query->get('farm_uid');
+
+            if (empty($farmUid)) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Farm uid values are required'
+                );
+            }
+
+            $farm = $this->em->getRepository(Farm::class)->findOneBy(['uid' => $farmUid]);
+            if (!$farm) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Farm not found'
+                );
+            }
+
+            $marketDeliveries = $this->em->getRepository(MarketDelivery::class)->findBy(['farm' => $farm], ['date' => 'DESC'], 10);
+
+            return $marketDeliveries;
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return array(
+                'status' => 'NOK',
+                'message' => 'Error getting sales'
+            );
+        }
+    }
+
+
+    public function recordAgentSale(Request $request): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        try {
+            $requestBody = json_decode($request->getContent(), true);
+
+            $deliveryId = $requestBody['delivery_id'];
+            $price = $requestBody['price'];
+            $date = new \DateTimeImmutable($requestBody['date']);
+            $quantity = $requestBody['quantity'];
+            $farmUid = $requestBody['farm_uid'];
+
+            if (empty($deliveryId) || empty($price) || empty($date) || empty($quantity) || empty($farmUid)) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'All fields are required'
+                );
+            }
+            
+            $farm = $this->em->getRepository(Farm::class)->findOneBy(['uid' => $farmUid]);
+            if (!$farm) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Farm not found'
+                );
+            }
+
+            $delivery = $this->em->getRepository(MarketDelivery::class)->findOneBy(['id' => $deliveryId]);
+            if (!$delivery) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Delivery not found'
+                );
+            }
+
+            
+            $sale = new AgentSales();
             $sale->setPrice($price);
-            $sale->setDate($date);
+            $sale->setSaleDate($date);
             $sale->setQuantity($quantity);
-            $sale->setPackaging($packaging);
+            $sale->setDelivery($delivery);
 
             $this->em->persist($sale);
             $this->em->flush();
@@ -108,10 +211,7 @@ class SalesApi extends AbstractController
         }
     }
 
-
-
-
-    public function getSales(Request $request): array
+    public function getAgentSales(Request $request)
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         try {
@@ -135,25 +235,40 @@ class SalesApi extends AbstractController
 
             $queryBuilder = $this->em->createQueryBuilder();
 
-            $query = $queryBuilder
-                ->select('s.id AS sale_id', 'c.name AS crop_name', 'cust.name AS customer_name', 'pack.name AS packaging', 's.date', 's.price', 's.quantity', 'IDENTITY(s.farm) AS farm')
-                ->addSelect('COALESCE(SUM(p.amount), 0) AS total_payments')
-                ->from('App\Entity\Sales', 's')
-                ->leftJoin('s.crop', 'c')
-                ->leftJoin('s.customer', 'cust')
-                ->leftJoin('s.packaging', 'pack')
-                ->leftJoin('App\Entity\Payment', 'p', Join::WITH, 's.id = p.sale')
-                ->where('s.farm = :farm')
-                ->groupBy('s.id', 'c.name', 'cust.name')  // Group by crop and customer name to avoid aggregation issues
+                $query = $queryBuilder
+                ->select('s')
+                ->from('App\Entity\AgentSales', 's')
+                ->innerJoin('s.delivery', 'md')
+                ->where('md.farm = :farm')
                 ->setParameter('farm', $farm)
-                ->orderBy('s.date', 'DESC')
+                ->orderBy('s.saleDate', 'DESC')
                 ->setMaxResults(100)
                 ->getQuery();
 
+                $results = $query->getResult();
+            // Group sales by delivery
+            $deliveries = [];
+            foreach ($results as $sale) {
+                $deliveryId = $sale->getDelivery()->getId();
+                if (!isset($deliveries[$deliveryId])) {
+                    $deliveries[$deliveryId] = [
+                        'delivery_date' => $sale->getDelivery()->getDate()->format('Y-m-d'),
+                        'crop_name' => $sale->getDelivery()->getCrop()->getName(),
+                        'sales' => []
+                    ];
+                }
+                $deliveries[$deliveryId]['sales'][] = [
+                    'id' => $sale->getId(),
+                    'quantity' => $sale->getQuantity(),
+                    'price' => $sale->getPrice(),
+                    'sale_date' => $sale->getSaleDate()->format('Y-m-d'),
+                ];
+            }
 
-            $results = $query->getResult();
+            // Convert to JSON
+            $jsonResult = json_encode(array_values($deliveries));
 
-            return $results;
+            return $jsonResult;
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
             return array(
@@ -163,93 +278,4 @@ class SalesApi extends AbstractController
         }
     }
 
-    public function addPayment(Request $request): array
-    {
-        $this->logger->info("Starting Method: " . __METHOD__);
-        try {
-
-            $requestBody = json_decode($request->getContent(), true);
-            $amount = $requestBody['amount'];
-            $paymentMethod = $requestBody['paymentMethod'];
-            $date = new \DateTimeImmutable($requestBody['date']);
-            $farmUid = $requestBody['farm_uid'];
-            $saleId = $requestBody['sale_id'];
-
-            if (empty($amount) || empty($date) || empty($farmUid) || empty($saleId)) {
-                return array(
-                    'status' => 'NOK',
-                    'message' => 'All fields are required'
-                );
-            }
-
-            $farm = $this->em->getRepository(Farm::class)->findOneBy(['uid' => $farmUid]);
-            if (!$farm) {
-                return array(
-                    'status' => 'NOK',
-                    'message' => 'Farm not found'
-                );
-            }
-
-            $sale = $this->em->getRepository(Sales::class)->findOneBy(['id' => $saleId]);
-            if (!$sale) {
-                return array(
-                    'status' => 'NOK',
-                    'message' => 'Sale not found'
-                );
-            }
-
-            $payment = new Payment();
-            $payment->setSale($sale);
-            $payment->setAmount($amount);
-            $payment->setDate($date);
-            $payment->setPaymentMethod($paymentMethod);
-
-            $this->em->persist($payment);
-            $this->em->flush();
-
-            return array(
-                'status' => 'OK',
-                'message' => 'Payment recorded successfully',
-                'id' => $payment->getId()
-            );
-        } catch (\Exception $e) {
-            $this->logger->error($e->getMessage());
-            return array(
-                'status' => 'NOK',
-                'message' => 'Error adding payment'
-            );
-        }
-    }
-
-    public function getPayments(Request $request): array
-    {
-        $this->logger->info("Starting Method: " . __METHOD__);
-        try {
-
-            $saleId = $request->query->get('sale_id');
-            if (empty($saleId)) {
-                return array(
-                    'status' => 'NOK',
-                    'message' => 'Sale id is required'
-                );
-            }
-            
-            $sale = $this->em->getRepository(Farm::class)->findOneBy(['id' => $saleId]);
-            if (!$sale) {
-                return array(
-                    'status' => 'NOK',
-                    'message' => 'Sale not found'
-                );
-            }
-
-            $payments = $this->em->getRepository(Payment::class)->findBy(['sale' =>  $sale]);
-            return $payments;
-        } catch (\Exception $e) {
-            $this->logger->error($e->getMessage());
-            return array(
-                'status' => 'NOK',
-                'message' => 'Error getting payments'
-            );
-        }
-    }
 }

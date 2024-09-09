@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Payment
  *
- * @ORM\Table(name="payment", indexes={@ORM\Index(name="payment_sale_idx", columns={"sale"})})
+ * @ORM\Table(name="payment", indexes={@ORM\Index(name="payment_agent_sale_idx", columns={"agent_sale"}), @ORM\Index(name="payment_sale_idx", columns={"sale"})})
  * @ORM\Entity
  */
 class Payment
@@ -42,6 +42,16 @@ class Payment
      * @ORM\Column(name="paymentMethod", type="string", length=45, nullable=true)
      */
     private $paymentmethod;
+
+    /**
+     * @var \AgentSales
+     *
+     * @ORM\ManyToOne(targetEntity="AgentSales")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="agent_sale", referencedColumnName="id")
+     * })
+     */
+    private $agentSale;
 
     /**
      * @var \Sales
@@ -90,6 +100,18 @@ class Payment
     public function setPaymentmethod(?string $paymentmethod): static
     {
         $this->paymentmethod = $paymentmethod;
+
+        return $this;
+    }
+
+    public function getAgentSale(): ?AgentSales
+    {
+        return $this->agentSale;
+    }
+
+    public function setAgentSale(?AgentSales $agentSale): static
+    {
+        $this->agentSale = $agentSale;
 
         return $this;
     }

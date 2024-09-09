@@ -43,6 +43,13 @@ class Customer
     private $contactNumber;
 
     /**
+     * @var bool|null
+     *
+     * @ORM\Column(name="agent", type="boolean", nullable=true)
+     */
+    private $agent;
+
+    /**
      * @var \Farm
      *
      * @ORM\ManyToOne(targetEntity="Farm")
@@ -89,6 +96,18 @@ class Customer
     public function setContactNumber(?string $contactNumber): static
     {
         $this->contactNumber = $contactNumber;
+
+        return $this;
+    }
+
+    public function isAgent(): ?bool
+    {
+        return $this->agent;
+    }
+
+    public function setAgent(?bool $agent): static
+    {
+        $this->agent = $agent;
 
         return $this;
     }

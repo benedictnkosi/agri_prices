@@ -35,7 +35,7 @@ class DataApi extends AbstractController
 
     public function singleImport(){
         $this->logger->debug("Starting Method: " . __METHOD__);
-        $crop = $this->em->getRepository(MarketCropsImport::class)->findOneBy([], ['lastUpdate' => 'ASC', 'id' => 'DESC']);
+        $crop = $this->em->getRepository(MarketCropsImport::class)->findOneBy(["status"=> "never"], ['lastUpdate' => 'ASC', 'id' => 'DESC']);
         
         $response =  $this->importBulkData($crop->getCropId(), $crop->getCropName(), 7, $crop->getMarket());
 

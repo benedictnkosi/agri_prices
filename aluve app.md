@@ -3,4 +3,4 @@ php bin/console doctrine:mapping:import --force "App\Entity" annotation --path=s
 generate getters and setters
 php bin/console make:entity --regenerate
 
-Testing
+symfony server:start

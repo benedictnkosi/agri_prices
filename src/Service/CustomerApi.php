@@ -30,6 +30,7 @@ class CustomerApi extends AbstractController
             $contactPerson = $requestBody['contact_person'];
             $phoneNumber = $requestBody['phone_number'];
             $farmUid = $requestBody['farm_uid'];
+            $isAgent = $requestBody['is_agent'] == "true";
 
             if (empty($name) || empty($contactPerson) || empty($phoneNumber) || empty($farmUid)) {
                 return array(
@@ -58,6 +59,7 @@ class CustomerApi extends AbstractController
             $customer->setName($name);
             $customer->setContactPerson($contactPerson);
             $customer->setContactNumber($phoneNumber);
+            $customer->setAgent($isAgent);
             $customer->setFarm($farm);
 
             $this->em->persist($customer);
