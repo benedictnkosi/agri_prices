@@ -105,7 +105,8 @@ class CustomerApi extends AbstractController
             if(empty($type)){
                 $customers = $this->em->getRepository(Customer::class)->findBy(['farm' => $farm]);
             }else{
-                $customers = $this->em->getRepository(Customer::class)->findBy(['farm' => $farm, 'agent'=> 1]);
+                $agentValue = ($type === 'agent') ? 1 : 0;
+                $customers = $this->em->getRepository(Customer::class)->findBy(['farm' => $farm, 'agent' => $agentValue]);
             }
             
             return $customers;
