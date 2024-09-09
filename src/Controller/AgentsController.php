@@ -56,6 +56,4 @@ class AgentsController extends AbstractController
         // $jsonContent = $serializer->serialize($response, 'json');
         return new JsonResponse($response , 200, array('Access-Control-Allow-Origin' => '*'), true);
     }
-
-
 }

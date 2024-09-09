@@ -85,6 +85,7 @@ class CustomerApi extends AbstractController
         try {
         
             $farmUid = $request->query->get('farm_uid');
+            $type = $request->query->get('type');
 
             if (empty($farmUid)) {
                 return array(
@@ -101,7 +102,12 @@ class CustomerApi extends AbstractController
                 );
             }
 
-            $customers = $this->em->getRepository(Customer::class)->findBy(['farm' => $farm]);
+            if(empty($type)){
+                $customers = $this->em->getRepository(Customer::class)->findBy(['farm' => $farm]);
+            }else{
+                $customers = $this->em->getRepository(Customer::class)->findBy(['farm' => $farm, 'agent'=> 1]);
+            }
+            
             return $customers;
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());

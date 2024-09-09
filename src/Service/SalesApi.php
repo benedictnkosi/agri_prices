@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\AgentSales;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\Expr\Join;
 use Psr\Log\LoggerInterface;
@@ -173,12 +174,20 @@ class SalesApi extends AbstractController
             $paymentMethod = $requestBody['paymentMethod'];
             $date = new \DateTimeImmutable($requestBody['date']);
             $farmUid = $requestBody['farm_uid'];
-            $saleId = $requestBody['sale_id'];
+            $saleId = isset($requestBody['sale_id']) ? $requestBody['sale_id'] : null;
+            $agentSaleId = isset($requestBody['agent_sale_id']) ? $requestBody['agent_sale_id'] : null;
 
-            if (empty($amount) || empty($date) || empty($farmUid) || empty($saleId)) {
+            if (empty($amount) || empty($date) || empty($farmUid)) {
                 return array(
                     'status' => 'NOK',
                     'message' => 'All fields are required'
+                );
+            }
+
+            if ($agentSaleId === null && $saleId === null) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Sale id is required'
                 );
             }
 
@@ -190,16 +199,28 @@ class SalesApi extends AbstractController
                 );
             }
 
-            $sale = $this->em->getRepository(Sales::class)->findOneBy(['id' => $saleId]);
-            if (!$sale) {
-                return array(
-                    'status' => 'NOK',
-                    'message' => 'Sale not found'
-                );
-            }
-
             $payment = new Payment();
-            $payment->setSale($sale);
+
+            if (!empty($saleId)){
+                $sale = $this->em->getRepository(Sales::class)->findOneBy(['id' => $saleId]);
+                if (!$sale) {
+                    return array(
+                        'status' => 'NOK',
+                        'message' => 'Sale not found'
+                    );
+                }
+                $payment->setSale($sale);
+            }else{
+                $sale = $this->em->getRepository(AgentSales::class)->findOneBy(['id' => $agentSaleId]);
+                if (!$sale) {
+                    return array(
+                        'status' => 'NOK',
+                        'message' => 'Sale not found'
+                    );
+                }
+                $payment->setAgentSale($sale);
+            }
+            
             $payment->setAmount($amount);
             $payment->setDate($date);
             $payment->setPaymentMethod($paymentMethod);

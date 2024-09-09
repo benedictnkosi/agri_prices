@@ -67,7 +67,7 @@ class AgentApi extends AbstractController
                 );
             }
 
-            if(!$Customer->isAgent()){
+            if (!$Customer->isAgent()) {
                 return array(
                     'status' => 'NOK',
                     'message' => 'Customer is not an agent'
@@ -100,6 +100,17 @@ class AgentApi extends AbstractController
 
             $this->em->persist($marketDelivery);
             $this->em->flush();
+
+            //record dummy sale to help with query
+            $sale = new AgentSales();
+            $sale->setPrice(0);
+            $sale->setSaleDate($date);
+            $sale->setQuantity(0);
+            $sale->setDelivery($marketDelivery);
+
+            $this->em->persist($sale);
+            $this->em->flush();
+
 
             return array(
                 'status' => 'OK',
@@ -170,7 +181,7 @@ class AgentApi extends AbstractController
                     'message' => 'All fields are required'
                 );
             }
-            
+
             $farm = $this->em->getRepository(Farm::class)->findOneBy(['uid' => $farmUid]);
             if (!$farm) {
                 return array(
@@ -187,7 +198,7 @@ class AgentApi extends AbstractController
                 );
             }
 
-            
+
             $sale = new AgentSales();
             $sale->setPrice($price);
             $sale->setSaleDate($date);
@@ -219,23 +230,23 @@ class AgentApi extends AbstractController
             $farmUid = $request->query->get('farm_uid');
 
             if (empty($farmUid)) {
-                return array(
+                return json_encode(array_values(array(
                     'status' => 'NOK',
                     'message' => 'Farm uid values are required'
-                );
+                )));
             }
 
             $farm = $this->em->getRepository(Farm::class)->findOneBy(['uid' => $farmUid]);
             if (!$farm) {
-                return array(
+                return json_encode(array(
                     'status' => 'NOK',
                     'message' => 'Farm not found'
-                );
+                ));
             }
 
             $queryBuilder = $this->em->createQueryBuilder();
 
-                $query = $queryBuilder
+            $query = $queryBuilder
                 ->select('s')
                 ->from('App\Entity\AgentSales', 's')
                 ->innerJoin('s.delivery', 'md')
@@ -245,7 +256,8 @@ class AgentApi extends AbstractController
                 ->setMaxResults(100)
                 ->getQuery();
 
-                $results = $query->getResult();
+            $results = $query->getResult();
+
             // Group sales by delivery
             $deliveries = [];
             foreach ($results as $sale) {
@@ -254,28 +266,47 @@ class AgentApi extends AbstractController
                     $deliveries[$deliveryId] = [
                         'delivery_date' => $sale->getDelivery()->getDate()->format('Y-m-d'),
                         'crop_name' => $sale->getDelivery()->getCrop()->getName(),
+                        'id' => $sale->getDelivery()->getId(),
+                        'agent' => $sale->getDelivery()->getCustomer()->getName(),
                         'sales' => []
                     ];
                 }
+
+                // Fetch payments for the sale
+                $paymentQueryBuilder = $this->em->createQueryBuilder();
+                $paymentQuery = $paymentQueryBuilder
+                    ->select('p')
+                    ->from('App\Entity\Payment', 'p')
+                    ->where('p.agentSale = :sale')
+                    ->setParameter('sale', $sale)
+                    ->getQuery();
+
+                $payments = $paymentQuery->getResult();
+
+                // Calculate total paid
+                $totalPaid = array_reduce($payments, function ($sum, $payment) {
+                    return $sum + $payment->getAmount();
+                }, 0);
+
                 $deliveries[$deliveryId]['sales'][] = [
                     'id' => $sale->getId(),
                     'quantity' => $sale->getQuantity(),
                     'price' => $sale->getPrice(),
                     'sale_date' => $sale->getSaleDate()->format('Y-m-d'),
+                    'total_paid' => $totalPaid
                 ];
             }
 
             // Convert to JSON
-            $jsonResult = json_encode(array_values($deliveries));
+            $jsonResult = json_encode(array_values($deliveries), JSON_PRETTY_PRINT);
 
             return $jsonResult;
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
-            return array(
+            return json_encode(array_values(array(
                 'status' => 'NOK',
                 'message' => 'Error getting sales'
-            );
+            )));
         }
     }
-
 }
