@@ -35,7 +35,7 @@ class SeedApi extends AbstractController
             if(empty($name) || empty($manufacture) ||  empty($farmUid) || empty($cropId)) {
                 return array(
                     'status' => 'NOK',
-                    'message' => 'Name, manufacture, farm_uid and crop_id values are required'
+                    'message' => 'Name, manufacture, farm ID and crop_id values are required'
                 );
             }
 

@@ -32,7 +32,7 @@ class CropApi extends AbstractController
             if(empty($name) || empty($farmUid)) {
                 return array(
                     'status' => 'NOK',
-                    'message' => 'Name and farm_uid values are required'
+                    'message' => 'Name and farm ID values are required'
                 );
             }
 
