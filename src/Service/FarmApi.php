@@ -33,7 +33,7 @@ class FarmApi extends AbstractController
             if (empty($name) || empty($googleUID)) {
                 return array(
                     'status' => 'NOK',
-                    'message' => 'Name and allow_registration values are required'
+                    'message' => 'Name and allow registration values are required'
                 );
             }
 
@@ -84,7 +84,7 @@ class FarmApi extends AbstractController
             if (empty($farmUid) || empty($googleUID)) {
                 return array(
                     'status' => 'NOK',
-                    'message' => 'joining_code and google_uid values are required'
+                    'message' => 'joining code and google_uid values are required'
                 );
             }
 

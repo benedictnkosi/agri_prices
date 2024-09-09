@@ -35,7 +35,7 @@ class CustomerApi extends AbstractController
             if (empty($name) || empty($contactPerson) || empty($phoneNumber) || empty($farmUid)) {
                 return array(
                     'status' => 'NOK',
-                    'message' => 'Name, contact_person and phone_number values are required'
+                    'message' => 'Name, contact person and phone number values are required'
                 );
             }
 
