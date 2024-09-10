@@ -177,7 +177,8 @@ class DashboardApi extends AbstractController
                 ->where('c.farm = :farm')
                 ->andWhere('sg.seedlingDate >= :threeMonthsAgo')
                 ->setParameter('threeMonthsAgo', new \DateTime('-3 months'))
-                ->setParameter('farm', $farm);
+                ->setParameter('farm', $farm)
+                ->orderBy('sg.seedlingDate','ASC');
 
             $results = $queryBuilder->getQuery()->getResult();
 
@@ -248,9 +249,10 @@ class DashboardApi extends AbstractController
                 ->join('sg.seed', 's')
                 ->join('s.crop', 'c')
                 ->where('c.farm = :farm')
-                ->andWhere('sg.seedlingDate >= :threeMonthsAgo')
+                ->andWhere('sg.transplantDate >= :threeMonthsAgo')
                 ->setParameter('threeMonthsAgo', new \DateTime('-3 months'))
-                ->setParameter('farm', $farm);
+                ->setParameter('farm', $farm)
+                ->orderBy('t.transplantDate','ASC');
 
             $results = $queryBuilder->getQuery()->getResult();
 
