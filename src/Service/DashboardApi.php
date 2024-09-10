@@ -146,4 +146,150 @@ class DashboardApi extends AbstractController
             );
         }
     }
+
+    public function getWeeklySeedlings(Request $request): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        try {
+
+            $farmUid = $request->query->get('farm_uid');
+
+            if (empty($farmUid)) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Farm uid values are required'
+                );
+            }
+
+            $farm = $this->em->getRepository(Farm::class)->findOneBy(['uid' => $farmUid]);
+            if (!$farm) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Farm not found'
+                );
+            }
+
+            $queryBuilder = $this->em->createQueryBuilder();
+            $queryBuilder->select('sg')
+                ->from('App\Entity\Seedling', 'sg')
+                ->join('sg.seed', 's')
+                ->join('s.crop', 'c')
+                ->where('c.farm = :farm')
+                ->andWhere('sg.seedlingDate >= :threeMonthsAgo')
+                ->setParameter('threeMonthsAgo', new \DateTime('-3 months'))
+                ->setParameter('farm', $farm);
+
+            $results = $queryBuilder->getQuery()->getResult();
+
+            foreach ($results as $result) {
+                $weekNumber = $result->getSeedlingDate()->format('W');
+                $cropName = $result->getSeed()->getCrop()->getName();
+                $quantity = $result->getQuantity();
+
+                if (!isset($groupedResults[$weekNumber])) {
+                    $groupedResults[$weekNumber] = [];
+                }
+
+                if (!isset($groupedResults[$weekNumber][$cropName])) {
+                    $groupedResults[$weekNumber][$cropName] = 0;
+                }
+
+                $groupedResults[$weekNumber][$cropName] += $quantity;
+            }
+
+            $formattedResults = [];
+            foreach ($groupedResults as $weekNumber => $crops) {
+                foreach ($crops as $cropName => $quantity) {
+                    $formattedResults[] = [
+                        'week' => (int)$weekNumber,
+                        'crop' => $cropName,
+                        'count' => $quantity
+                    ];
+                }
+            }
+
+            return $formattedResults;
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return array(
+                'status' => 'NOK',
+                'message' => 'Error getting weekly seedlings'
+            );
+        }
+    }
+
+
+    public function getWeeklyTransplants(Request $request): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        try {
+
+            $farmUid = $request->query->get('farm_uid');
+
+            if (empty($farmUid)) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Farm uid values are required'
+                );
+            }
+
+            $farm = $this->em->getRepository(Farm::class)->findOneBy(['uid' => $farmUid]);
+            if (!$farm) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Farm not found'
+                );
+            }
+
+            $queryBuilder = $this->em->createQueryBuilder();
+            $queryBuilder->select('t')
+                ->from('App\Entity\Transplant', 't')
+                ->join('t.seedling', 'sg')
+                ->join('sg.seed', 's')
+                ->join('s.crop', 'c')
+                ->where('c.farm = :farm')
+                ->andWhere('sg.seedlingDate >= :threeMonthsAgo')
+                ->setParameter('threeMonthsAgo', new \DateTime('-3 months'))
+                ->setParameter('farm', $farm);
+
+            $results = $queryBuilder->getQuery()->getResult();
+
+            $groupedResults = [];
+
+            foreach ($results as $result) {
+                $weekNumber = $result->getTransplantDate()->format('W');
+                $cropName = $result->getSeedling()->getSeed()->getCrop()->getName();
+                $quantity = $result->getQuantity();
+
+                if (!isset($groupedResults[$weekNumber])) {
+                    $groupedResults[$weekNumber] = [];
+                }
+
+                if (!isset($groupedResults[$weekNumber][$cropName])) {
+                    $groupedResults[$weekNumber][$cropName] = 0;
+                }
+
+                $groupedResults[$weekNumber][$cropName] += $quantity;
+            }
+
+            $formattedResults = [];
+            foreach ($groupedResults as $weekNumber => $crops) {
+                foreach ($crops as $cropName => $quantity) {
+                    $formattedResults[] = [
+                        'week' => (int)$weekNumber,
+                        'crop' => $cropName,
+                        'count' => $quantity
+                    ];
+                }
+            }
+
+            return $formattedResults;
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return array(
+                'status' => 'NOK',
+                'message' => 'Error getting weekly transplant'
+            );
+        }
+    }
 }
