@@ -199,10 +199,11 @@ class DashboardApi extends AbstractController
             }
 
             $formattedResults = [];
+            $currentDate = new \DateTime(); // Add this line to declare and initialize the $currentDate variable
             foreach ($groupedResults as $weekNumber => $crops) {
                 foreach ($crops as $cropName => $quantity) {
                     $formattedResults[] = [
-                        'week' => (int)$weekNumber,
+                        'date' => (new \DateTime())->setISODate((int)$currentDate->format('Y'), (int)$weekNumber)->format('Y-m-d'),
                         'crop' => $cropName,
                         'count' => $quantity
                     ];
@@ -275,10 +276,11 @@ class DashboardApi extends AbstractController
             }
 
             $formattedResults = [];
+            $currentDate = new \DateTime(); // Add this line to declare and initialize the $currentDate variable
             foreach ($groupedResults as $weekNumber => $crops) {
                 foreach ($crops as $cropName => $quantity) {
                     $formattedResults[] = [
-                        'week' => (int)$weekNumber,
+                        'date' => (new \DateTime())->setISODate((int)$currentDate->format('Y'), (int)$weekNumber)->format('Y-m-d'),
                         'crop' => $cropName,
                         'count' => $quantity
                     ];
