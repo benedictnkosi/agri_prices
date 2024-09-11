@@ -42,6 +42,7 @@ class SalesApi extends AbstractController
             $packagingId = $requestBody['packaging_id'];
             $quantity = $requestBody['quantity'];
             $farmUid = $requestBody['farm_uid'];
+            $paid = $requestBody['paid'];
 
 
             if (empty($customerId) || empty($price) || empty($date) || empty($cropId) || empty($quantity) || empty($farmUid)) {
@@ -95,6 +96,16 @@ class SalesApi extends AbstractController
             $this->em->persist($sale);
             $this->em->flush();
 
+            if($paid == "true"){
+                $payment = new Payment();
+                $payment->setSale($sale);
+                $payment->setAmount($price * $quantity);
+                $payment->setDate($date);
+                $payment->setPaymentMethod($requestBody['payment_method']);
+
+                $this->em->persist($payment);
+                $this->em->flush();
+            }
             return array(
                 'status' => 'OK',
                 'message' => 'Sale recorded successfully',
