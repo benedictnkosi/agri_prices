@@ -327,4 +327,56 @@ class AgentApi extends AbstractController
             )));
         }
     }
+
+
+    public function deleteItem(Request $request): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        try {
+            $requestBody = json_decode($request->getContent(), true);
+
+            $id = $requestBody['id'];
+            $entity = $requestBody['entity'];
+            $farmUid = $requestBody['farm_uid'];
+
+            if (empty($id) || empty($farmUid)) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'All fields are required'
+                );
+            }
+
+            $farm = $this->em->getRepository(Farm::class)->findOneBy(['uid' => $farmUid]);
+            if (!$farm) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Farm not found'
+                );
+            }
+
+            $entityClass = 'App\Entity\\' . ucfirst($entity);
+                    $item = $this->em->getRepository($entityClass)->findOneBy(['id' => $id]);
+
+            if (!$item) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Item not found'
+                );
+            }
+
+            $this->em->remove($item);
+            $this->em->flush();
+
+            return array(
+                'status' => 'OK',
+                'message' => 'Item removed successfully',
+            );
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return array(
+                'status' => 'NOK',
+                'message' => 'Error removing item'
+            );
+        }
+    }
 }
