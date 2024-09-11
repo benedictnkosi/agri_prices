@@ -198,6 +198,22 @@ class AgentApi extends AbstractController
                 );
             }
 
+            $agentSalesTotal = $this->em->createQueryBuilder()
+                ->select('SUM(s.quantity)')
+                ->from('App\Entity\AgentSales', 's')
+                ->where('s.delivery = :delivery')
+                ->setParameter('delivery', $delivery)
+                ->getQuery()
+                ->getSingleScalarResult();
+
+            $newSaleQuantity = intval($agentSalesTotal) + intval($quantity);
+            if($newSaleQuantity > $delivery->getQuantity()){
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Quantity sold exceeds delivery quantity'
+                );
+            }
+
 
             $sale = new AgentSales();
             $sale->setPrice($price);
