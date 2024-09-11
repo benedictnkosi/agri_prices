@@ -44,6 +44,7 @@ class DataApi extends AbstractController
             $crop->setLastUpdate(new \DateTime());
         }else{
             $crop->setStatus(substr($response['result_message'],0,45)); 
+            $crop->setLastUpdate(new \DateTime());
         }
 
         $this->em->persist($crop);
