@@ -268,6 +268,8 @@ class AgentApi extends AbstractController
                         'crop_name' => $sale->getDelivery()->getCrop()->getName(),
                         'id' => $sale->getDelivery()->getId(),
                         'agent' => $sale->getDelivery()->getCustomer()->getName(),
+                        'quantity' => $sale->getDelivery()->getQuantity(),
+                        'packaging' => $sale->getDelivery()->getPackaging()->getName(),
                         'sales' => []
                     ];
                 }
