@@ -36,7 +36,7 @@ class PlantingApi extends AbstractController
 
             $farmUid = $requestBody['farm_uid'];
 
-            if(empty($seedId) || empty($quantity) || empty($seedlingDate) || empty($farmUid) || empty($transplantDate)) {
+            if (empty($seedId) || empty($quantity) || empty($seedlingDate) || empty($farmUid) || empty($transplantDate)) {
                 return array(
                     'status' => 'NOK',
                     'message' => 'All values are required'
@@ -46,7 +46,7 @@ class PlantingApi extends AbstractController
 
             $transplantDateObj = new \DateTime($transplantDate);
             $seedlingDateObj = new \DateTime($seedlingDate);
-            
+
             if ($transplantDateObj < $seedlingDateObj) {
                 return array(
                     'status' => 'NOK',
@@ -54,7 +54,7 @@ class PlantingApi extends AbstractController
                 );
             }
 
-            
+
             $farm = $this->em->getRepository(Farm::class)->findOneBy(['uid' => $farmUid]);
             if (!$farm) {
                 return array(
@@ -106,7 +106,7 @@ class PlantingApi extends AbstractController
             $harvestDate = $requestBody['harvest_date'];
             $farmUid = $requestBody['farm_uid'];
 
-            if(empty($seedlingId) || empty($quantity) || empty($transplantDate) || empty($farmUid)) {
+            if (empty($seedlingId) || empty($quantity) || empty($transplantDate) || empty($farmUid)) {
                 return array(
                     'status' => 'NOK',
                     'message' => 'Seedling, quantity, transplant date and farm uid values are required'
@@ -131,14 +131,14 @@ class PlantingApi extends AbstractController
 
             $transplantDateObj = new \DateTime($transplantDate);
             $harvestDateObj = new \DateTime($harvestDate);
-            
+
             if ($harvestDateObj < $transplantDateObj) {
                 return array(
                     'status' => 'NOK',
                     'message' => 'Harvest date cannot be before transplant date'
                 );
             }
-            
+
             $transplant = new Transplant();
             $transplant->setSeedling($seedling);
             $transplant->setQuantity($quantity);
@@ -152,7 +152,7 @@ class PlantingApi extends AbstractController
             $seedling->setTransplanted(true);
             $this->em->persist($seedling);
             $this->em->flush();
-            
+
             return array(
                 'status' => 'OK',
                 'message' => 'Transplant created successfully',
@@ -171,8 +171,9 @@ class PlantingApi extends AbstractController
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         try {
-        
+
             $farmUid = $request->query->get('farm_uid');
+            $cropId = $request->query->get('crop_id');
 
             if (empty($farmUid)) {
                 return array(
@@ -191,19 +192,33 @@ class PlantingApi extends AbstractController
 
             $queryBuilder = $this->em->createQueryBuilder();
 
-            $query = $queryBuilder
-                ->select('b')
-                ->from('App\Entity\Seedling', 'b')
-                ->innerJoin('b.seed', 's')
-                ->innerJoin('s.crop', 'c')
-                ->where('c.farm = :farm')
-                ->setParameter('farm', $farm)
-                ->orderBy('b.seedlingDate', 'DESC')
-                ->getQuery();
+            if ($cropId) {
+                $query = $queryBuilder
+                    ->select('b')
+                    ->from('App\Entity\Seedling', 'b')
+                    ->innerJoin('b.seed', 's')
+                    ->innerJoin('s.crop', 'c')
+                    ->where('c.farm = :farm')
+                    ->andWhere('c.id = :cropId')
+                    ->setParameter('farm', $farm)
+                    ->setParameter('cropId', $cropId)
+                    ->orderBy('b.seedlingDate', 'DESC')
+                    ->getQuery();
+            } else {
+                $query = $queryBuilder
+                    ->select('b')
+                    ->from('App\Entity\Seedling', 'b')
+                    ->innerJoin('b.seed', 's')
+                    ->innerJoin('s.crop', 'c')
+                    ->where('c.farm = :farm')
+                    ->setParameter('farm', $farm)
+                    ->orderBy('b.seedlingDate', 'DESC')
+                    ->getQuery();
+            }
 
-                $results = $query->getResult();
+            $results = $query->getResult();
 
-                return $results;
+            return $results;
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
             return array(
@@ -217,8 +232,9 @@ class PlantingApi extends AbstractController
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         try {
-        
+
             $farmUid = $request->query->get('farm_uid');
+            $cropId = $request->query->get('crop_id');
 
             if (empty($farmUid)) {
                 return array(
@@ -237,21 +253,35 @@ class PlantingApi extends AbstractController
 
             $queryBuilder = $this->em->createQueryBuilder();
 
-            $query = $queryBuilder
-                ->select('t')
-                ->from('App\Entity\Transplant', 't')
-                ->innerJoin('t.seedling', 'b')
-                ->innerJoin('b.seed', 's')
-                ->innerJoin('s.crop', 'c')
-                ->where('c.farm = :farm')
-                ->setParameter('farm', $farm)
-                ->orderBy('t.transplantDate', 'DESC')
-                ->getQuery();      
-            
+            if ($cropId) {
+                $query = $queryBuilder
+                    ->select('t')
+                    ->from('App\Entity\Transplant', 't')
+                    ->innerJoin('t.seedling', 'b')
+                    ->innerJoin('b.seed', 's')
+                    ->innerJoin('s.crop', 'c')
+                    ->where('c.farm = :farm')
+                    ->andWhere('c.id = :cropId')
+                    ->setParameter('farm', $farm)
+                    ->setParameter('cropId', $cropId)
+                    ->orderBy('t.transplantDate', 'DESC')
+                    ->getQuery();
+            } else {
+                $query = $queryBuilder
+                    ->select('t')
+                    ->from('App\Entity\Transplant', 't')
+                    ->innerJoin('t.seedling', 'b')
+                    ->innerJoin('b.seed', 's')
+                    ->innerJoin('s.crop', 'c')
+                    ->where('c.farm = :farm')
+                    ->setParameter('farm', $farm)
+                    ->orderBy('t.transplantDate', 'DESC')
+                    ->getQuery();
+            }
 
-                $results = $query->getResult();
+            $results = $query->getResult();
 
-                return $results;
+            return $results;
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
             return array(
@@ -260,5 +290,4 @@ class PlantingApi extends AbstractController
             );
         }
     }
-    
 }
