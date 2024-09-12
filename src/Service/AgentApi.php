@@ -207,7 +207,7 @@ class AgentApi extends AbstractController
                 ->getSingleScalarResult();
 
             $newSaleQuantity = intval($agentSalesTotal) + intval($quantity);
-            if($newSaleQuantity > $delivery->getQuantity()){
+            if ($newSaleQuantity > $delivery->getQuantity()) {
                 return array(
                     'status' => 'NOK',
                     'message' => 'Quantity sold exceeds delivery quantity'
@@ -244,6 +244,7 @@ class AgentApi extends AbstractController
         try {
 
             $farmUid = $request->query->get('farm_uid');
+            $agentId = $request->query->get('agent_id');
 
             if (empty($farmUid)) {
                 return json_encode(array_values(array(
@@ -262,15 +263,37 @@ class AgentApi extends AbstractController
 
             $queryBuilder = $this->em->createQueryBuilder();
 
-            $query = $queryBuilder
-                ->select('s')
-                ->from('App\Entity\AgentSales', 's')
-                ->innerJoin('s.delivery', 'md')
-                ->where('md.farm = :farm')
-                ->setParameter('farm', $farm)
-                ->orderBy('s.saleDate', 'DESC')
-                ->setMaxResults(100)
-                ->getQuery();
+            if ($agentId) {
+
+                $agent = $this->em->getRepository(Customer::class)->findOneBy(['id' => $agentId]);
+                if (!$agent) {
+                    return json_encode(array(
+
+                    ));
+                }
+
+                $query = $queryBuilder
+                    ->select('s')
+                    ->from('App\Entity\AgentSales', 's')
+                    ->innerJoin('s.delivery', 'md')
+                    ->where('md.farm = :farm')
+                    ->andWhere('md.customer = :agent')
+                    ->setParameter('farm', $farm)
+                    ->setParameter('agent', $agent)
+                    ->orderBy('s.saleDate', 'DESC')
+                    ->setMaxResults(100)
+                    ->getQuery();
+            } else {
+                $query = $queryBuilder
+                    ->select('s')
+                    ->from('App\Entity\AgentSales', 's')
+                    ->innerJoin('s.delivery', 'md')
+                    ->where('md.farm = :farm')
+                    ->setParameter('farm', $farm)
+                    ->orderBy('s.saleDate', 'DESC')
+                    ->setMaxResults(100)
+                    ->getQuery();
+            }
 
             $results = $query->getResult();
 
@@ -355,7 +378,7 @@ class AgentApi extends AbstractController
             }
 
             $entityClass = 'App\Entity\\' . ucfirst($entity);
-                    $item = $this->em->getRepository($entityClass)->findOneBy(['id' => $id]);
+            $item = $this->em->getRepository($entityClass)->findOneBy(['id' => $id]);
 
             if (!$item) {
                 return array(
