@@ -96,7 +96,7 @@ class SalesApi extends AbstractController
             $this->em->persist($sale);
             $this->em->flush();
 
-            if($paid == "true"){
+            if ($paid == "true") {
                 $payment = new Payment();
                 $payment->setSale($sale);
                 $payment->setAmount($price * $quantity);
@@ -129,7 +129,7 @@ class SalesApi extends AbstractController
         try {
 
             $farmUid = $request->query->get('farm_uid');
-
+            $customerId = $request->query->get('customer_id');
             if (empty($farmUid)) {
                 return array(
                     'status' => 'NOK',
@@ -147,20 +147,48 @@ class SalesApi extends AbstractController
 
             $queryBuilder = $this->em->createQueryBuilder();
 
-            $query = $queryBuilder
-                ->select('s.id AS sale_id', 'c.name AS crop_name', 'cust.name AS customer_name', 'pack.name AS packaging', 's.date', 's.price', 's.quantity', 'IDENTITY(s.farm) AS farm')
-                ->addSelect('COALESCE(SUM(p.amount), 0) AS total_payments')
-                ->from('App\Entity\Sales', 's')
-                ->leftJoin('s.crop', 'c')
-                ->leftJoin('s.customer', 'cust')
-                ->leftJoin('s.packaging', 'pack')
-                ->leftJoin('App\Entity\Payment', 'p', Join::WITH, 's.id = p.sale')
-                ->where('s.farm = :farm')
-                ->groupBy('s.id', 'c.name', 'cust.name')  // Group by crop and customer name to avoid aggregation issues
-                ->setParameter('farm', $farm)
-                ->orderBy('s.date', 'DESC')
-                ->setMaxResults(100)
-                ->getQuery();
+            if ($customerId) {
+
+                $customer = $this->em->getRepository(Customer::class)->findOneBy(['id' => $customerId]);
+                if (!$customer) {
+                    return array(
+                        'status' => 'NOK',
+                        'message' => 'Customer not found'
+                    );
+                }
+
+                $query = $queryBuilder
+                    ->select('s.id AS sale_id', 'c.name AS crop_name', 'cust.name AS customer_name', 'pack.name AS packaging', 's.date', 's.price', 's.quantity', 'IDENTITY(s.farm) AS farm')
+                    ->addSelect('COALESCE(SUM(p.amount), 0) AS total_payments')
+                    ->from('App\Entity\Sales', 's')
+                    ->leftJoin('s.crop', 'c')
+                    ->leftJoin('s.customer', 'cust')
+                    ->leftJoin('s.packaging', 'pack')
+                    ->leftJoin('App\Entity\Payment', 'p', Join::WITH, 's.id = p.sale')
+                    ->where('s.farm = :farm')
+                    ->andWhere('s.customer = :customer')
+                    ->groupBy('s.id', 'c.name', 'cust.name')  // Group by crop and customer name to avoid aggregation issues
+                    ->setParameter('farm', $farm)
+                    ->setParameter('customer', $customer)
+                    ->orderBy('s.date', 'DESC')
+                    ->setMaxResults(100)
+                    ->getQuery();
+            } else {
+                $query = $queryBuilder
+                    ->select('s.id AS sale_id', 'c.name AS crop_name', 'cust.name AS customer_name', 'pack.name AS packaging', 's.date', 's.price', 's.quantity', 'IDENTITY(s.farm) AS farm')
+                    ->addSelect('COALESCE(SUM(p.amount), 0) AS total_payments')
+                    ->from('App\Entity\Sales', 's')
+                    ->leftJoin('s.crop', 'c')
+                    ->leftJoin('s.customer', 'cust')
+                    ->leftJoin('s.packaging', 'pack')
+                    ->leftJoin('App\Entity\Payment', 'p', Join::WITH, 's.id = p.sale')
+                    ->where('s.farm = :farm')
+                    ->groupBy('s.id', 'c.name', 'cust.name')  // Group by crop and customer name to avoid aggregation issues
+                    ->setParameter('farm', $farm)
+                    ->orderBy('s.date', 'DESC')
+                    ->setMaxResults(100)
+                    ->getQuery();
+            }
 
 
             $results = $query->getResult();
@@ -212,7 +240,7 @@ class SalesApi extends AbstractController
 
             $payment = new Payment();
 
-            if (!empty($saleId)){
+            if (!empty($saleId)) {
                 $sale = $this->em->getRepository(Sales::class)->findOneBy(['id' => $saleId]);
                 if (!$sale) {
                     return array(
@@ -221,7 +249,7 @@ class SalesApi extends AbstractController
                     );
                 }
                 $payment->setSale($sale);
-            }else{
+            } else {
                 $sale = $this->em->getRepository(AgentSales::class)->findOneBy(['id' => $agentSaleId]);
                 if (!$sale) {
                     return array(
@@ -231,7 +259,7 @@ class SalesApi extends AbstractController
                 }
                 $payment->setAgentSale($sale);
             }
-            
+
             $payment->setAmount($amount);
             $payment->setDate($date);
             $payment->setPaymentMethod($paymentMethod);
@@ -265,7 +293,7 @@ class SalesApi extends AbstractController
                     'message' => 'Sale id is required'
                 );
             }
-            
+
             $sale = $this->em->getRepository(Farm::class)->findOneBy(['id' => $saleId]);
             if (!$sale) {
                 return array(
