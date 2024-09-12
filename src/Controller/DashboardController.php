@@ -28,6 +28,18 @@ class DashboardController extends AbstractController
     }
 
     /**
+     * @Route("public/dashboard/agentdailysales", name="getAgentSalesAmountPerDay", methods={"GET"})
+     */
+    public function getAgentSalesAmountPerDay(Request $request, LoggerInterface $logger, DashboardApi $api): Response
+    {
+        $logger->info("Starting Method: " . __METHOD__);
+        $response = $api->getAgentSalesAmountPerDay($request);
+        $serializer = SerializerBuilder::create()->build();
+        $jsonContent = $serializer->serialize($response, 'json');
+        return new JsonResponse($jsonContent , 200, array('Access-Control-Allow-Origin' => '*'), true);
+    }
+
+    /**
      * @Route("public/dashboard/salesStats", name="getSalesStats", methods={"GET"})
      */
     public function getSalesStats(Request $request, LoggerInterface $logger, DashboardApi $api): Response

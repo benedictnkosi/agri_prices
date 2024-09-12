@@ -60,7 +60,52 @@ class DashboardApi extends AbstractController
                 ->groupBy('s.date')
                 ->orderBy('s.date', 'ASC');
 
-            return $queryBuilder->getQuery()->getResult();
+            return  $queryBuilder->getQuery()->getResult();
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return array(
+                'status' => 'NOK',
+                'message' => 'Error getting daily sales'
+            );
+        }
+    }
+
+
+    public function getAgentSalesAmountPerDay(Request $request): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        try {
+
+            $farmUid = $request->query->get('farm_uid');
+
+            if (empty($farmUid)) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Farm uid values are required'
+                );
+            }
+
+            $farm = $this->em->getRepository(Farm::class)->findOneBy(['uid' => $farmUid]);
+            if (!$farm) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Farm not found'
+                );
+            }
+
+            
+            $queryBuilder = $this->em->createQueryBuilder('s')
+                ->select('s.saleDate as date, SUM(s.price * s.quantity) as totalSales')
+                ->from('App\Entity\AgentSales', 's')
+                ->innerJoin('s.delivery', 'md')
+                ->where('md.farm = :farm')
+                ->setParameter('farm', $farm)
+                ->groupBy('s.saleDate')
+                ->orderBy('s.saleDate', 'ASC');
+
+            return  $queryBuilder->getQuery()->getResult();
+
+            
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
             return array(
@@ -178,7 +223,7 @@ class DashboardApi extends AbstractController
                 ->andWhere('sg.seedlingDate >= :threeMonthsAgo')
                 ->setParameter('threeMonthsAgo', new \DateTime('-3 months'))
                 ->setParameter('farm', $farm)
-                ->orderBy('sg.seedlingDate','ASC');
+                ->orderBy('sg.seedlingDate', 'ASC');
 
             $results = $queryBuilder->getQuery()->getResult();
 
@@ -253,7 +298,7 @@ class DashboardApi extends AbstractController
                 ->andWhere('sg.transplantDate >= :threeMonthsAgo')
                 ->setParameter('threeMonthsAgo', new \DateTime('-3 months'))
                 ->setParameter('farm', $farm)
-                ->orderBy('t.transplantDate','ASC');
+                ->orderBy('t.transplantDate', 'ASC');
 
             $results = $queryBuilder->getQuery()->getResult();
 
