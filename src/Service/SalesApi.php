@@ -175,7 +175,7 @@ class SalesApi extends AbstractController
                     ->getQuery();
             } else {
                 $query = $queryBuilder
-                    ->select('s.id AS sale_id', 'c.name AS crop_name', 'cust.name AS customer_name', 'pack.name AS packaging', 's.date', 's.price', 's.quantity', 'IDENTITY(s.farm) AS farm')
+                    ->select('s.id AS sale_id', 'c.name AS crop_name', 'cust.name AS customer_name', 'pack.name AS packaging', 's.date', 's.price', 's.quantity', 's.paid', 'IDENTITY(s.farm) AS farm')
                     ->addSelect('COALESCE(SUM(p.amount), 0) AS total_payments')
                     ->from('App\Entity\Sales', 's')
                     ->leftJoin('s.crop', 'c')
@@ -215,6 +215,7 @@ class SalesApi extends AbstractController
             $farmUid = $requestBody['farm_uid'];
             $saleId = isset($requestBody['sale_id']) ? $requestBody['sale_id'] : null;
             $agentSaleId = isset($requestBody['agent_sale_id']) ? $requestBody['agent_sale_id'] : null;
+
 
             if (empty($amount) || empty($date) || empty($farmUid)) {
                 return array(
@@ -260,6 +261,7 @@ class SalesApi extends AbstractController
                 $payment->setAgentSale($sale);
             }
 
+
             $payment->setAmount($amount);
             $payment->setDate($date);
             $payment->setPaymentMethod($paymentMethod);
@@ -277,6 +279,61 @@ class SalesApi extends AbstractController
             return array(
                 'status' => 'NOK',
                 'message' => 'Error adding payment'
+            );
+        }
+    }
+
+
+    public function markAsPaid(Request $request): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        try {
+
+            $requestBody = json_decode($request->getContent(), true);
+
+            $farmUid = $requestBody['farm_uid'];
+            $agentSaleId = isset($requestBody['agent_sale_id']) ? $requestBody['agent_sale_id'] : null;
+
+
+            if (empty($farmUid)) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'All fields are required'
+                );
+            }
+
+            $farm = $this->em->getRepository(Farm::class)->findOneBy(['uid' => $farmUid]);
+            if (!$farm) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Farm not found'
+                );
+            }
+
+
+            $sale = $this->em->getRepository(AgentSales::class)->findOneBy(['id' => $agentSaleId]);
+            if (!$sale) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Sale not found'
+                );
+            }
+
+            $sale->setPaid(true);
+            $this->em->persist($sale);
+            $this->em->flush();
+
+
+            return array(
+                'status' => 'OK',
+                'message' => 'Sale mark as paid successfully',
+                'id' => $sale->getId()
+            );
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return array(
+                'status' => 'NOK',
+                'message' => 'Error updating sale'
             );
         }
     }

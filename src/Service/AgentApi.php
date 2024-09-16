@@ -334,7 +334,8 @@ class AgentApi extends AbstractController
                     'quantity' => $sale->getQuantity(),
                     'price' => $sale->getPrice(),
                     'sale_date' => $sale->getSaleDate()->format('Y-m-d'),
-                    'total_paid' => $totalPaid
+                    'total_paid' => $totalPaid,
+                    'paid' => $sale->isPaid()
                 ];
             }
 

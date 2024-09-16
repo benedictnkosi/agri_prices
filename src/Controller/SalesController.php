@@ -44,6 +44,18 @@ class SalesController extends AbstractController
         $response = $api->addPayment($request);
         return new JsonResponse($response, 200, array('Access-Control-Allow-Origin' => '*'));
     }
+
+    /**
+     * @Route("public/sale/paid", name="markAsPaid", methods={"POST"})
+     */
+    public function markAsPaid(Request $request, LoggerInterface $logger, SalesApi $api): Response
+    {
+        $logger->info("Starting Method: " . __METHOD__);
+        $response = $api->markAsPaid($request);
+        return new JsonResponse($response, 200, array('Access-Control-Allow-Origin' => '*'));
+    }
+
+    
     /**
      * @Route("public/payments/get", name="getPayments", methods={"GET"})
      */

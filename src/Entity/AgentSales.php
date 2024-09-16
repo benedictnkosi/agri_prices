@@ -44,6 +44,13 @@ class AgentSales
     private $saleDate;
 
     /**
+     * @var bool|null
+     *
+     * @ORM\Column(name="paid", type="boolean", nullable=true)
+     */
+    private $paid = '0';
+
+    /**
      * @var \MarketDelivery
      *
      * @ORM\ManyToOne(targetEntity="MarketDelivery")
@@ -90,6 +97,18 @@ class AgentSales
     public function setSaleDate(?\DateTimeInterface $saleDate): static
     {
         $this->saleDate = $saleDate;
+
+        return $this;
+    }
+
+    public function isPaid(): ?bool
+    {
+        return $this->paid;
+    }
+
+    public function setPaid(?bool $paid): static
+    {
+        $this->paid = $paid;
 
         return $this;
     }
