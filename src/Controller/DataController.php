@@ -21,10 +21,6 @@ class DataController extends AbstractController
     public function getSingleImport(Request $request, LoggerInterface $logger, DataApi $api): Response
     {
         $logger->info("Starting Method: " . __METHOD__);
-        if (!$request->isMethod('GET')) {
-            return new JsonResponse("Method Not Allowed", 405, array('Access-Control-Allow-Origin' => '*'));
-        }
-
        $response =  $api->singleImport();
         return new JsonResponse($response, 200, array('Access-Control-Allow-Origin' => '*'));
     }

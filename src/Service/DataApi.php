@@ -41,10 +41,13 @@ class DataApi extends AbstractController
         );   
         
         if (!$crop) {
+            $this->logger->debug("No crops to import");
             return array(
                 'result_message' => "No crops to import",
                 'result_code' => 1
             );
+        }else{
+            $this->logger->debug("Crop to import: " . $crop->getCropName());
         }
         
         $response =  $this->importBulkData($crop->getCropId(), $crop->getCropName(), 7, $crop->getMarket());
