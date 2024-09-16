@@ -230,11 +230,11 @@ class DataApi extends AbstractController
                                 $this->logger->debug("commodity already added " . $cells->item(0)->nodeValue);
                             } else {
 
-                                $commodity = $this->em->getRepository(Market::class)->findOneBy(
+                                $commodityCheck = $this->em->getRepository(Market::class)->findOneBy(
                                     ["date" => $dateObject, "commodity" => $productName, "market" => $market, "totalQuantitySold" => $unitsSold]
                                 ); 
     
-                                if($commodity){
+                                if($commodityCheck){
                                     $this->logger->debug("commodity already added ");
                                     continue;
                                 }
