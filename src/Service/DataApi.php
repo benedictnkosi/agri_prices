@@ -66,10 +66,11 @@ class DataApi extends AbstractController
         }else{
             $crop->setStatus(substr($response['result_message'],0,45)); 
             $crop->setLastUpdate(new \DateTime());
+            $this->em->persist($crop);
+        $this->em->flush();
         }
 
-        $this->em->persist($crop);
-        $this->em->flush();
+        
 
         return $response;
     }
