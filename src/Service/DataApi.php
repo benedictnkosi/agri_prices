@@ -50,7 +50,7 @@ class DataApi extends AbstractController
             $this->logger->debug("Crop to import: " . $crop->getCropName());
         }
         
-        $response =  $this->importBulkData($crop->getCropId(), $crop->getCropName(), 7, $crop->getMarket());
+        $response =  $this->importBulkData($crop->getCropId(), $crop->getCropName(), 8, $crop->getMarket());
 
         if ($response['result_code'] === 0) {
             $crop->setStatus("Imported. " . $response['number_of_records']);
@@ -69,8 +69,6 @@ class DataApi extends AbstractController
             $this->em->persist($crop);
         $this->em->flush();
         }
-
-        
 
         return $response;
     }
