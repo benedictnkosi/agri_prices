@@ -52,6 +52,14 @@ class DataApi extends AbstractController
         if ($response['result_code'] === 0) {
             $crop->setStatus("Imported. " . $response['number_of_records']);
             $crop->setLastUpdate(new \DateTime());
+            $this->em->persist($crop);
+            $this->em->flush();
+            if($response['number_of_records'] == 0){
+                $this->logger->debug("No records imported for crop: " . $crop->getCropName());
+                //processing next crop
+                $this->singleImport();
+            }
+            
         }else{
             $crop->setStatus(substr($response['result_message'],0,45)); 
             $crop->setLastUpdate(new \DateTime());
