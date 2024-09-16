@@ -113,6 +113,13 @@ class Market
      */
     private $date;
 
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="variety", type="string", length=100, nullable=true)
+     */
+    private $variety;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -270,6 +277,18 @@ class Market
     public function setDate(?\DateTimeInterface $date): static
     {
         $this->date = $date;
+
+        return $this;
+    }
+
+    public function getVariety(): ?string
+    {
+        return $this->variety;
+    }
+
+    public function setVariety(?string $variety): static
+    {
+        $this->variety = $variety;
 
         return $this;
     }
