@@ -143,6 +143,7 @@ class PricesApi extends AbstractController
         $weight = $request->query->get('weight');
         $period = $request->query->get('period');
         $cultivar = $request->query->get('cultivar');
+        $market = $request->query->get('market');
         
         $this->logger->debug("Cultivar - " .  $cultivar);
 
@@ -174,6 +175,11 @@ class PricesApi extends AbstractController
                 ->setParameter('cultivar', $cultivar);
         }
 
+        if ($market !== null && !empty($market)) {
+            $qb->andWhere('c.market LIKE :market')
+                ->setParameter('market', $market);
+        }
+
         if ($crop == "Potato") {
             $qb->andWhere('c.commodity NOT LIKE :commodity')
                 ->setParameter('commodity', "%SWEET%");
@@ -188,6 +194,7 @@ class PricesApi extends AbstractController
         $qb = $this->em->createQueryBuilder();
         $field = $request->query->get('field');
         $crop = $request->query->get('crop');
+        $market = $request->query->get('market');
 
         $qb->select("c.$field AS filterField, COUNT(c.id) AS count")
         ->from(Market::class, 'c')
@@ -217,6 +224,11 @@ class PricesApi extends AbstractController
                 ->setParameter('commodity', "%SWEET%");
         }
 
+        if ($market !== null && !empty($market)) {
+            $qb->andWhere('c.market LIKE :market')
+                ->setParameter('market', $market);
+        }
+
         $qb->groupBy("c.$field")
         ->orderBy('count', 'DESC')
         ->setMaxResults(5);
@@ -227,6 +239,7 @@ class PricesApi extends AbstractController
     public function getTotalsByProvince(Request $request)
     {
         $date = $this->getDate($request->query->get('period'));
+        $market = $request->query->get('market');
         $qb = $this->em->createQueryBuilder();
         $qb->select('c.province, SUM(c.salesTotal) as totalSales') // Select province and sum of salesTotal
             ->from(Market::class, 'c')
@@ -245,6 +258,11 @@ class PricesApi extends AbstractController
                 ->setParameter('weight', $request->query->get('weight'));
         }
 
+        if ($market !== null && !empty($market)) {
+            $qb->andWhere('c.market LIKE :market')
+                ->setParameter('market', $market);
+        }
+
         $qb->groupBy('c.province')
             ->orderBy('totalSales', 'DESC');
 
@@ -258,7 +276,8 @@ class PricesApi extends AbstractController
         $crop = $request->query->get('crop');
         $currentStartDate = (new \DateTime())->modify("-$monthsAgo months");
         $previousStartDate = (new \DateTime())->modify("-" . ($monthsAgo * 2) . " months");
-
+        $market = $request->query->get('market');
+        
         $date = $this->getDate($request->query->get('period'));
         $qb = $this->em->createQueryBuilder();
         $qb->select('SUM(c.salesTotal) as totalSales') // Select province and sum of salesTotal
@@ -267,6 +286,8 @@ class PricesApi extends AbstractController
             ->setParameter('previousMonthsAgo', $previousStartDate)
             ->andWhere('c.date < :currentMonthsAgo')
             ->setParameter('currentMonthsAgo', $currentStartDate)
+            ->andWhere('c.market LIKE :market')
+            ->setParameter('market', $market)
             ->andWhere('c.commodity LIKE :crop')
             ->setParameter('crop', '%' . $request->query->get('crop') . '%');
 

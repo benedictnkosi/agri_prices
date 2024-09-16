@@ -231,7 +231,7 @@ class DataApi extends AbstractController
                             } else {
 
                                 $commodityCheck = $this->em->getRepository(Market::class)->findOneBy(
-                                    ["date" => $dateObject, "commodity" => $productName, "market" => $market, "totalQuantitySold" => $unitsSold]
+                                    ["date" => $dateObject->format('Y-m-d')."%", "commodity" => $productName, "market" => $market, "totalQuantitySold" => $unitsSold]
                                 ); 
     
                                 if($commodityCheck){
