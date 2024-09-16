@@ -142,10 +142,9 @@ class PricesApi extends AbstractController
         $grade = $request->query->get('grade');
         $weight = $request->query->get('weight');
         $period = $request->query->get('period');
-        $cultivar = $request->query->get('cultivar');
+        $variety = $request->query->get('variety');
         $market = $request->query->get('market');
         
-        $this->logger->debug("Cultivar - " .  $cultivar);
 
         $date = $this->getDate($period);
         /** @var QueryBuilder $qb */
@@ -170,9 +169,9 @@ class PricesApi extends AbstractController
                 ->setParameter('weight', $weight);
         }
 
-        if ($cultivar !== null && !empty($cultivar)) {
-            $qb->andWhere('c.commodity LIKE :cultivar')
-                ->setParameter('cultivar', $cultivar);
+        if ($variety !== null && !empty($variety)) {
+            $qb->andWhere('c.variety LIKE :variety')
+                ->setParameter('variety', $variety);
         }
 
         if ($market !== null && !empty($market)) {
@@ -184,6 +183,8 @@ class PricesApi extends AbstractController
             $qb->andWhere('c.commodity NOT LIKE :commodity')
                 ->setParameter('commodity', "%SWEET%");
         }
+
+        
 
         return $qb->getQuery()->getResult();
     }
@@ -214,14 +215,9 @@ class PricesApi extends AbstractController
                 ->setParameter('weight', $request->query->get('weight'));
         }
 
-        if ($field !== "commodity" && !empty($request->query->get('commodity'))) {
-            $qb->andWhere('c.commodity LIKE :commodity')
-                ->setParameter('commodity', $request->query->get('commodity'));
-        }
-
-        if ($field == "commodity" && $crop == "Potato") {
-            $qb->andWhere('c.commodity NOT LIKE :commodity')
-                ->setParameter('commodity', "%SWEET%");
+        if ($field !== "variety" && !empty($request->query->get('variety'))) {
+            $qb->andWhere('c.variety LIKE :variety')
+                ->setParameter('variety', $request->query->get('variety'));
         }
 
         if ($market !== null && !empty($market)) {
