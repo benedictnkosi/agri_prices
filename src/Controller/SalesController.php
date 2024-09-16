@@ -46,7 +46,7 @@ class SalesController extends AbstractController
     }
 
     /**
-     * @Route("public/sale/paid", name="markAsPaid", methods={"POST"})
+     * @Route("public/updatesale/paid", name="markAsPaid", methods={"POST"})
      */
     public function markAsPaid(Request $request, LoggerInterface $logger, SalesApi $api): Response
     {
@@ -55,7 +55,7 @@ class SalesController extends AbstractController
         return new JsonResponse($response, 200, array('Access-Control-Allow-Origin' => '*'));
     }
 
-    
+
     /**
      * @Route("public/payments/get", name="getPayments", methods={"GET"})
      */
