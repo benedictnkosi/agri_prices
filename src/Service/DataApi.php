@@ -231,9 +231,21 @@ class DataApi extends AbstractController
                                 $this->logger->debug("commodity already added " . $cells->item(0)->nodeValue);
                             } else {
 
-                                $commodityCheck = $this->em->getRepository(Market::class)->findOneBy(
-                                    ["date" => $dateObject->format('Y-m-d')."%", "commodity" => $productName, "market" => $market, "totalQuantitySold" => $unitsSold]
-                                ); 
+                                $dateStart = (clone $dateObject)->setTime(0, 0, 0);
+                                $dateEnd = (clone $dateObject)->setTime(23, 59, 59);
+                            
+                                $commodityCheck = $this->em->getRepository(Market::class)->createQueryBuilder('m')
+                                    ->where('m.date BETWEEN :dateStart AND :dateEnd')
+                                    ->andWhere('m.commodity = :commodity')
+                                    ->andWhere('m.market = :market')
+                                    ->andWhere('m.totalQuantitySold = :totalQuantitySold')
+                                    ->setParameter('dateStart', $dateStart)
+                                    ->setParameter('dateEnd', $dateEnd)
+                                    ->setParameter('commodity', $productName)
+                                    ->setParameter('market', $market)
+                                    ->setParameter('totalQuantitySold', $unitsSold)
+                                    ->getQuery()
+                                    ->getOneOrNullResult();
     
                                 if($commodityCheck){
                                     $this->logger->debug("commodity already added ");
