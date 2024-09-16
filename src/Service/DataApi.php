@@ -179,6 +179,8 @@ class DataApi extends AbstractController
 
                         // Only persist if TotalQuantitySold is not zero
                         if ($unitsSold != 0) {
+
+                            
                             $unitWeight = intval(str_replace(" Kg", "", trim($cells->item(5)->nodeValue)));
                             $kgSold = $unitWeight  * $unitsSold;
                             $commodity = new Market();
@@ -194,7 +196,7 @@ class DataApi extends AbstractController
                             $commodity->setTotalKgSold($kgSold);
                             $this->logger->debug("Date: " . $dateObject->format('Y-m-d'));
                             $commodity->setDate($dateObject); // Convert to DateTime
-                            $commodity->setMarket($marketName);
+                            $commodity->setMarket($market);
                             // Check if array with same id exists
                             $existingEntity = null;
                             $id = $cells->item(7)->nodeValue . $cells->item(8)->nodeValue . $cells->item(9)->nodeValue;
@@ -209,6 +211,16 @@ class DataApi extends AbstractController
                                 // Update existing entity
                                 $this->logger->debug("commodity already added " . $cells->item(0)->nodeValue);
                             } else {
+
+                                $commodity = $this->em->getRepository(Market::class)->findOneBy(
+                                    ["date" => $dateObject, "commodity" => $productName, "market" => $market, "totalQuantitySold" => $unitsSold]
+                                ); 
+    
+                                if($commodity){
+                                    $this->logger->debug("commodity already added ");
+                                    continue;
+                                }
+                                
                                 // Add new entity to commodityEntities
                                 $commodityEntities[] = array(
                                     'commodity' => $commodity,
