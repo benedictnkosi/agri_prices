@@ -209,6 +209,7 @@ class DataApi extends AbstractController
                             $commodity->setSalesTotal(str_replace("R", "", trim($cells->item(10)->nodeValue)));
                             $commodity->setTotalQuantitySold($unitsSold);
                             $commodity->setTotalKgSold($kgSold);
+                            $commodity->setStockOnHand($cells->item(12)->nodeValue);
                             $this->logger->debug("Date: " . $dateObject->format('Y-m-d'));
                             $commodity->setDate($dateObject); // Convert to DateTime
                             $commodity->setMarket($market);
