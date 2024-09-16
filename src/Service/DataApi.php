@@ -38,7 +38,14 @@ class DataApi extends AbstractController
         $crop = $this->em->getRepository(MarketCropsImport::class)->findOneBy(
             ["status" => ["never", "server is down"]],
             ['lastUpdate' => 'ASC', 'id' => 'DESC']
-        );        
+        );   
+        
+        if (!$crop) {
+            return array(
+                'result_message' => "No crops to import",
+                'result_code' => 1
+            );
+        }
         
         $response =  $this->importBulkData($crop->getCropId(), $crop->getCropName(), 7, $crop->getMarket());
 
@@ -220,7 +227,7 @@ class DataApi extends AbstractController
                                     $this->logger->debug("commodity already added ");
                                     continue;
                                 }
-                                
+
                                 // Add new entity to commodityEntities
                                 $commodityEntities[] = array(
                                     'commodity' => $commodity,
