@@ -175,7 +175,7 @@ class SalesApi extends AbstractController
                     ->getQuery();
             } else {
                 $query = $queryBuilder
-                    ->select('s.id AS sale_id', 'c.name AS crop_name', 'cust.name AS customer_name', 'pack.name AS packaging', 's.date', 's.price', 's.quantity', 's.paid', 'IDENTITY(s.farm) AS farm')
+                    ->select('s.id AS sale_id', 'c.name AS crop_name', 'cust.name AS customer_name', 'pack.name AS packaging', 's.date', 's.price', 's.quantity', 'IDENTITY(s.farm) AS farm')
                     ->addSelect('COALESCE(SUM(p.amount), 0) AS total_payments')
                     ->from('App\Entity\Sales', 's')
                     ->leftJoin('s.crop', 'c')
