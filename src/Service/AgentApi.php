@@ -198,6 +198,13 @@ class AgentApi extends AbstractController
                 );
             }
 
+            if ($date < $delivery->getDate()) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Sale date cannot be earlier than delivery date'
+                );
+            }
+
             $agentSalesTotal = $this->em->createQueryBuilder()
                 ->select('SUM(s.quantity)')
                 ->from('App\Entity\AgentSales', 's')
