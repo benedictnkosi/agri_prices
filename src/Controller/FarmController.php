@@ -32,4 +32,27 @@ class FarmController extends AbstractController
         $response = $api->JoinFarm($request);
         return new JsonResponse($response, 200, array('Access-Control-Allow-Origin' => '*'));
     }
+
+    /**
+     * @Route("public/farm/target", name="updateTarget", methods={"PUT"})
+     */
+    public function updateTarget(Request $request, LoggerInterface $logger, FarmApi $api): Response
+    {
+        $logger->info("Starting Method: " . __METHOD__);
+        $response = $api->updateTarget($request);
+        return new JsonResponse($response, 200, array('Access-Control-Allow-Origin' => '*'));
+    }
+
+    /**
+     * @Route("public/farm", name="getFarm", methods={"GET"})
+     */
+    public function getFarm(Request $request, LoggerInterface $logger, FarmApi $api): Response
+    {
+        $logger->info("Starting Method: " . __METHOD__);
+        $response = $api->getFarm($request);
+        $serializer = SerializerBuilder::create()->build();
+        $jsonContent = $serializer->serialize($response, 'json');
+        return new JsonResponse($jsonContent , 200, array('Access-Control-Allow-Origin' => '*'), true);
+    }
+
 }

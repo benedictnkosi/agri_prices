@@ -166,28 +166,46 @@ class DashboardApi extends AbstractController
 
             $totalSalesLastMonth = $queryBuilder->getQuery()->getSingleScalarResult();
 
-            // Total sales for this year
+            // Total sales for this month
             $queryBuilder = $this->em->createQueryBuilder();
-            $queryBuilder->select('SUM(s.price * s.quantity) as totalSalesThisYear')
-                ->from('App\Entity\Sales', 's')
-                ->where('s.farm = :farm')
-                ->andWhere('s.date >= :startOfYear')
+            $queryBuilder->select('SUM(s.price * s.quantity) as totalSalesThisMonth')
+                ->from('App\Entity\AgentSales', 's')
+                ->innerJoin('s.delivery', 'md')
+                ->where('md.farm = :farm')
+                ->andWhere('s.saleDate >= :startOfMonth')
                 ->setParameter('farm', $farm)
-                ->setParameter('startOfYear', $startOfYear);
+                ->setParameter('startOfMonth', $startOfMonth);
 
-            $totalSalesThisYear = $queryBuilder->getQuery()->getSingleScalarResult();
+            $totalAgentSalesThisMonth = $queryBuilder->getQuery()->getSingleScalarResult();
+
+            // Total sales for last month
+            $queryBuilder = $this->em->createQueryBuilder();
+            $queryBuilder->select('SUM(s.price * s.quantity) as totalSalesLastMonth')
+                ->from('App\Entity\AgentSales', 's')
+                ->innerJoin('s.delivery', 'md')
+                ->where('md.farm = :farm')
+                ->andWhere('s.saleDate >= :startOfLastMonth')
+                ->andWhere('s.saleDate < :startOfMonth')
+                ->setParameter('farm', $farm)
+                ->setParameter('startOfLastMonth', $startOfLastMonth)
+                ->setParameter('startOfMonth', $startOfMonth);
+
+            $totalAgentSalesLastMonth = $queryBuilder->getQuery()->getSingleScalarResult();
+
+            
 
             return array(
                 'status' => 'OK',
                 'totalSalesThisMonth' => $totalSalesThisMonth,
                 'totalSalesLastMonth' => $totalSalesLastMonth,
-                'totalSalesThisYear' => $totalSalesThisYear
+                'totalAgentSalesThisMonth' => $totalAgentSalesThisMonth,
+                'totalAgentSalesLastMonth' => $totalAgentSalesLastMonth,
             );
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
             return array(
                 'status' => 'NOK',
-                'message' => 'Error getting daily sales'
+                'message' => 'Error getting sales stats'
             );
         }
     }

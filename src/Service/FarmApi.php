@@ -121,4 +121,82 @@ class FarmApi extends AbstractController
             );
         }
     }
+
+    public function updateTarget(Request $request): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        try {
+
+            $requestBody = json_decode($request->getContent(), true);
+            $amount = $requestBody['amount'];
+            $farmUid = $requestBody['farm_uid'];
+
+            if (empty($amount) || empty($farmUid)) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'All fields are required'
+                );
+            }
+
+            $farm = $this->em->getRepository(Farm::class)->findOneBy(['uid' => $farmUid]);
+            if (!$farm) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Farm not found'
+                );
+            }
+
+
+            $farm->setTarget($amount);
+
+            $this->em->persist($farm);
+            $this->em->flush();
+
+            return array(
+                'status' => 'OK',
+                'message' => 'Farm target updated successfully',
+                'id' => $farm->getId()
+            );
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return array(
+                'status' => 'NOK',
+                'message' => 'Error setting target'
+            );
+        }
+    }
+
+    public function getFarm(Request $request)
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        try {
+
+            $farmUid = $request->get("farm_uid");
+
+            if (empty($farmUid)) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Uid field required'
+                );
+            }
+
+            $farm = $this->em->getRepository(Farm::class)->findOneBy(['uid' => $farmUid]);
+            if (!$farm) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Farm not found'
+                );
+            }
+
+            return $farm;
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return array(
+                'status' => 'NOK',
+                'message' => 'Error getting farm'
+            );
+        }
+    }
+
+    
 }

@@ -42,6 +42,13 @@ class Farm
      */
     private $uid;
 
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="target", type="integer", nullable=true)
+     */
+    private $target;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -79,6 +86,18 @@ class Farm
     public function setUid(?string $uid): static
     {
         $this->uid = $uid;
+
+        return $this;
+    }
+
+    public function getTarget(): ?int
+    {
+        return $this->target;
+    }
+
+    public function setTarget(?int $target): static
+    {
+        $this->target = $target;
 
         return $this;
     }
