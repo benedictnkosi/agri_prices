@@ -252,6 +252,7 @@ class AgentApi extends AbstractController
 
             $farmUid = $request->query->get('farm_uid');
             $agentId = $request->query->get('agent_id');
+            $days = $request->query->get('days');
 
             if (empty($farmUid)) {
                 return json_encode(array_values(array(
@@ -285,8 +286,10 @@ class AgentApi extends AbstractController
                     ->innerJoin('s.delivery', 'md')
                     ->where('md.farm = :farm')
                     ->andWhere('md.customer = :agent')
+                    ->andWhere('s.saleDate >= :date')
                     ->setParameter('farm', $farm)
                     ->setParameter('agent', $agent)
+                    ->setParameter('date', (new \DateTimeImmutable())->modify("-$days days"))
                     ->orderBy('s.saleDate', 'DESC')
                     ->setMaxResults(100)
                     ->getQuery();
@@ -296,7 +299,9 @@ class AgentApi extends AbstractController
                     ->from('App\Entity\AgentSales', 's')
                     ->innerJoin('s.delivery', 'md')
                     ->where('md.farm = :farm')
+                    ->andWhere('s.saleDate >= :date')
                     ->setParameter('farm', $farm)
+                    ->setParameter('date', (new \DateTimeImmutable())->modify("-$days days"))
                     ->orderBy('s.saleDate', 'DESC')
                     ->setMaxResults(100)
                     ->getQuery();

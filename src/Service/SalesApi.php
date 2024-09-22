@@ -130,6 +130,7 @@ class SalesApi extends AbstractController
 
             $farmUid = $request->query->get('farm_uid');
             $customerId = $request->query->get('customer_id');
+            $days = $request->query->get('days');
             if (empty($farmUid)) {
                 return array(
                     'status' => 'NOK',
@@ -167,12 +168,15 @@ class SalesApi extends AbstractController
                     ->leftJoin('App\Entity\Payment', 'p', Join::WITH, 's.id = p.sale')
                     ->where('s.farm = :farm')
                     ->andWhere('s.customer = :customer')
+                    ->andWhere('s.date >= :date')
                     ->groupBy('s.id', 'c.name', 'cust.name')  // Group by crop and customer name to avoid aggregation issues
                     ->setParameter('farm', $farm)
                     ->setParameter('customer', $customer)
+                    ->setParameter('date', (new \DateTimeImmutable())->modify("-$days days"))
                     ->orderBy('s.date', 'DESC')
                     ->setMaxResults(100)
                     ->getQuery();
+                    
             } else {
                 $query = $queryBuilder
                     ->select('s.id AS sale_id', 'c.name AS crop_name', 'cust.name AS customer_name', 'pack.name AS packaging', 's.date', 's.price', 's.quantity', 'IDENTITY(s.farm) AS farm')
@@ -183,8 +187,10 @@ class SalesApi extends AbstractController
                     ->leftJoin('s.packaging', 'pack')
                     ->leftJoin('App\Entity\Payment', 'p', Join::WITH, 's.id = p.sale')
                     ->where('s.farm = :farm')
+                    ->andWhere('s.date >= :date')
                     ->groupBy('s.id', 'c.name', 'cust.name')  // Group by crop and customer name to avoid aggregation issues
                     ->setParameter('farm', $farm)
+                    ->setParameter('date', (new \DateTimeImmutable())->modify("-$days days"))
                     ->orderBy('s.date', 'DESC')
                     ->setMaxResults(100)
                     ->getQuery();
