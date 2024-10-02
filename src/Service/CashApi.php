@@ -104,7 +104,9 @@ class CashApi extends AbstractController
                 ->from('App\Entity\Payment', 'p')
                 ->innerJoin('p.sale', 's')
                 ->where('s.farm = :farm')
+                ->where('p.paymentMethod = :paymentMethod')
                 ->setParameter('farm', $farm)
+                ->setParameter('paymentMethod', 'Cash')
                 ->getQuery();
 
             $payments = $query->getResult();
