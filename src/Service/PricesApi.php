@@ -43,7 +43,7 @@ class PricesApi extends AbstractController
             $data = array(
                 'descItem' => '',
                 'massItem' => '',
-                'datepickers' => '10/10/2024'
+                'datepickers' => $date
             );
 
             // Use cURL to send the POST request
