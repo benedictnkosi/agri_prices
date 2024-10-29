@@ -24,7 +24,7 @@ class PricesController extends AbstractController
         }
 
 
-        $startDate = new \DateTime('2024-09-08');
+        $startDate = new \DateTime('2024-10-11');
         $endDate = new \DateTime('2024-10-29'); // Current date
 
         // Create an interval of 1 day

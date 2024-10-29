@@ -186,14 +186,19 @@ class PricesApi extends AbstractController
                 ->setParameter('variety', $variety);
         }
 
-        if ($market !== null && !empty($market)) {
-            $qb->andWhere('c.market LIKE :market')
-                ->setParameter('market', $market);
-        }
+        // if ($market !== null && !empty($market)) {
+        //     $qb->andWhere('c.market LIKE :market')
+        //         ->setParameter('market', $market);
+        // }
 
         if ($crop == "Potato") {
             $qb->andWhere('c.commodity NOT LIKE :commodity')
                 ->setParameter('commodity', "%SWEET%");
+        }
+
+        if ($crop == "CABBAGE") {
+            $qb->andWhere('c.commodity NOT LIKE :commodity')
+                ->setParameter('commodity', "%chinese%");
         }
 
 
@@ -232,10 +237,10 @@ class PricesApi extends AbstractController
                 ->setParameter('variety', $request->query->get('variety'));
         }
 
-        if ($market !== null && !empty($market)) {
-            $qb->andWhere('c.market LIKE :market')
-                ->setParameter('market', $market);
-        }
+        // if ($market !== null && !empty($market)) {
+        //     $qb->andWhere('c.market LIKE :market')
+        //         ->setParameter('market', $market);
+        // }
 
         $qb->groupBy("c.$field")
             ->orderBy('count', 'DESC')
@@ -266,10 +271,10 @@ class PricesApi extends AbstractController
                 ->setParameter('weight', $request->query->get('weight'));
         }
 
-        if ($market !== null && !empty($market)) {
-            $qb->andWhere('c.market LIKE :market')
-                ->setParameter('market', $market);
-        }
+        // if ($market !== null && !empty($market)) {
+        //     $qb->andWhere('c.market LIKE :market')
+        //         ->setParameter('market', $market);
+        // }
 
         $qb->groupBy('c.province')
             ->orderBy('totalSales', 'DESC');
@@ -294,8 +299,8 @@ class PricesApi extends AbstractController
             ->setParameter('previousMonthsAgo', $previousStartDate)
             ->andWhere('c.date < :currentMonthsAgo')
             ->setParameter('currentMonthsAgo', $currentStartDate)
-            ->andWhere('c.market LIKE :market')
-            ->setParameter('market', $market)
+            // ->andWhere('c.market LIKE :market')
+            // ->setParameter('market', $market)
             ->andWhere('c.commodity LIKE :crop')
             ->setParameter('crop', '%' . $request->query->get('crop') . '%');
 
