@@ -24,18 +24,18 @@ class PricesController extends AbstractController
         }
 
 
-        // $startDate = new \DateTime('2024-08-08');
-        // $endDate = new \DateTime('2024-08-31'); // Current date
+        $startDate = new \DateTime('2024-09-08');
+        $endDate = new \DateTime('2024-10-29'); // Current date
 
-        // // Create an interval of 1 day
-        // $interval = new \DateInterval('P1D');
-        // $dateRange = new \DatePeriod($startDate, $interval, $endDate->add($interval));
+        // Create an interval of 1 day
+        $interval = new \DateInterval('P1D');
+        $dateRange = new \DatePeriod($startDate, $interval, $endDate->add($interval));
 
-        // foreach ($dateRange as $date) {
-        //     $formattedDate = $date->format('m/d/Y');
-        //     $logger->info("Starting Method: " . $formattedDate);
-        //     $api->getDurbanPrices($formattedDate);
-        // }
+        foreach ($dateRange as $date) {
+            $formattedDate = $date->format('m/d/Y');
+            $logger->info("Starting Method: " . $formattedDate);
+            $api->getDurbanPrices($formattedDate);
+        }
 
         $date = new \DateTime();
         $formattedDate = $date->format('m/d/Y');
@@ -58,7 +58,7 @@ class PricesController extends AbstractController
         $size = $request->query->get('weight');
         $period = $request->query->get('period');
 
-        
+
         // Validate that all parameters are present
         if (empty($crop) || !$request->query->has('grade') || !$request->query->has('weight') || empty($period)) {
             return new JsonResponse("Bad Request: Missing required parameters", 400, array('Access-Control-Allow-Origin' => '*'));
@@ -67,7 +67,7 @@ class PricesController extends AbstractController
         $response = $api->getCropPrices($request);
         $serializer = SerializerBuilder::create()->build();
         $jsonContent = $serializer->serialize($response, 'json');
-        return new JsonResponse($jsonContent , 200, array('Access-Control-Allow-Origin' => '*'), true);
+        return new JsonResponse($jsonContent, 200, array('Access-Control-Allow-Origin' => '*'), true);
     }
 
     /**
@@ -83,7 +83,7 @@ class PricesController extends AbstractController
         $crop = $request->query->get('crop');
         $period = $request->query->get('period');
 
-        
+
         // Validate that all parameters are present
         if (empty($crop) || !$request->query->has('grade') || !$request->query->has('weight') || empty($period)) {
             return new JsonResponse("Bad Request: Missing required parameters", 400, array('Access-Control-Allow-Origin' => '*'));
@@ -92,7 +92,7 @@ class PricesController extends AbstractController
         $response = $api->getFiltersForCrop($request);
         $serializer = SerializerBuilder::create()->build();
         $jsonContent = $serializer->serialize($response, 'json');
-        return new JsonResponse($jsonContent , 200, array('Access-Control-Allow-Origin' => '*'), true);
+        return new JsonResponse($jsonContent, 200, array('Access-Control-Allow-Origin' => '*'), true);
     }
 
     /**
@@ -108,7 +108,7 @@ class PricesController extends AbstractController
         $crop = $request->query->get('crop');
         $period = $request->query->get('period');
 
-        
+
         // Validate that all parameters are present
         if (empty($crop) || !$request->query->has('grade') || !$request->query->has('weight') || empty($period)) {
             return new JsonResponse("Bad Request: Missing required parameters", 400, array('Access-Control-Allow-Origin' => '*'));
@@ -117,7 +117,7 @@ class PricesController extends AbstractController
         $response = $api->getTotalsByProvince($request);
         $serializer = SerializerBuilder::create()->build();
         $jsonContent = $serializer->serialize($response, 'json');
-        return new JsonResponse($jsonContent , 200, array('Access-Control-Allow-Origin' => '*'), true);
+        return new JsonResponse($jsonContent, 200, array('Access-Control-Allow-Origin' => '*'), true);
     }
 
     /**
@@ -133,7 +133,7 @@ class PricesController extends AbstractController
         $crop = $request->query->get('crop');
         $period = $request->query->get('period');
 
-        
+
         // Validate that all parameters are present
         if (empty($crop) || empty($period)) {
             return new JsonResponse("Bad Request: Missing required parameters", 400, array('Access-Control-Allow-Origin' => '*'));
@@ -142,6 +142,6 @@ class PricesController extends AbstractController
         $response = $api->getPreviouSalesTotal($request);
         $serializer = SerializerBuilder::create()->build();
         $jsonContent = $serializer->serialize($response, 'json');
-        return new JsonResponse($jsonContent , 200, array('Access-Control-Allow-Origin' => '*'), true);
+        return new JsonResponse($jsonContent, 200, array('Access-Control-Allow-Origin' => '*'), true);
     }
 }

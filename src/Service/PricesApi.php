@@ -37,16 +37,18 @@ class PricesApi extends AbstractController
         $this->logger->debug("Starting Method: " . __METHOD__);
         try {
             // Make the POST request
-            $url = 'https://Markets.durban.gov.za/';
+            $url = 'https://durbanmarkets.durban.gov.za/';
 
             // Form data to be sent in the POST request
             $data = array(
                 'descItem' => '',
                 'massItem' => '',
-                'datepickers' => $date
+                'datepickers' => '10/10/2024'
             );
 
             // Use cURL to send the POST request
+            $this->logger->debug('data is ' . json_encode($data));
+            $this->logger->debug('url is ' . $url);
             $ch = curl_init($url);
 
             // Convert the form data array into a URL-encoded string
@@ -63,6 +65,7 @@ class PricesApi extends AbstractController
 
             // Execute the request and store the response
             $response = curl_exec($ch);
+            // $this->logger->debug('html' . $response);
 
             // Check for cURL errors
             if ($response === false) {
@@ -80,16 +83,20 @@ class PricesApi extends AbstractController
 
             // Get the table by tag name
             $tables = $dom->getElementsByTagName('table');
+            $this->logger->debug('table length' . $tables->length);
 
             foreach ($tables as $table) {
 
                 $rows = $table->getElementsByTagName('tr');
+                $this->logger->debug('rows legnth' . $rows->length);
                 foreach ($rows as $row) {
+                    $this->logger->debug('row index' . $row->nodeValue);
 
                     $cells = $row->getElementsByTagName('td');
 
                     if ($cells->length > 0) {
-                        $totalQuantitySold = (int)trim($cells->item(9)->nodeValue);
+
+                        $totalQuantitySold = (int) trim($cells->item(9)->nodeValue);
 
                         // Only persist if TotalQuantitySold is not zero
                         if ($totalQuantitySold != 0) {
@@ -109,7 +116,12 @@ class PricesApi extends AbstractController
                             $commodity->setStockOnHand(trim($cells->item(11)->nodeValue));
                             $commodity->setDate(\DateTime::createFromFormat('d/M/Y', trim($cells->item(12)->nodeValue))); // Convert to DateTime
                             $this->em->persist($commodity); // Persist each entity
+                            $this->logger->debug('Done writing to DB', ['' => $commodity->getId()]);
+                        } else {
+                            $this->logger->debug('quantity is zero');
                         }
+                    } else {
+                        $this->logger->debug('cell legnt small');
                     }
                 }
             }
@@ -128,7 +140,7 @@ class PricesApi extends AbstractController
 
             return $this->em->getRepository(Market::class)->findAll();
         } catch (Exception $ex) {
-            $this->logger->error("Error " . print_r($ex, true));
+            $this->logger->error("Error " . $ex->getMessage());
             return array(
                 'result_message' => $ex->getMessage(),
                 'result_code' => 1
@@ -144,7 +156,7 @@ class PricesApi extends AbstractController
         $period = $request->query->get('period');
         $variety = $request->query->get('variety');
         $market = $request->query->get('market');
-        
+
 
         $date = $this->getDate($period);
         /** @var QueryBuilder $qb */
@@ -184,7 +196,7 @@ class PricesApi extends AbstractController
                 ->setParameter('commodity', "%SWEET%");
         }
 
-        
+
 
         return $qb->getQuery()->getResult();
     }
@@ -198,7 +210,7 @@ class PricesApi extends AbstractController
         $market = $request->query->get('market');
 
         $qb->select("c.$field AS filterField, COUNT(c.id) AS count")
-        ->from(Market::class, 'c')
+            ->from(Market::class, 'c')
             ->where('c.date >= :monthsAgo')
             ->setParameter('monthsAgo', $date)
             ->andWhere('c.commodity LIKE :crop')
@@ -226,8 +238,8 @@ class PricesApi extends AbstractController
         }
 
         $qb->groupBy("c.$field")
-        ->orderBy('count', 'DESC')
-        ->setMaxResults(5);
+            ->orderBy('count', 'DESC')
+            ->setMaxResults(5);
 
         return $qb->getQuery()->getResult();
     }
@@ -268,12 +280,12 @@ class PricesApi extends AbstractController
     public function getPreviouSalesTotal(Request $request)
     {
 
-        $monthsAgo = (int)$request->query->get('period');
+        $monthsAgo = (int) $request->query->get('period');
         $crop = $request->query->get('crop');
         $currentStartDate = (new \DateTime())->modify("-$monthsAgo months");
         $previousStartDate = (new \DateTime())->modify("-" . ($monthsAgo * 2) . " months");
         $market = $request->query->get('market');
-        
+
         $date = $this->getDate($request->query->get('period'));
         $qb = $this->em->createQueryBuilder();
         $qb->select('SUM(c.salesTotal) as totalSales') // Select province and sum of salesTotal
