@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Payment
  *
- * @ORM\Table(name="payment", indexes={@ORM\Index(name="payment_agent_sale_idx", columns={"agent_sale"}), @ORM\Index(name="payment_sale_idx", columns={"sale"})})
+ * @ORM\Table(name="payment", indexes={@ORM\Index(name="payment_sale_idx", columns={"sale"}), @ORM\Index(name="payment_agent_sale", columns={"agent_sale"})})
  * @ORM\Entity
  */
 class Payment
@@ -37,6 +37,13 @@ class Payment
     private $date;
 
     /**
+     * @var int|null
+     *
+     * @ORM\Column(name="sale", type="integer", nullable=true)
+     */
+    private $sale;
+
+    /**
      * @var string|null
      *
      * @ORM\Column(name="paymentMethod", type="string", length=45, nullable=true)
@@ -44,24 +51,11 @@ class Payment
     private $paymentmethod;
 
     /**
-     * @var \AgentSales
+     * @var int|null
      *
-     * @ORM\ManyToOne(targetEntity="AgentSales")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="agent_sale", referencedColumnName="id")
-     * })
+     * @ORM\Column(name="agent_sale", type="integer", nullable=true)
      */
     private $agentSale;
-
-    /**
-     * @var \Sales
-     *
-     * @ORM\ManyToOne(targetEntity="Sales")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="sale", referencedColumnName="id")
-     * })
-     */
-    private $sale;
 
     public function getId(): ?int
     {
@@ -92,6 +86,18 @@ class Payment
         return $this;
     }
 
+    public function getSale(): ?int
+    {
+        return $this->sale;
+    }
+
+    public function setSale(?int $sale): static
+    {
+        $this->sale = $sale;
+
+        return $this;
+    }
+
     public function getPaymentmethod(): ?string
     {
         return $this->paymentmethod;
@@ -104,26 +110,14 @@ class Payment
         return $this;
     }
 
-    public function getAgentSale(): ?AgentSales
+    public function getAgentSale(): ?int
     {
         return $this->agentSale;
     }
 
-    public function setAgentSale(?AgentSales $agentSale): static
+    public function setAgentSale(?int $agentSale): static
     {
         $this->agentSale = $agentSale;
-
-        return $this;
-    }
-
-    public function getSale(): ?Sales
-    {
-        return $this->sale;
-    }
-
-    public function setSale(?Sales $sale): static
-    {
-        $this->sale = $sale;
 
         return $this;
     }

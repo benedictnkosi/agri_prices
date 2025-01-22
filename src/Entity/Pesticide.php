@@ -36,12 +36,9 @@ class Pesticide
     private $size;
 
     /**
-     * @var \Farm
+     * @var int|null
      *
-     * @ORM\ManyToOne(targetEntity="Farm")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="farm", referencedColumnName="id")
-     * })
+     * @ORM\Column(name="farm", type="integer", nullable=true)
      */
     private $farm;
 
@@ -74,12 +71,12 @@ class Pesticide
         return $this;
     }
 
-    public function getFarm(): ?Farm
+    public function getFarm(): ?int
     {
         return $this->farm;
     }
 
-    public function setFarm(?Farm $farm): static
+    public function setFarm(?int $farm): static
     {
         $this->farm = $farm;
 

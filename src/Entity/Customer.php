@@ -43,9 +43,9 @@ class Customer
     private $contactNumber;
 
     /**
-     * @var bool|null
+     * @var bool
      *
-     * @ORM\Column(name="agent", type="boolean", nullable=true)
+     * @ORM\Column(name="agent", type="boolean", nullable=false)
      */
     private $agent;
 
@@ -105,7 +105,7 @@ class Customer
         return $this->agent;
     }
 
-    public function setAgent(?bool $agent): static
+    public function setAgent(bool $agent): static
     {
         $this->agent = $agent;
 

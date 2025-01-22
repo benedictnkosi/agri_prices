@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Sales
  *
- * @ORM\Table(name="sales", indexes={@ORM\Index(name="sale_customer_fk_idx", columns={"customer"}), @ORM\Index(name="sale_farm_idx", columns={"farm"}), @ORM\Index(name="sales_crop_fk_idx", columns={"crop"}), @ORM\Index(name="sales_packaging_idx", columns={"packaging"})})
+ * @ORM\Table(name="sales", indexes={@ORM\Index(name="sales_crop_fk_idx", columns={"crop"}), @ORM\Index(name="sales_packaging_idx", columns={"packaging"}), @ORM\Index(name="sale_customer_fk_idx", columns={"customer"}), @ORM\Index(name="sale_farm_idx", columns={"farm"})})
  * @ORM\Entity
  */
 class Sales
@@ -21,6 +21,20 @@ class Sales
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $id;
+
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="crop", type="integer", nullable=true)
+     */
+    private $crop;
+
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="customer", type="integer", nullable=true)
+     */
+    private $customer;
 
     /**
      * @var \DateTime|null
@@ -44,48 +58,46 @@ class Sales
     private $quantity;
 
     /**
-     * @var \Crop
+     * @var int|null
      *
-     * @ORM\ManyToOne(targetEntity="Crop")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="crop", referencedColumnName="id")
-     * })
-     */
-    private $crop;
-
-    /**
-     * @var \Packaging
-     *
-     * @ORM\ManyToOne(targetEntity="Packaging")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="packaging", referencedColumnName="id")
-     * })
-     */
-    private $packaging;
-
-    /**
-     * @var \Customer
-     *
-     * @ORM\ManyToOne(targetEntity="Customer")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="customer", referencedColumnName="id")
-     * })
-     */
-    private $customer;
-
-    /**
-     * @var \Farm
-     *
-     * @ORM\ManyToOne(targetEntity="Farm")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="farm", referencedColumnName="id")
-     * })
+     * @ORM\Column(name="farm", type="integer", nullable=true)
      */
     private $farm;
+
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="packaging", type="integer", nullable=true)
+     */
+    private $packaging;
 
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getCrop(): ?int
+    {
+        return $this->crop;
+    }
+
+    public function setCrop(?int $crop): static
+    {
+        $this->crop = $crop;
+
+        return $this;
+    }
+
+    public function getCustomer(): ?int
+    {
+        return $this->customer;
+    }
+
+    public function setCustomer(?int $customer): static
+    {
+        $this->customer = $customer;
+
+        return $this;
     }
 
     public function getDate(): ?\DateTimeInterface
@@ -124,50 +136,26 @@ class Sales
         return $this;
     }
 
-    public function getCrop(): ?Crop
-    {
-        return $this->crop;
-    }
-
-    public function setCrop(?Crop $crop): static
-    {
-        $this->crop = $crop;
-
-        return $this;
-    }
-
-    public function getPackaging(): ?Packaging
-    {
-        return $this->packaging;
-    }
-
-    public function setPackaging(?Packaging $packaging): static
-    {
-        $this->packaging = $packaging;
-
-        return $this;
-    }
-
-    public function getCustomer(): ?Customer
-    {
-        return $this->customer;
-    }
-
-    public function setCustomer(?Customer $customer): static
-    {
-        $this->customer = $customer;
-
-        return $this;
-    }
-
-    public function getFarm(): ?Farm
+    public function getFarm(): ?int
     {
         return $this->farm;
     }
 
-    public function setFarm(?Farm $farm): static
+    public function setFarm(?int $farm): static
     {
         $this->farm = $farm;
+
+        return $this;
+    }
+
+    public function getPackaging(): ?int
+    {
+        return $this->packaging;
+    }
+
+    public function setPackaging(?int $packaging): static
+    {
+        $this->packaging = $packaging;
 
         return $this;
     }

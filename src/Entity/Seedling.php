@@ -25,6 +25,13 @@ class Seedling
     /**
      * @var int|null
      *
+     * @ORM\Column(name="seed", type="integer", nullable=true)
+     */
+    private $seed;
+
+    /**
+     * @var int|null
+     *
      * @ORM\Column(name="quantity", type="integer", nullable=true)
      */
     private $quantity;
@@ -50,19 +57,21 @@ class Seedling
      */
     private $transplanted = '0';
 
-    /**
-     * @var \Seed
-     *
-     * @ORM\ManyToOne(targetEntity="Seed")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="seed", referencedColumnName="id")
-     * })
-     */
-    private $seed;
-
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getSeed(): ?int
+    {
+        return $this->seed;
+    }
+
+    public function setSeed(?int $seed): static
+    {
+        $this->seed = $seed;
+
+        return $this;
     }
 
     public function getQuantity(): ?int
@@ -109,18 +118,6 @@ class Seedling
     public function setTransplanted(?bool $transplanted): static
     {
         $this->transplanted = $transplanted;
-
-        return $this;
-    }
-
-    public function getSeed(): ?Seed
-    {
-        return $this->seed;
-    }
-
-    public function setSeed(?Seed $seed): static
-    {
-        $this->seed = $seed;
 
         return $this;
     }

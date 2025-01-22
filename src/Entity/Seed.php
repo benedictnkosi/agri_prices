@@ -29,21 +29,18 @@ class Seed
     private $name;
 
     /**
+     * @var int|null
+     *
+     * @ORM\Column(name="crop", type="integer", nullable=true)
+     */
+    private $crop;
+
+    /**
      * @var string|null
      *
      * @ORM\Column(name="manufacture", type="string", length=45, nullable=true)
      */
     private $manufacture;
-
-    /**
-     * @var \Crop
-     *
-     * @ORM\ManyToOne(targetEntity="Crop")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="crop", referencedColumnName="id")
-     * })
-     */
-    private $crop;
 
     public function getId(): ?int
     {
@@ -62,6 +59,18 @@ class Seed
         return $this;
     }
 
+    public function getCrop(): ?int
+    {
+        return $this->crop;
+    }
+
+    public function setCrop(?int $crop): static
+    {
+        $this->crop = $crop;
+
+        return $this;
+    }
+
     public function getManufacture(): ?string
     {
         return $this->manufacture;
@@ -70,18 +79,6 @@ class Seed
     public function setManufacture(?string $manufacture): static
     {
         $this->manufacture = $manufacture;
-
-        return $this;
-    }
-
-    public function getCrop(): ?Crop
-    {
-        return $this->crop;
-    }
-
-    public function setCrop(?Crop $crop): static
-    {
-        $this->crop = $crop;
 
         return $this;
     }

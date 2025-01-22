@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * PesticideSpraying
  *
- * @ORM\Table(name="pesticide_spraying", indexes={@ORM\Index(name="fertilizer_stock_fertilizer0_idx", columns={"pesticide"}), @ORM\Index(name="persticide_spraying_batch_idx", columns={"batch"})})
+ * @ORM\Table(name="pesticide_spraying", indexes={@ORM\Index(name="persticide_spraying_batch_idx", columns={"batch"}), @ORM\Index(name="fertilizer_stock_fertilizer0_idx", columns={"pesticide"})})
  * @ORM\Entity
  */
 class PesticideSpraying
@@ -23,6 +23,13 @@ class PesticideSpraying
     private $id;
 
     /**
+     * @var int|null
+     *
+     * @ORM\Column(name="pesticide", type="integer", nullable=true)
+     */
+    private $pesticide;
+
+    /**
      * @var \DateTime|null
      *
      * @ORM\Column(name="date", type="datetime", nullable=true)
@@ -30,28 +37,27 @@ class PesticideSpraying
     private $date;
 
     /**
-     * @var \Seedling
+     * @var int|null
      *
-     * @ORM\ManyToOne(targetEntity="Seedling")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="batch", referencedColumnName="id")
-     * })
+     * @ORM\Column(name="batch", type="integer", nullable=true)
      */
     private $batch;
-
-    /**
-     * @var \Pesticide
-     *
-     * @ORM\ManyToOne(targetEntity="Pesticide")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="pesticide", referencedColumnName="id")
-     * })
-     */
-    private $pesticide;
 
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getPesticide(): ?int
+    {
+        return $this->pesticide;
+    }
+
+    public function setPesticide(?int $pesticide): static
+    {
+        $this->pesticide = $pesticide;
+
+        return $this;
     }
 
     public function getDate(): ?\DateTimeInterface
@@ -66,26 +72,14 @@ class PesticideSpraying
         return $this;
     }
 
-    public function getBatch(): ?Seedling
+    public function getBatch(): ?int
     {
         return $this->batch;
     }
 
-    public function setBatch(?Seedling $batch): static
+    public function setBatch(?int $batch): static
     {
         $this->batch = $batch;
-
-        return $this;
-    }
-
-    public function getPesticide(): ?Pesticide
-    {
-        return $this->pesticide;
-    }
-
-    public function setPesticide(?Pesticide $pesticide): static
-    {
-        $this->pesticide = $pesticide;
 
         return $this;
     }

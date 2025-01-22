@@ -58,21 +58,18 @@ class User
     private $googleuid;
 
     /**
+     * @var int|null
+     *
+     * @ORM\Column(name="farm", type="integer", nullable=true)
+     */
+    private $farm;
+
+    /**
      * @var \DateTime|null
      *
      * @ORM\Column(name="createdAt", type="date", nullable=true)
      */
     private $createdat;
-
-    /**
-     * @var \Farm
-     *
-     * @ORM\ManyToOne(targetEntity="Farm")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="farm", referencedColumnName="id")
-     * })
-     */
-    private $farm;
 
     public function getId(): ?int
     {
@@ -139,6 +136,18 @@ class User
         return $this;
     }
 
+    public function getFarm(): ?int
+    {
+        return $this->farm;
+    }
+
+    public function setFarm(?int $farm): static
+    {
+        $this->farm = $farm;
+
+        return $this;
+    }
+
     public function getCreatedat(): ?\DateTimeInterface
     {
         return $this->createdat;
@@ -147,18 +156,6 @@ class User
     public function setCreatedat(?\DateTimeInterface $createdat): static
     {
         $this->createdat = $createdat;
-
-        return $this;
-    }
-
-    public function getFarm(): ?Farm
-    {
-        return $this->farm;
-    }
-
-    public function setFarm(?Farm $farm): static
-    {
-        $this->farm = $farm;
 
         return $this;
     }

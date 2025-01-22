@@ -25,6 +25,13 @@ class Transplant
     /**
      * @var int|null
      *
+     * @ORM\Column(name="seedling", type="integer", nullable=true)
+     */
+    private $seedling;
+
+    /**
+     * @var int|null
+     *
      * @ORM\Column(name="quantity", type="integer", nullable=true)
      */
     private $quantity;
@@ -43,19 +50,21 @@ class Transplant
      */
     private $harvestDate;
 
-    /**
-     * @var \Seedling
-     *
-     * @ORM\ManyToOne(targetEntity="Seedling")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="seedling", referencedColumnName="id")
-     * })
-     */
-    private $seedling;
-
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getSeedling(): ?int
+    {
+        return $this->seedling;
+    }
+
+    public function setSeedling(?int $seedling): static
+    {
+        $this->seedling = $seedling;
+
+        return $this;
     }
 
     public function getQuantity(): ?int
@@ -90,18 +99,6 @@ class Transplant
     public function setHarvestDate(?\DateTimeInterface $harvestDate): static
     {
         $this->harvestDate = $harvestDate;
-
-        return $this;
-    }
-
-    public function getSeedling(): ?Seedling
-    {
-        return $this->seedling;
-    }
-
-    public function setSeedling(?Seedling $seedling): static
-    {
-        $this->seedling = $seedling;
 
         return $this;
     }

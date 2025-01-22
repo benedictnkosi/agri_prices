@@ -53,9 +53,9 @@ class Market
     /**
      * @var string|null
      *
-     * @ORM\Column(name="market", type="string", length=45, nullable=true)
+     * @ORM\Column(name="province", type="string", length=45, nullable=true)
      */
-    private $market;
+    private $province;
 
     /**
      * @var string|null
@@ -112,6 +112,13 @@ class Market
      * @ORM\Column(name="date", type="datetime", nullable=true)
      */
     private $date;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="market", type="string", length=100, nullable=false)
+     */
+    private $market;
 
     /**
      * @var string|null
@@ -173,14 +180,14 @@ class Market
         return $this;
     }
 
-    public function getMarket(): ?string
+    public function getProvince(): ?string
     {
-        return $this->market;
+        return $this->province;
     }
 
-    public function setMarket(?string $market): static
+    public function setProvince(?string $province): static
     {
-        $this->market = $market;
+        $this->province = $province;
 
         return $this;
     }
@@ -277,6 +284,18 @@ class Market
     public function setDate(?\DateTimeInterface $date): static
     {
         $this->date = $date;
+
+        return $this;
+    }
+
+    public function getMarket(): ?string
+    {
+        return $this->market;
+    }
+
+    public function setMarket(string $market): static
+    {
+        $this->market = $market;
 
         return $this;
     }
