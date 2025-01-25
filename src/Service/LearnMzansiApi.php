@@ -51,10 +51,19 @@ class LearnMzansiApi extends AbstractController
                     'message' => 'Successfully created learner'
                 );
             }else{
-                return array(
-                    'status' => 'NOK',
-                    'message' => "Learner already exists $uid"
-                );
+                if($learner->getGrade()){
+                    return array(
+                        'status' => 'NOK',
+                        'message' => "Learner already exists $uid",
+                        'grade' => $learner->getGrade()->getNumber()
+                    );
+                }else{
+                    return array(
+                        'status' => 'NOK',
+                        'message' => "Learner already exists $uid",
+                        'grade' => "Not assigned"
+                    );
+                }
             }
 
         } catch (\Exception $e) {
