@@ -263,6 +263,7 @@ class LearnMzansiApi extends AbstractController
             $this->logger->info("2");
             $learner->setName($name);
             $learner->setGrade($grade);
+            $this->em->persist($learner);
             $this->em->flush();
             
             $this->logger->info("3");
