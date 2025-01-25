@@ -188,7 +188,7 @@ class LearnMzansiApi extends AbstractController
         }
     }
 
-    public function getRandomQuestionBySubjectId(int $subjectId, string $uid): ?Question
+    public function getRandomQuestionBySubjectId(int $subjectId, string $uid)
     {
         $this->logger->info("Starting Method: " . __METHOD__);
 
@@ -210,11 +210,13 @@ class LearnMzansiApi extends AbstractController
             if (!empty($questions)) {
                 shuffle($questions);
                 $randomQuestion = $questions[0]; // Get the first random question
+            }else{
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'No more questions available'
+                );
             }
 
-            if (!$randomQuestion) {
-                return null;
-            }
 
             return $randomQuestion;
         } catch (\Exception $e) {
