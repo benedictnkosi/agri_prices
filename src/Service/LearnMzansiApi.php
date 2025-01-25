@@ -491,7 +491,7 @@ class LearnMzansiApi extends AbstractController
                 );
             }
 
-            if($question->getType() == 'multiple_select'){
+            if($question->getType() == 'multi_select'){
                 if (empty($multiLearnerAnswers)) {
                     return array(
                         'status' => 'NOK',
