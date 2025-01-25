@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -28,6 +29,13 @@ class Grade
      */
     private $number;
 
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="active", type="smallint", nullable=true, options={"default"="1"})
+     */
+    private $active = '1';
+
     public function getId(): ?int
     {
         return $this->id;
@@ -41,6 +49,18 @@ class Grade
     public function setNumber(?int $number): static
     {
         $this->number = $number;
+
+        return $this;
+    }
+
+    public function getActive(): ?int
+    {
+        return $this->active;
+    }
+
+    public function setActive(?int $active): static
+    {
+        $this->active = $active;
 
         return $this;
     }

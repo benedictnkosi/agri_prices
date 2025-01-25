@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * MarketDelivery
  *
- * @ORM\Table(name="market_delivery", indexes={@ORM\Index(name="market_delivery_customer_fk_idx", columns={"customer"}), @ORM\Index(name="market_delivery_farm_idx", columns={"farm"}), @ORM\Index(name="market_deliverys_crop_fk_idx", columns={"crop"}), @ORM\Index(name="market_delivery_packaging_idx", columns={"packaging"})})
+ * @ORM\Table(name="market_delivery", indexes={@ORM\Index(name="market_delivery_packaging_idx", columns={"packaging"}), @ORM\Index(name="market_delivery_customer_fk_idx", columns={"customer"}), @ORM\Index(name="market_delivery_farm_idx", columns={"farm"}), @ORM\Index(name="market_deliverys_crop_fk_idx", columns={"crop"})})
  * @ORM\Entity
  */
 class MarketDelivery
@@ -35,16 +35,6 @@ class MarketDelivery
      * @ORM\Column(name="quantity", type="integer", nullable=true)
      */
     private $quantity;
-
-    /**
-     * @var \Customer
-     *
-     * @ORM\ManyToOne(targetEntity="Customer")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="customer", referencedColumnName="id")
-     * })
-     */
-    private $customer;
 
     /**
      * @var \Farm
@@ -76,6 +66,16 @@ class MarketDelivery
      */
     private $packaging;
 
+    /**
+     * @var \Customer
+     *
+     * @ORM\ManyToOne(targetEntity="Customer")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="customer", referencedColumnName="id")
+     * })
+     */
+    private $customer;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -101,18 +101,6 @@ class MarketDelivery
     public function setQuantity(?int $quantity): static
     {
         $this->quantity = $quantity;
-
-        return $this;
-    }
-
-    public function getCustomer(): ?Customer
-    {
-        return $this->customer;
-    }
-
-    public function setCustomer(?Customer $customer): static
-    {
-        $this->customer = $customer;
 
         return $this;
     }
@@ -149,6 +137,18 @@ class MarketDelivery
     public function setPackaging(?Packaging $packaging): static
     {
         $this->packaging = $packaging;
+
+        return $this;
+    }
+
+    public function getCustomer(): ?Customer
+    {
+        return $this->customer;
+    }
+
+    public function setCustomer(?Customer $customer): static
+    {
+        $this->customer = $customer;
 
         return $this;
     }

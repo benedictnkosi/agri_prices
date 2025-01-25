@@ -46,6 +46,18 @@ class LearnMzansiApiController extends AbstractController
     }
 
     /**
+     * @Route("public/learn/grades", name="getGrades", methods={"GET"})
+     */
+    public function getGrades(Request $request): JsonResponse
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        $response = $this->api->getGrades($request);
+        $serializer = SerializerBuilder::create()->build();
+        $jsonContent = $serializer->serialize($response, 'json');
+        return new JsonResponse($jsonContent, 200, array('Access-Control-Allow-Origin' => '*'), true);
+    }
+
+    /**
      * @Route("public/learn/questions", name="getQuestionById", methods={"GET"})
      */
     public function getQuestionById(Request $request): JsonResponse

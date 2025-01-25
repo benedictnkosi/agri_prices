@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Question
  *
- * @ORM\Table(name="question", indexes={@ORM\Index(name="question_subject_idx", columns={"subject"}), @ORM\Index(name="question_learner_idx", columns={"learner"})})
+ * @ORM\Table(name="question", indexes={@ORM\Index(name="question_learner_idx", columns={"learner"}), @ORM\Index(name="question_subject_idx", columns={"subject"})})
  * @ORM\Entity
  */
 class Question
@@ -77,6 +77,13 @@ class Question
      * @ORM\Column(name="explanation", type="text", length=0, nullable=true)
      */
     private $explanation;
+
+    /**
+     * @var bool|null
+     *
+     * @ORM\Column(name="active", type="boolean", nullable=true, options={"default"="1"})
+     */
+    private $active = true;
 
     /**
      * @var \Learner
@@ -195,6 +202,18 @@ class Question
     public function setExplanation(?string $explanation): static
     {
         $this->explanation = $explanation;
+
+        return $this;
+    }
+
+    public function isActive(): ?bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(?bool $active): static
+    {
+        $this->active = $active;
 
         return $this;
     }

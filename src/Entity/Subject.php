@@ -29,6 +29,13 @@ class Subject
     private $name;
 
     /**
+     * @var bool|null
+     *
+     * @ORM\Column(name="active", type="boolean", nullable=true, options={"default"="1"})
+     */
+    private $active = true;
+
+    /**
      * @var \Grade
      *
      * @ORM\ManyToOne(targetEntity="Grade")
@@ -51,6 +58,18 @@ class Subject
     public function setName(?string $name): static
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function isActive(): ?bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(?bool $active): static
+    {
+        $this->active = $active;
 
         return $this;
     }

@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * CommuterMatch
  *
- * @ORM\Table(name="commuter_match", indexes={@ORM\Index(name="driver_idx", columns={"driver"}), @ORM\Index(name="passenger_idx", columns={"passenger"})})
+ * @ORM\Table(name="commuter_match", indexes={@ORM\Index(name="passenger_idx", columns={"passenger"}), @ORM\Index(name="driver_idx", columns={"driver"})})
  * @ORM\Entity
  */
 class CommuterMatch

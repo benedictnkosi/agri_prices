@@ -190,7 +190,8 @@ class LearnMzansiApi extends AbstractController
                 FROM App\Entity\Question q
                 JOIN q.subject s
                 LEFT JOIN App\Entity\Result r WITH r.question = q AND r.learner = :learner
-                WHERE s.id = :subjectId AND r.id IS NULL'
+                WHERE s.id = :subjectId AND r.id IS NULL
+                AND q.active = 1'
             )->setParameters([
                 'subjectId' => $subjectId,
                 'learner' => $learner
@@ -220,9 +221,9 @@ class LearnMzansiApi extends AbstractController
             $requestBody = json_decode($request->getContent(), true);
             $uid = $requestBody['uid'];
             $name = $requestBody['name'] ?? null;
-            $gradeId = $requestBody['grade'] ?? null;
+            $gradeName = $requestBody['grade'] ?? null;
 
-            if (empty($uid) || empty($name) || empty($gradeId)) {
+            if (empty($uid) || empty($name) || empty($gradeName)) {
                 return array(
                     'status' => 'NOK',
                     'message' => 'Mandatory values missing'
@@ -238,7 +239,8 @@ class LearnMzansiApi extends AbstractController
             }
             $this->logger->info("0");
             //get grade entity
-            $grade = $this->em->getRepository(Grade::class)->findOneBy(['id' => $gradeId]);
+            $gradeName = str_replace('Grade ', '', $gradeName);
+            $grade = $this->em->getRepository(Grade::class)->findOneBy(['number' => $gradeName]);
             $this->logger->info("1");
             if (!$grade) {
                 return array(
@@ -262,6 +264,24 @@ class LearnMzansiApi extends AbstractController
             return array(
                 'status' => 'NOK',
                 'message' => 'Error updating learner'
+            );
+        }
+    }
+
+    public function getGrades(): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        try {
+            $grades = $this->em->getRepository(Grade::class)->findBy(['active' => true]);
+            return array(
+                'status' => 'OK',
+                'grades' => $grades
+            );
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return array(
+                'status' => 'NOK',
+                'message' => 'Error getting grades'
             );
         }
     }
@@ -398,7 +418,8 @@ class LearnMzansiApi extends AbstractController
             $query = $this->em->createQuery(
                 'SELECT s
                 FROM App\Entity\Subject s
-                WHERE s.id NOT IN (:enrolledSubjectIds)'
+                WHERE s.id NOT IN (:enrolledSubjectIds)
+                AND s.active = 1'
             )->setParameter('enrolledSubjectIds', $enrolledSubjectIds);
 
             $subjects = $query->getResult();
@@ -449,7 +470,9 @@ class LearnMzansiApi extends AbstractController
             }
 
             $correctAnswers = json_decode($question->getAnswer(), true);
-            $isCorrect = !array_diff($learnerAnswers, $correctAnswers);
+            $isCorrect = !array_udiff($learnerAnswers, $correctAnswers, function($a, $b) {
+                return strcasecmp($a, $b);
+            });
             $outcome = $isCorrect ? 'correct' : 'incorrect';
 
             // Save the result in the Result entity
