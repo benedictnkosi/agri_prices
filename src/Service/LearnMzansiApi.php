@@ -644,8 +644,8 @@ class LearnMzansiApi extends AbstractController
 
             if (empty($results)) {
                 return array(
-                    'status' => 'NOK',
-                    'message' => 'No results found for the learner and subject'
+                    'status' => 'OK',
+                    'percentage' => 0
                 );
             }
 
@@ -658,7 +658,7 @@ class LearnMzansiApi extends AbstractController
                 }
             }
 
-            $percentage = ($correctAnswers / $totalQuestions);
+            $percentage = ($correctAnswers / $totalQuestions) * 100;
 
             return array(
                 'status' => 'OK',
