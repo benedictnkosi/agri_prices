@@ -658,7 +658,7 @@ class LearnMzansiApi extends AbstractController
                 }
             }
 
-            $percentage = ($correctAnswers / $totalQuestions) * 100;
+            $percentage = ($correctAnswers / $totalQuestions) ;
 
             return array(
                 'status' => 'OK',
