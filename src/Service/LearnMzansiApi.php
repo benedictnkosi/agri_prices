@@ -427,13 +427,21 @@ class LearnMzansiApi extends AbstractController
                 return $learnerSubject->getSubject()->getId();
             }, $enrolledSubjects);
 
-            $query = $this->em->createQuery(
-                'SELECT s
-                FROM App\Entity\Subject s
-                WHERE s.id NOT IN (:enrolledSubjectIds)
-                AND s.active = 1'
-            )->setParameter('enrolledSubjectIds', $enrolledSubjectIds);
-
+            if (empty($enrolledSubjectIds)) {
+                $query = $this->em->createQuery(
+                    'SELECT s
+                    FROM App\Entity\Subject s
+                    WHERE s.active = 1'
+                );
+            } else {
+                $query = $this->em->createQuery(
+                    'SELECT s
+                    FROM App\Entity\Subject s
+                    WHERE s.id NOT IN (:enrolledSubjectIds)
+                    AND s.active = 1'
+                )->setParameter('enrolledSubjectIds', $enrolledSubjectIds);
+            }
+            
             $subjects = $query->getResult();
 
             return array(
@@ -481,6 +489,10 @@ class LearnMzansiApi extends AbstractController
                 );
             }
 
+            if (!is_array($learnerAnswers)) {
+                $learnerAnswers = [$learnerAnswers];
+            }
+            
             $correctAnswers = json_decode($question->getAnswer(), true);
             $isCorrect = !array_udiff($learnerAnswers, $correctAnswers, function($a, $b) {
                 return strcasecmp($a, $b);
