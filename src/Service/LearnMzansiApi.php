@@ -232,6 +232,8 @@ class LearnMzansiApi extends AbstractController
             $name = $requestBody['name'] ?? null;
             $gradeName = $requestBody['grade'] ?? null;
 
+            $this->logger->info("UID: $uid, Name: $name, Grade: $gradeName");
+
             if (empty($uid) || empty($name) || empty($gradeName)) {
                 return array(
                     'status' => 'NOK',
