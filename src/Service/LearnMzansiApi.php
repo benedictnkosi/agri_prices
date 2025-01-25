@@ -464,9 +464,11 @@ class LearnMzansiApi extends AbstractController
             $requestBody = json_decode($request->getContent(), true);
             $questionId = $requestBody['question_id'];
             $learnerAnswers = $requestBody['answer'];
+            $multiLearnerAnswers = $requestBody['answers'];
+            
             $uid = $requestBody['uid'];
 
-            if (empty($questionId) || empty($learnerAnswers) || empty($uid)) {
+            if (empty($questionId) || empty($uid)) {
                 return array(
                     'status' => 'NOK',
                     'message' => 'Mandatory values missing'
@@ -487,6 +489,23 @@ class LearnMzansiApi extends AbstractController
                     'status' => 'NOK',
                     'message' => 'Question not found'
                 );
+            }
+
+            if($question->getType() == 'multiple_select'){
+                if (empty($multiLearnerAnswers)) {
+                    return array(
+                        'status' => 'NOK',
+                        'message' => 'Mandatory values missing - multiple choice'
+                    );
+                }
+                $learnerAnswers = $multiLearnerAnswers;
+            }else{
+                if (empty($learnerAnswers)) {
+                    return array(
+                        'status' => 'NOK',
+                        'message' => 'Mandatory values missing - single choice'
+                    );
+                }
             }
 
             if (!is_array($learnerAnswers)) {
