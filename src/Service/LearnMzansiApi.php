@@ -492,8 +492,11 @@ class LearnMzansiApi extends AbstractController
             if (!is_array($learnerAnswers)) {
                 $learnerAnswers = [$learnerAnswers];
             }
-            
+
             $correctAnswers = json_decode($question->getAnswer(), true);
+            if (!is_array($correctAnswers)) {
+                throw new \Exception('Invalid correct answers format');
+            }
             $isCorrect = !array_udiff($learnerAnswers, $correctAnswers, function($a, $b) {
                 return strcasecmp($a, $b);
             });
@@ -510,7 +513,7 @@ class LearnMzansiApi extends AbstractController
             return array(
                 'status' => 'OK',
                 'is_correct' => $isCorrect,
-                'correct_answers' => $correctAnswers
+                'correct_answers' => implode(', ', $correctAnswers)
             );
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
