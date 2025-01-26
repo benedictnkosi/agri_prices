@@ -396,6 +396,8 @@ class LearnMzansiApi extends AbstractController
             $learnerSubject = new Learnersubjects();
             $learnerSubject->setLearner($learner);
             $learnerSubject->setSubject($subject);
+            $learnerSubject->setLastUpdated(new \DateTime());
+            $learnerSubject->setPercentage(0);
             $this->em->persist($learnerSubject);
             $this->em->flush();
 
