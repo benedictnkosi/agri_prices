@@ -181,7 +181,7 @@ class LearnMzansiApi extends AbstractController
             $question->setType($data['type']);
             $question->setSubject($subject);
             $question->setContext($data['context'] ?? null);
-            $question->setAnswer($data['answer'] ?? null);
+            $question->setAnswer(is_array($data['answer']) ? json_encode($data['answer']) : json_encode([$data['answer']]));
             $question->setOptions($data['options'] ?? null); // Pass the array directly
             $question->setTerm($data['term'] ?? null);
             $question->setImagePath($data['image_path'] ?? null);
