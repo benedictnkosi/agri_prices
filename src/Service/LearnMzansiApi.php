@@ -793,4 +793,22 @@ class LearnMzansiApi extends AbstractController
             );
         }
     }
+
+    public function getAllActiveSubjects(): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        try {
+            $subjects = $this->em->getRepository(Subject::class)->findBy(['active' => true]);
+            return array(
+                'status' => 'OK',
+                'subjects' => $subjects
+            );
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return array(
+                'status' => 'NOK',
+                'message' => 'Error getting active subjects'
+            );
+        }
+    }
 }
