@@ -330,7 +330,7 @@ class LearnMzansiApi extends AbstractController
                 );
             }
 
-            $learnerSubjects = $this->em->getRepository(Learnersubjects::class)->findBy(['learner' => $learner]);
+            $learnerSubjects = $this->em->getRepository(Learnersubjects::class)->findBy(['learner' => $learner], 'lastUpdated', 'DESC');
 
             $subjects = [];
             foreach ($learnerSubjects as $learnerSubject) {
