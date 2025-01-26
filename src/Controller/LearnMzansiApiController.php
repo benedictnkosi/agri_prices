@@ -191,4 +191,16 @@ class LearnMzansiApiController extends AbstractController
         $jsonContent = $serializer->serialize($response, 'json');
         return new JsonResponse($jsonContent, 200, array('Access-Control-Allow-Origin' => '*'), true);
     }
+
+    /**
+     * @Route("public/learn/learner/set-higher-grade-flag", name="setHigherGradeFlag", methods={"POST"})
+     */
+    public function setHigherGradeFlag(Request $request): JsonResponse
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        $response = $this->api->setHigherGradeFlag($request);
+        $serializer = SerializerBuilder::create()->build();
+        $jsonContent = $serializer->serialize($response, 'json');
+        return new JsonResponse($jsonContent, 200, array('Access-Control-Allow-Origin' => '*'), true);
+    }
 }

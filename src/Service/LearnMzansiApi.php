@@ -744,4 +744,53 @@ class LearnMzansiApi extends AbstractController
             );
         }
     }
+
+    public function setHigherGradeFlag(Request $request): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        try {
+            $requestBody = json_decode($request->getContent(), true);
+            $uid = $requestBody['uid'];
+            $learnerSubjectId = $requestBody['learner_subject_id'];
+            $higherGrade = $requestBody['higher_grade'];
+
+            if (empty($uid) || empty($learnerSubjectId)) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Mandatory values missing'
+                );
+            }
+
+            $learner = $this->em->getRepository(Learner::class)->findOneBy(['uid' => $uid]);
+            if (!$learner) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Learner not found'
+                );
+            }
+
+            $learnerSubject = $this->em->getRepository(Learnersubjects::class)->findOneBy(['learner' => $learner, 'id' => $learnerSubjectId]);
+            if (!$learnerSubject) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Learner subject not found'
+                );
+            }
+
+            $learnerSubject->setHigherGrade($higherGrade);
+            $this->em->persist($learnerSubject);
+            $this->em->flush();
+
+            return array(
+                'status' => 'OK',
+                'message' => 'Successfully set higher grade flag'
+            );
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return array(
+                'status' => 'NOK',
+                'message' => 'Error setting higher grade flag'
+            );
+        }
+    }
 }
