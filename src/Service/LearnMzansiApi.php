@@ -152,11 +152,24 @@ class LearnMzansiApi extends AbstractController
             }
 
             // Fetch the associated Subject entity
-            $subject = $this->em->getRepository(Subject::class)->find($data['subject']);
+            $subject = $this->em->getRepository(Subject::class)->findOneBy(['name' => $data['subject']]);
             if (!$subject) {
                 return array(
                     'status' => 'NOK',
                     'message' => "Subject with ID {$data['subject']} not found."
+                );
+            }
+
+            // Check if a question with the same subject and question text already exists
+            $existingQuestion = $this->em->getRepository(Question::class)->findOneBy([
+                'subject' => $subject,
+                'question' => $data['question']
+            ]);
+
+            if ($existingQuestion) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'A question with the same subject and text already exists.'
                 );
             }
 
@@ -179,7 +192,11 @@ class LearnMzansiApi extends AbstractController
             $this->em->flush();
 
             $this->logger->info("Created new question with ID {$question->getId()}.");
-            return $question;
+            return array(
+                'status' => 'OK',
+                'message' => 'Successfully created question',
+                'question_id' => $question->getId()
+            );
         } catch (\Exception $e) {
             // Log the error or handle as needed
             error_log($e->getMessage());
