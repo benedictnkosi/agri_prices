@@ -181,9 +181,9 @@ class LearnMzansiApiController extends AbstractController
     }
 
      /**
-     * @Route("public/learn/learner/overide-term", name="overideTerm", methods={"POST"})
+     * @Route("public/learn/learner/update-overide-term", name="updateOverideTerm", methods={"POST"})
      */
-    public function overideTerm(Request $request): JsonResponse
+    public function updateOverideTerm(Request $request): JsonResponse
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         $response = $this->api->setOverrideTerm($request);

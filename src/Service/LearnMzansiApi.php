@@ -337,7 +337,7 @@ class LearnMzansiApi extends AbstractController
 
             return array(
                 'status' => 'OK',
-                'subjects' => $subjects
+                'subjects' => $learnerSubjects
             );
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
@@ -686,9 +686,10 @@ class LearnMzansiApi extends AbstractController
         try {
             $requestBody = json_decode($request->getContent(), true);
             $uid = $requestBody['uid'];
-            $subjectId = $requestBody['subject_id'];
+            $learnerSubjectId = $requestBody['learner_subject_id'];
+            $override = $requestBody['override'];
 
-            if (empty($uid) || empty($subjectId)) {
+            if (empty($uid) || empty($learnerSubjectId)) {
                 return array(
                     'status' => 'NOK',
                     'message' => 'Mandatory values missing'
@@ -703,7 +704,7 @@ class LearnMzansiApi extends AbstractController
                 );
             }
 
-            $learnerSubject = $this->em->getRepository(Learnersubjects::class)->findOneBy(['learner' => $learner, 'subject' => $subjectId]);
+            $learnerSubject = $this->em->getRepository(Learnersubjects::class)->findOneBy(['learner' => $learner, 'id' => $learnerSubjectId]);
             if (!$learnerSubject) {
                 return array(
                     'status' => 'NOK',
@@ -711,7 +712,7 @@ class LearnMzansiApi extends AbstractController
                 );
             }
 
-            $learnerSubject->setOverideterm(true);
+            $learnerSubject->setOverideterm($override);
             $this->em->persist($learnerSubject);
             $this->em->flush();
 
