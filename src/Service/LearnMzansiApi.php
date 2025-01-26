@@ -815,11 +815,19 @@ class LearnMzansiApi extends AbstractController
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         try {
-            $grade = $request->query->get('grade');
-            if (empty($grade)) {
+            $gradeNumber = $request->query->get('grade');
+            if (empty($gradeNumber)) {
                 return array(
                     'status' => 'NOK',
                     'message' => 'Grade is required'
+                );
+            }
+
+            $grade = $this->em->getRepository(Grade::class)->findOneBy(['number' => $gradeNumber]);
+            if (!$grade) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Grade not found'
                 );
             }
 
