@@ -90,12 +90,7 @@ class LearnMzansiApiController extends AbstractController
         $this->logger->info("Starting Method: " . __METHOD__);
         $subjectId = $request->query->get('subject_id');
         $uid = $request->query->get('uid');
-        $overideTerm = $request->query->get('overide_term');
-        if ($overideTerm) {
-            $response = $this->api->getRandomQuestionBySubjectId($subjectId, $uid, (bool)$overideTerm);
-        } else {
-            $response = $this->api->getRandomQuestionBySubjectId($subjectId, $uid);
-        }
+        $response = $this->api->getRandomQuestionBySubjectId($subjectId, $uid);
         $serializer = SerializerBuilder::create()->build();
         $jsonContent = $serializer->serialize($response, 'json');
         return new JsonResponse($jsonContent, 200, array('Access-Control-Allow-Origin' => '*'), true);
@@ -180,6 +175,18 @@ class LearnMzansiApiController extends AbstractController
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         $response = $this->api->getLearnerSubjectPercentage($request);
+        $serializer = SerializerBuilder::create()->build();
+        $jsonContent = $serializer->serialize($response, 'json');
+        return new JsonResponse($jsonContent, 200, array('Access-Control-Allow-Origin' => '*'), true);
+    }
+
+     /**
+     * @Route("public/learn/learner/overide-term", name="overideTerm", methods={"POST"})
+     */
+    public function overideTerm(Request $request): JsonResponse
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        $response = $this->api->setOverrideTerm($request);
         $serializer = SerializerBuilder::create()->build();
         $jsonContent = $serializer->serialize($response, 'json');
         return new JsonResponse($jsonContent, 200, array('Access-Control-Allow-Origin' => '*'), true);

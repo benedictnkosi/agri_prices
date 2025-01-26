@@ -188,16 +188,17 @@ class LearnMzansiApi extends AbstractController
         }
     }
 
-    public function getRandomQuestionBySubjectId(int $subjectId, string $uid, bool $overideTerm = false)
+    public function getRandomQuestionBySubjectId(int $subjectId, string $uid)
     {
         $this->logger->info("Starting Method: " . __METHOD__);
 
         $learner = $this->em->getRepository(Learner::class)->findOneBy(['uid' => $uid]);
+        $learnerSubject = $this->em->getRepository(Learnersubjects::class)->findOneBy(['learner' => $learner, 'subject' => $subjectId]);
         try {
             $currentMonth = (int)date('m');
             $termCondition = '';
 
-            if ($currentMonth < 7 && !$overideTerm) {
+            if ($currentMonth < 7 && !$learnerSubject->isOverideterm()) {
                 $termCondition = 'AND q.term = 2';
             }
 
@@ -675,6 +676,54 @@ class LearnMzansiApi extends AbstractController
             return array(
                 'status' => 'NOK',
                 'message' => 'Error calculating learner subject percentage'
+            );
+        }
+    }
+
+    public function setOverrideTerm(Request $request): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        try {
+            $requestBody = json_decode($request->getContent(), true);
+            $uid = $requestBody['uid'];
+            $subjectId = $requestBody['subject_id'];
+
+            if (empty($uid) || empty($subjectId)) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Mandatory values missing'
+                );
+            }
+
+            $learner = $this->em->getRepository(Learner::class)->findOneBy(['uid' => $uid]);
+            if (!$learner) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Learner not found'
+                );
+            }
+
+            $learnerSubject = $this->em->getRepository(Learnersubjects::class)->findOneBy(['learner' => $learner, 'subject' => $subjectId]);
+            if (!$learnerSubject) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Learner subject not found'
+                );
+            }
+
+            $learnerSubject->setOverideterm(true);
+            $this->em->persist($learnerSubject);
+            $this->em->flush();
+
+            return array(
+                'status' => 'OK',
+                'message' => 'Successfully set override term'
+            );
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return array(
+                'status' => 'NOK',
+                'message' => 'Error setting override term'
             );
         }
     }

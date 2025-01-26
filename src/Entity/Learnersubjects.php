@@ -22,6 +22,20 @@ class Learnersubjects
     private $id;
 
     /**
+     * @var bool|null
+     *
+     * @ORM\Column(name="higherGrade", type="boolean", nullable=true)
+     */
+    private $highergrade = '0';
+
+    /**
+     * @var bool|null
+     *
+     * @ORM\Column(name="overideTerm", type="boolean", nullable=true)
+     */
+    private $overideterm = '0';
+
+    /**
      * @var \Subject
      *
      * @ORM\ManyToOne(targetEntity="Subject")
@@ -44,6 +58,30 @@ class Learnersubjects
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function isHighergrade(): ?bool
+    {
+        return $this->highergrade;
+    }
+
+    public function setHighergrade(?bool $highergrade): static
+    {
+        $this->highergrade = $highergrade;
+
+        return $this;
+    }
+
+    public function isOverideterm(): ?bool
+    {
+        return $this->overideterm;
+    }
+
+    public function setOverideterm(?bool $overideterm): static
+    {
+        $this->overideterm = $overideterm;
+
+        return $this;
     }
 
     public function getSubject(): ?Subject
