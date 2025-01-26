@@ -506,7 +506,7 @@ class LearnMzansiApi extends AbstractController
                 if (empty($multiLearnerAnswers)) {
                     return array(
                         'status' => 'NOK',
-                        'message' => 'Mandatory values missing - multiple choice'
+                        'message' => 'Mandatory values missing - ' . $question->getType()
                     );
                 }
                 $learnerAnswers = $multiLearnerAnswers;
@@ -514,7 +514,7 @@ class LearnMzansiApi extends AbstractController
                 if (empty($learnerAnswers)) {
                     return array(
                         'status' => 'NOK',
-                        'message' => 'Mandatory values missing - single choice'
+                        'message' => 'Mandatory values missing - ' . $question->getType()
                     );
                 }
             }
@@ -538,6 +538,10 @@ class LearnMzansiApi extends AbstractController
             $result->setQuestion($question);
             $result->setOutcome($outcome);
             $this->em->persist($result);
+            $this->em->flush();
+
+            $learnerSubject->setLastUpdated(new \DateTime());
+            $this->em->persist($learnerSubject);
             $this->em->flush();
 
             return array(
@@ -668,6 +672,19 @@ class LearnMzansiApi extends AbstractController
             }
 
             $percentage = ($correctAnswers / $totalQuestions);
+
+            $learnerSubject = $this->em->getRepository(Learnersubjects::class)->findOneBy(['learner' => $learner, 'subject' => $subject]);
+
+            if (!$learnerSubject) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Learner subject not found'
+                );
+            }
+
+            $learnerSubject->setPercentage($percentage);
+                    $this->em->persist($learnerSubject);
+                    $this->em->flush();
 
             return array(
                 'status' => 'OK',
