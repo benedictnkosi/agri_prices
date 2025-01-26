@@ -12,6 +12,7 @@ use App\Entity\Learnersubjects;
 use App\Entity\Question;
 use App\Entity\Result;
 use App\Entity\Subject;
+use phpDocumentor\Reflection\Types\Boolean;
 
 class LearnMzansiApi extends AbstractController
 {
@@ -32,7 +33,7 @@ class LearnMzansiApi extends AbstractController
             $requestBody = json_decode($request->getContent(), true);
             $uid = $requestBody['uid'];
 
-            if (empty($uid) ) {
+            if (empty($uid)) {
                 return array(
                     'status' => 'NOK',
                     'message' => 'Mandatory values missing'
@@ -50,14 +51,14 @@ class LearnMzansiApi extends AbstractController
                     'status' => 'OK',
                     'message' => 'Successfully created learner'
                 );
-            }else{
-                if($learner->getGrade()){
+            } else {
+                if ($learner->getGrade()) {
                     return array(
                         'status' => 'NOK',
                         'message' => "Learner already exists $uid",
                         'grade' => $learner->getGrade()->getNumber()
                     );
-                }else{
+                } else {
                     return array(
                         'status' => 'NOK',
                         'message' => "Learner already exists $uid",
@@ -65,7 +66,6 @@ class LearnMzansiApi extends AbstractController
                     );
                 }
             }
-
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
             return array(
@@ -79,7 +79,7 @@ class LearnMzansiApi extends AbstractController
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         try {
-        
+
             $uid = $request->query->get('uid');
 
             if (empty($uid)) {
@@ -117,13 +117,13 @@ class LearnMzansiApi extends AbstractController
 
         $id = $request->query->get('id');
 
-        if (empty($id )) {
+        if (empty($id)) {
             return array(
                 'status' => 'NOK',
                 'message' => 'Question id is required'
             );
         }
-        
+
         $query = $this->em->createQuery(
             'SELECT q
             FROM App\Entity\Question q
@@ -132,9 +132,9 @@ class LearnMzansiApi extends AbstractController
 
         return $query->getResult();
     }
-    
-    
-     /**
+
+
+    /**
      * Create a new question from JSON request data.
      *
      * @param array $data The JSON request body as an associative array.
@@ -188,19 +188,26 @@ class LearnMzansiApi extends AbstractController
         }
     }
 
-    public function getRandomQuestionBySubjectId(int $subjectId, string $uid)
+    public function getRandomQuestionBySubjectId(int $subjectId, string $uid, bool $overideTerm = false)
     {
         $this->logger->info("Starting Method: " . __METHOD__);
 
         $learner = $this->em->getRepository(Learner::class)->findOneBy(['uid' => $uid]);
         try {
+            $currentMonth = (int)date('m');
+            $termCondition = '';
+
+            if ($currentMonth < 7 && !$overideTerm) {
+                $termCondition = 'AND q.term = 2';
+            }
+
             $query = $this->em->createQuery(
                 'SELECT q
-                FROM App\Entity\Question q
-                JOIN q.subject s
-                LEFT JOIN App\Entity\Result r WITH r.question = q AND r.learner = :learner
-                WHERE s.id = :subjectId AND r.id IS NULL
-                AND q.active = 1'
+            FROM App\Entity\Question q
+            JOIN q.subject s
+            LEFT JOIN App\Entity\Result r WITH r.question = q AND r.learner = :learner
+            WHERE s.id = :subjectId AND r.id IS NULL
+            AND q.active = 1 ' . $termCondition
             )->setParameters([
                 'subjectId' => $subjectId,
                 'learner' => $learner
@@ -210,13 +217,12 @@ class LearnMzansiApi extends AbstractController
             if (!empty($questions)) {
                 shuffle($questions);
                 $randomQuestion = $questions[0]; // Get the first random question
-            }else{
+            } else {
                 return array(
                     'status' => 'NOK',
                     'message' => 'No more questions available'
                 );
             }
-
 
             return $randomQuestion;
         } catch (\Exception $e) {
@@ -267,7 +273,7 @@ class LearnMzansiApi extends AbstractController
             $learner->setGrade($grade);
             $this->em->persist($learner);
             $this->em->flush();
-            
+
             $this->logger->info("3");
             return array(
                 'status' => 'OK',
@@ -443,7 +449,7 @@ class LearnMzansiApi extends AbstractController
                     AND s.active = 1'
                 )->setParameter('enrolledSubjectIds', $enrolledSubjectIds);
             }
-            
+
             $subjects = $query->getResult();
 
             return array(
@@ -467,7 +473,7 @@ class LearnMzansiApi extends AbstractController
             $questionId = $requestBody['question_id'];
             $learnerAnswers = $requestBody['answer'];
             $multiLearnerAnswers = $requestBody['answers'];
-            
+
             $uid = $requestBody['uid'];
 
             if (empty($questionId) || empty($uid)) {
@@ -493,7 +499,7 @@ class LearnMzansiApi extends AbstractController
                 );
             }
 
-            if($question->getType() == 'multi_select'){
+            if ($question->getType() == 'multi_select') {
                 if (empty($multiLearnerAnswers)) {
                     return array(
                         'status' => 'NOK',
@@ -501,7 +507,7 @@ class LearnMzansiApi extends AbstractController
                     );
                 }
                 $learnerAnswers = $multiLearnerAnswers;
-            }else{
+            } else {
                 if (empty($learnerAnswers)) {
                     return array(
                         'status' => 'NOK',
@@ -518,7 +524,7 @@ class LearnMzansiApi extends AbstractController
             if (!is_array($correctAnswers)) {
                 throw new \Exception('Invalid correct answers format');
             }
-            $isCorrect = !array_udiff($learnerAnswers, $correctAnswers, function($a, $b) {
+            $isCorrect = !array_udiff($learnerAnswers, $correctAnswers, function ($a, $b) {
                 return strcasecmp($a, $b);
             });
             $outcome = $isCorrect ? 'correct' : 'incorrect';
@@ -658,7 +664,7 @@ class LearnMzansiApi extends AbstractController
                 }
             }
 
-            $percentage = ($correctAnswers / $totalQuestions) ;
+            $percentage = ($correctAnswers / $totalQuestions);
 
             return array(
                 'status' => 'OK',
@@ -672,5 +678,4 @@ class LearnMzansiApi extends AbstractController
             );
         }
     }
-
 }
