@@ -540,6 +540,7 @@ class LearnMzansiApi extends AbstractController
             $this->em->persist($result);
             $this->em->flush();
 
+            $learnerSubject = $this->em->getRepository(Learnersubjects::class)->findOneBy(['learner' => $learner, 'subject' => $question->getSubject()]);
             $learnerSubject->setLastUpdated(new \DateTime());
             $this->em->persist($learnerSubject);
             $this->em->flush();
