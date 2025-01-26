@@ -844,4 +844,89 @@ class LearnMzansiApi extends AbstractController
             );
         }
     }
+
+    public function uploadImage(Request $request): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        try {
+            $file = $request->files->get('image');
+            $questionId = $request->request->get('question_id');
+            if (!$file) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'No image file provided'
+                );
+            }
+
+            $question = $this->em->getRepository(Question::class)->find($questionId);
+            if (!$question) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Question not found'
+                );
+            }
+
+            $uploadDir = $this->getParameter('kernel.project_dir') . '/public/assets/images/learnMzansi';
+            $newFilename = uniqid() . '.' . $file->guessExtension();
+
+            $file->move($uploadDir, $newFilename);
+
+        
+            $question->setImagePath($newFilename);
+            $this->em->persist($question);
+            $this->em->flush();
+
+
+            return array(
+                'status' => 'OK',
+                'message' => 'Image successfully uploaded'
+            );
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return array(
+                'status' => 'NOK',
+                'message' => 'Error uploading image'
+            );
+        }
+    }
+
+    public function downloadImage(Request $request)
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        try {
+            $questionId = $request->query->get('question_id');
+
+            $question = $this->em->getRepository(Question::class)->find($questionId);
+            if (!$question) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Question not found'
+                );
+            }
+
+            $filename = $question->getImagePath();
+            if (empty($filename)) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Filename is required'
+                );
+            }
+
+            $filePath = $this->getParameter('kernel.project_dir') . '/public/assets/images/learnMzansi/' . $filename;
+            if (!file_exists($filePath)) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'File not found'
+                );
+            }
+
+            return $this->file($filePath);
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return array(
+                'status' => 'NOK',
+                'message' => 'Error downloading image'
+            );
+        }
+    }
 }
