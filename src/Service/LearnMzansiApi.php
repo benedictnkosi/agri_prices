@@ -16,7 +16,6 @@ use phpDocumentor\Reflection\Types\Boolean;
 
 class LearnMzansiApi extends AbstractController
 {
-
     private $em;
     private $logger;
 
@@ -332,14 +331,9 @@ class LearnMzansiApi extends AbstractController
 
             $learnerSubjects = $this->em->getRepository(Learnersubjects::class)->findBy(['learner' => $learner], ['lastUpdated' => 'DESC']);
 
-            $subjects = [];
-            foreach ($learnerSubjects as $learnerSubject) {
-                $subjects[] = $learnerSubject->getSubject();
-            }
-
             return array(
                 'status' => 'OK',
-                'subjects' => $learnerSubjects
+                'subjects' => $learnerSubjects,
             );
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());

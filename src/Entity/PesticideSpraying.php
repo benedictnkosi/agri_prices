@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * PesticideSpraying
  *
- * @ORM\Table(name="pesticide_spraying", indexes={@ORM\Index(name="persticide_spraying_batch_idx", columns={"batch"}), @ORM\Index(name="fertilizer_stock_fertilizer0_idx", columns={"pesticide"})})
+ * @ORM\Table(name="pesticide_spraying", indexes={@ORM\Index(name="fertilizer_stock_fertilizer0_idx", columns={"pesticide"}), @ORM\Index(name="persticide_spraying_batch_idx", columns={"batch"})})
  * @ORM\Entity
  */
 class PesticideSpraying

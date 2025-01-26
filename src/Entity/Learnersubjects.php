@@ -44,9 +44,9 @@ class Learnersubjects
     private $lastUpdated;
 
     /**
-     * @var int|null
+     * @var float|null
      *
-     * @ORM\Column(name="percentage", type="integer", nullable=true)
+     * @ORM\Column(name="percentage", type="float", precision=10, scale=0, nullable=true)
      */
     private $percentage;
 
@@ -111,12 +111,12 @@ class Learnersubjects
         return $this;
     }
 
-    public function getPercentage(): ?int
+    public function getPercentage(): ?float
     {
         return $this->percentage;
     }
 
-    public function setPercentage(?int $percentage): static
+    public function setPercentage(?float $percentage): static
     {
         $this->percentage = $percentage;
 

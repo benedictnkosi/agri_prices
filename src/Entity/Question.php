@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Question
  *
- * @ORM\Table(name="question", indexes={@ORM\Index(name="question_learner_idx", columns={"learner"}), @ORM\Index(name="question_subject_idx", columns={"subject"})})
+ * @ORM\Table(name="question", indexes={@ORM\Index(name="question_subject_idx", columns={"subject"}), @ORM\Index(name="question_learner_idx", columns={"learner"})})
  * @ORM\Entity
  */
 class Question
@@ -86,16 +86,6 @@ class Question
     private $active = true;
 
     /**
-     * @var \Subject
-     *
-     * @ORM\ManyToOne(targetEntity="Subject")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="subject", referencedColumnName="id")
-     * })
-     */
-    private $subject;
-
-    /**
      * @var \Learner
      *
      * @ORM\ManyToOne(targetEntity="Learner")
@@ -104,6 +94,16 @@ class Question
      * })
      */
     private $learner;
+
+    /**
+     * @var \Subject
+     *
+     * @ORM\ManyToOne(targetEntity="Subject")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="subject", referencedColumnName="id")
+     * })
+     */
+    private $subject;
 
     public function getId(): ?int
     {
@@ -218,18 +218,6 @@ class Question
         return $this;
     }
 
-    public function getSubject(): ?Subject
-    {
-        return $this->subject;
-    }
-
-    public function setSubject(?Subject $subject): static
-    {
-        $this->subject = $subject;
-
-        return $this;
-    }
-
     public function getLearner(): ?Learner
     {
         return $this->learner;
@@ -238,6 +226,18 @@ class Question
     public function setLearner(?Learner $learner): static
     {
         $this->learner = $learner;
+
+        return $this;
+    }
+
+    public function getSubject(): ?Subject
+    {
+        return $this->subject;
+    }
+
+    public function setSubject(?Subject $subject): static
+    {
+        $this->subject = $subject;
 
         return $this;
     }

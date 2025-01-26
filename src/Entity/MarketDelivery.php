@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * MarketDelivery
  *
- * @ORM\Table(name="market_delivery", indexes={@ORM\Index(name="market_delivery_packaging_idx", columns={"packaging"}), @ORM\Index(name="market_delivery_customer_fk_idx", columns={"customer"}), @ORM\Index(name="market_delivery_farm_idx", columns={"farm"}), @ORM\Index(name="market_deliverys_crop_fk_idx", columns={"crop"})})
+ * @ORM\Table(name="market_delivery", indexes={@ORM\Index(name="market_deliverys_crop_fk_idx", columns={"crop"}), @ORM\Index(name="market_delivery_packaging_idx", columns={"packaging"}), @ORM\Index(name="market_delivery_customer_fk_idx", columns={"customer"}), @ORM\Index(name="market_delivery_farm_idx", columns={"farm"})})
  * @ORM\Entity
  */
 class MarketDelivery
@@ -37,26 +37,6 @@ class MarketDelivery
     private $quantity;
 
     /**
-     * @var \Crop
-     *
-     * @ORM\ManyToOne(targetEntity="Crop")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="crop", referencedColumnName="id")
-     * })
-     */
-    private $crop;
-
-    /**
-     * @var \Packaging
-     *
-     * @ORM\ManyToOne(targetEntity="Packaging")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="packaging", referencedColumnName="id")
-     * })
-     */
-    private $packaging;
-
-    /**
      * @var \Customer
      *
      * @ORM\ManyToOne(targetEntity="Customer")
@@ -75,6 +55,26 @@ class MarketDelivery
      * })
      */
     private $farm;
+
+    /**
+     * @var \Crop
+     *
+     * @ORM\ManyToOne(targetEntity="Crop")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="crop", referencedColumnName="id")
+     * })
+     */
+    private $crop;
+
+    /**
+     * @var \Packaging
+     *
+     * @ORM\ManyToOne(targetEntity="Packaging")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="packaging", referencedColumnName="id")
+     * })
+     */
+    private $packaging;
 
     public function getId(): ?int
     {
@@ -105,30 +105,6 @@ class MarketDelivery
         return $this;
     }
 
-    public function getCrop(): ?Crop
-    {
-        return $this->crop;
-    }
-
-    public function setCrop(?Crop $crop): static
-    {
-        $this->crop = $crop;
-
-        return $this;
-    }
-
-    public function getPackaging(): ?Packaging
-    {
-        return $this->packaging;
-    }
-
-    public function setPackaging(?Packaging $packaging): static
-    {
-        $this->packaging = $packaging;
-
-        return $this;
-    }
-
     public function getCustomer(): ?Customer
     {
         return $this->customer;
@@ -149,6 +125,30 @@ class MarketDelivery
     public function setFarm(?Farm $farm): static
     {
         $this->farm = $farm;
+
+        return $this;
+    }
+
+    public function getCrop(): ?Crop
+    {
+        return $this->crop;
+    }
+
+    public function setCrop(?Crop $crop): static
+    {
+        $this->crop = $crop;
+
+        return $this;
+    }
+
+    public function getPackaging(): ?Packaging
+    {
+        return $this->packaging;
+    }
+
+    public function setPackaging(?Packaging $packaging): static
+    {
+        $this->packaging = $packaging;
 
         return $this;
     }
