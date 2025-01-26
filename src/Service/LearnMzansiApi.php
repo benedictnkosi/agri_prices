@@ -889,44 +889,4 @@ class LearnMzansiApi extends AbstractController
             );
         }
     }
-
-    public function downloadImage(Request $request)
-    {
-        $this->logger->info("Starting Method: " . __METHOD__);
-        try {
-            $questionId = $request->query->get('question_id');
-
-            $question = $this->em->getRepository(Question::class)->find($questionId);
-            if (!$question) {
-                return array(
-                    'status' => 'NOK',
-                    'message' => 'Question not found'
-                );
-            }
-
-            $filename = $question->getImagePath();
-            if (empty($filename)) {
-                return array(
-                    'status' => 'NOK',
-                    'message' => 'Filename is required'
-                );
-            }
-
-            $filePath = $this->getParameter('kernel.project_dir') . '/public/assets/images/learnMzansi/' . $filename;
-            if (!file_exists($filePath)) {
-                return array(
-                    'status' => 'NOK',
-                    'message' => 'File not found'
-                );
-            }
-
-            return $this->file($filePath);
-        } catch (\Exception $e) {
-            $this->logger->error($e->getMessage());
-            return array(
-                'status' => 'NOK',
-                'message' => 'Error downloading image'
-            );
-        }
-    }
 }

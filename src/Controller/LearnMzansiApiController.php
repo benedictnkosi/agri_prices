@@ -9,6 +9,8 @@ use Symfony\Component\HttpFoundation\Request;
 use JMS\Serializer\SerializerBuilder;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class LearnMzansiApiController extends AbstractController
 {
@@ -231,10 +233,9 @@ class LearnMzansiApiController extends AbstractController
     /**
      * @Route("public/learn/learner/get-image", name="getImage", methods={"GET"})
      */
-    public function getImage(Request $request)
+    public function getImage(Request $request): Response
     {
-        $this->logger->info("Starting Method: " . __METHOD__);
-        $response = $this->api->downloadImage($request);
-        return $response;
+        $uploadDir = __DIR__ . '/../../public/assets/images/learnMzansi/';
+        return new BinaryFileResponse($uploadDir . $request->query->get('image'));
     }
 }
