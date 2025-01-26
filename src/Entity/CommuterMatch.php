@@ -96,20 +96,20 @@ class CommuterMatch
      *
      * @ORM\ManyToOne(targetEntity="Commuter")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="passenger", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="driver", referencedColumnName="id")
      * })
      */
-    private $passenger;
+    private $driver;
 
     /**
      * @var \Commuter
      *
      * @ORM\ManyToOne(targetEntity="Commuter")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="driver", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="passenger", referencedColumnName="id")
      * })
      */
-    private $driver;
+    private $passenger;
 
     public function getId(): ?int
     {
@@ -236,18 +236,6 @@ class CommuterMatch
         return $this;
     }
 
-    public function getPassenger(): ?Commuter
-    {
-        return $this->passenger;
-    }
-
-    public function setPassenger(?Commuter $passenger): static
-    {
-        $this->passenger = $passenger;
-
-        return $this;
-    }
-
     public function getDriver(): ?Commuter
     {
         return $this->driver;
@@ -256,6 +244,18 @@ class CommuterMatch
     public function setDriver(?Commuter $driver): static
     {
         $this->driver = $driver;
+
+        return $this;
+    }
+
+    public function getPassenger(): ?Commuter
+    {
+        return $this->passenger;
+    }
+
+    public function setPassenger(?Commuter $passenger): static
+    {
+        $this->passenger = $passenger;
 
         return $this;
     }

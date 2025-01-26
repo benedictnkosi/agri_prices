@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Question
  *
- * @ORM\Table(name="question", indexes={@ORM\Index(name="question_subject_idx", columns={"subject"}), @ORM\Index(name="question_learner_idx", columns={"learner"})})
+ * @ORM\Table(name="question", indexes={@ORM\Index(name="question_learner_idx", columns={"higher_grade"}), @ORM\Index(name="question_subject_idx", columns={"subject"})})
  * @ORM\Entity
  */
 class Question
@@ -79,21 +79,18 @@ class Question
     private $explanation;
 
     /**
+     * @var int|null
+     *
+     * @ORM\Column(name="higher_grade", type="smallint", nullable=true)
+     */
+    private $higherGrade;
+
+    /**
      * @var bool|null
      *
      * @ORM\Column(name="active", type="boolean", nullable=true, options={"default"="1"})
      */
     private $active = true;
-
-    /**
-     * @var \Learner
-     *
-     * @ORM\ManyToOne(targetEntity="Learner")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="learner", referencedColumnName="id")
-     * })
-     */
-    private $learner;
 
     /**
      * @var \Subject
@@ -206,6 +203,18 @@ class Question
         return $this;
     }
 
+    public function getHigherGrade(): ?int
+    {
+        return $this->higherGrade;
+    }
+
+    public function setHigherGrade(?int $higherGrade): static
+    {
+        $this->higherGrade = $higherGrade;
+
+        return $this;
+    }
+
     public function isActive(): ?bool
     {
         return $this->active;
@@ -214,18 +223,6 @@ class Question
     public function setActive(?bool $active): static
     {
         $this->active = $active;
-
-        return $this;
-    }
-
-    public function getLearner(): ?Learner
-    {
-        return $this->learner;
-    }
-
-    public function setLearner(?Learner $learner): static
-    {
-        $this->learner = $learner;
 
         return $this;
     }
