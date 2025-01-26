@@ -680,8 +680,8 @@ class LearnMzansiApi extends AbstractController
             }
 
             $learnerSubject->setPercentage($percentage);
-                    $this->em->persist($learnerSubject);
-                    $this->em->flush();
+            $this->em->persist($learnerSubject);
+            $this->em->flush();
 
             return array(
                 'status' => 'OK',
@@ -794,11 +794,19 @@ class LearnMzansiApi extends AbstractController
         }
     }
 
-    public function getAllActiveSubjects(): array
+    public function getAllActiveSubjects($request): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         try {
-            $subjects = $this->em->getRepository(Subject::class)->findBy(['active' => true]);
+            $grade = $request->query->get('grade');
+            if (empty($grade)) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Grade is required'
+                );
+            }
+
+            $subjects = $this->em->getRepository(Subject::class)->findBy(['active' => true, 'grade' => $grade]);
             return array(
                 'status' => 'OK',
                 'subjects' => $subjects
