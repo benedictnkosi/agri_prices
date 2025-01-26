@@ -221,7 +221,9 @@ class LearnMzansiApi extends AbstractController
             } else {
                 return array(
                     'status' => 'NOK',
-                    'message' => 'No more questions available'
+                    'message' => 'No more questions available',
+                    'context' => 'none',
+                    'image_path' => 'none'
                 );
             }
 

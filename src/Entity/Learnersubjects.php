@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -36,14 +37,18 @@ class Learnersubjects
     private $overideterm = '0';
 
     /**
-     * @var \Subject
+     * @var \DateTime|null
      *
-     * @ORM\ManyToOne(targetEntity="Subject")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="subject", referencedColumnName="id")
-     * })
+     * @ORM\Column(name="last_updated", type="datetime", nullable=true)
      */
-    private $subject;
+    private $lastUpdated;
+
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(name="percentage", type="integer", nullable=true)
+     */
+    private $percentage;
 
     /**
      * @var \Learner
@@ -54,6 +59,16 @@ class Learnersubjects
      * })
      */
     private $learner;
+
+    /**
+     * @var \Subject
+     *
+     * @ORM\ManyToOne(targetEntity="Subject")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="subject", referencedColumnName="id")
+     * })
+     */
+    private $subject;
 
     public function getId(): ?int
     {
@@ -84,14 +99,26 @@ class Learnersubjects
         return $this;
     }
 
-    public function getSubject(): ?Subject
+    public function getLastUpdated(): ?\DateTimeInterface
     {
-        return $this->subject;
+        return $this->lastUpdated;
     }
 
-    public function setSubject(?Subject $subject): static
+    public function setLastUpdated(?\DateTimeInterface $lastUpdated): static
     {
-        $this->subject = $subject;
+        $this->lastUpdated = $lastUpdated;
+
+        return $this;
+    }
+
+    public function getPercentage(): ?int
+    {
+        return $this->percentage;
+    }
+
+    public function setPercentage(?int $percentage): static
+    {
+        $this->percentage = $percentage;
 
         return $this;
     }
@@ -104,6 +131,18 @@ class Learnersubjects
     public function setLearner(?Learner $learner): static
     {
         $this->learner = $learner;
+
+        return $this;
+    }
+
+    public function getSubject(): ?Subject
+    {
+        return $this->subject;
+    }
+
+    public function setSubject(?Subject $subject): static
+    {
+        $this->subject = $subject;
 
         return $this;
     }
