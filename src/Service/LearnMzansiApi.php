@@ -488,7 +488,7 @@ class LearnMzansiApi extends AbstractController
         try {
             $requestBody = json_decode($request->getContent(), true);
             $questionId = $requestBody['question_id'];
-            $learnerAnswers = $requestBody['answer'];
+            $learnerAnswers = trim($requestBody['answer']);
             $multiLearnerAnswers = $requestBody['answers'];
 
             $uid = $requestBody['uid'];
