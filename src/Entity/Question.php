@@ -93,6 +93,13 @@ class Question
     private $active = true;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="year", type="integer", nullable=false)
+     */
+    private $year;
+
+    /**
      * @var \Subject
      *
      * @ORM\ManyToOne(targetEntity="Subject")
@@ -223,6 +230,18 @@ class Question
     public function setActive(?bool $active): static
     {
         $this->active = $active;
+
+        return $this;
+    }
+
+    public function getYear(): ?int
+    {
+        return $this->year;
+    }
+
+    public function setYear(int $year): static
+    {
+        $this->year = $year;
 
         return $this;
     }

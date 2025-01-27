@@ -144,10 +144,10 @@ class LearnMzansiApi extends AbstractController
         $this->logger->info("Starting Method: " . __METHOD__);
         try {
             // Validate required fields
-            if (empty($data['question']) || empty($data['type']) || empty($data['subject'])) {
+            if (empty($data['question']) || empty($data['type']) || empty($data['subject']) || empty($data['year']) || empty($data['term']) || empty($data['answer']) ) {
                 return array(
                     'status' => 'NOK',
-                    'message' => "Missing required fields: 'question', 'type', or 'subject'."
+                    'message' => "Missing required fields."
                 );
             }
 
@@ -186,6 +186,7 @@ class LearnMzansiApi extends AbstractController
             $question->setTerm($data['term'] ?? null);
             $question->setImagePath($data['image_path'] ?? null);
             $question->setExplanation($data['explanation'] ?? null);
+            $question->setYear($data['year'] ?? null);
 
             // Persist and flush the new entity
             $this->em->persist($question);
