@@ -853,6 +853,8 @@ class LearnMzansiApi extends AbstractController
         try {
             $file = $request->files->get('image');
             $questionId = $request->request->get('question_id');
+            $imageType = $request->request->get('image_type');
+
             if (!$file) {
                 return array(
                     'status' => 'NOK',
@@ -873,8 +875,11 @@ class LearnMzansiApi extends AbstractController
 
             $file->move($uploadDir, $newFilename);
 
-        
-            $question->setImagePath($newFilename);
+            if($imageType == 'question') {
+                $question->setImagePath($newFilename);
+            } else {
+                $question->setAnswerImage($newFilename);
+            }
             $this->em->persist($question);
             $this->em->flush();
 
