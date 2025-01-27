@@ -238,4 +238,16 @@ class LearnMzansiApiController extends AbstractController
         $uploadDir = __DIR__ . '/../../public/assets/images/learnMzansi/';
         return new BinaryFileResponse($uploadDir . $request->query->get('image'));
     }
+
+    /**
+     * @Route("public/learn/question/set-image-path", name="setImagePathForQuestion", methods={"POST"})
+     */
+    public function setImagePathForQuestion(Request $request): JsonResponse
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        $response = $this->api->setImagePathForQuestion($request);
+        $serializer = SerializerBuilder::create()->build();
+        $jsonContent = $serializer->serialize($response, 'json');
+        return new JsonResponse($jsonContent, 200, array('Access-Control-Allow-Origin' => '*'), true);
+    }
 }

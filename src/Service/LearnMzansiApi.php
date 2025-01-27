@@ -880,13 +880,54 @@ class LearnMzansiApi extends AbstractController
 
             return array(
                 'status' => 'OK',
-                'message' => 'Image successfully uploaded'
+                'message' => 'Image successfully uploaded',
+                'fileName' => $newFilename
             );
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
             return array(
                 'status' => 'NOK',
                 'message' => 'Error uploading image'
+            );
+        }
+    }
+
+    public function setImagePathForQuestion(Request $request): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        try {
+            $requestBody = json_decode($request->getContent(), true);
+            $questionId = $requestBody['question_id'];
+            $imageName = $requestBody['image_name'];
+
+            if (empty($questionId) || empty($imageName)) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Mandatory values missing'
+                );
+            }
+
+            $question = $this->em->getRepository(Question::class)->find($questionId);
+            if (!$question) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Question not found'
+                );
+            }
+
+            $question->setImagePath($imageName);
+            $this->em->persist($question);
+            $this->em->flush();
+
+            return array(
+                'status' => 'OK',
+                'message' => 'Successfully set image path for question'
+            );
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return array(
+                'status' => 'NOK',
+                'message' => 'Error setting image path for question'
             );
         }
     }
