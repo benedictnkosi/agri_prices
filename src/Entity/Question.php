@@ -100,6 +100,13 @@ class Question
     private $year;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="answer_image", type="string", length=100, nullable=false)
+     */
+    private $answerImage;
+
+    /**
      * @var \Subject
      *
      * @ORM\ManyToOne(targetEntity="Subject")
@@ -242,6 +249,18 @@ class Question
     public function setYear(int $year): static
     {
         $this->year = $year;
+
+        return $this;
+    }
+
+    public function getAnswerImage(): ?string
+    {
+        return $this->answerImage;
+    }
+
+    public function setAnswerImage(string $answerImage): static
+    {
+        $this->answerImage = $answerImage;
 
         return $this;
     }
