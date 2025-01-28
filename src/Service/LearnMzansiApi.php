@@ -555,7 +555,13 @@ class LearnMzansiApi extends AbstractController
             }, $correctAnswers);
 
             $isCorrect = !array_udiff($learnerAnswers, $correctAnswers, function ($a, $b) {
-                return strcasecmp($a, $b);
+                $bParts = explode('|', $b);
+                foreach ($bParts as $part) {
+                    if (strcasecmp($a, $part) === 0) {
+                        return 0;
+                    }
+                }
+                return 1;
             });
             $outcome = $isCorrect ? 'correct' : 'incorrect';
 
