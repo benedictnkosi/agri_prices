@@ -51,16 +51,6 @@ class Learnersubjects
     private $percentage;
 
     /**
-     * @var \Subject
-     *
-     * @ORM\ManyToOne(targetEntity="Subject")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="subject", referencedColumnName="id")
-     * })
-     */
-    private $subject;
-
-    /**
      * @var \Learner
      *
      * @ORM\ManyToOne(targetEntity="Learner")
@@ -69,6 +59,16 @@ class Learnersubjects
      * })
      */
     private $learner;
+
+    /**
+     * @var \Subject
+     *
+     * @ORM\ManyToOne(targetEntity="Subject")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="subject", referencedColumnName="id")
+     * })
+     */
+    private $subject;
 
     public function getId(): ?int
     {
@@ -123,18 +123,6 @@ class Learnersubjects
         return $this;
     }
 
-    public function getSubject(): ?Subject
-    {
-        return $this->subject;
-    }
-
-    public function setSubject(?Subject $subject): static
-    {
-        $this->subject = $subject;
-
-        return $this;
-    }
-
     public function getLearner(): ?Learner
     {
         return $this->learner;
@@ -143,6 +131,18 @@ class Learnersubjects
     public function setLearner(?Learner $learner): static
     {
         $this->learner = $learner;
+
+        return $this;
+    }
+
+    public function getSubject(): ?Subject
+    {
+        return $this->subject;
+    }
+
+    public function setSubject(?Subject $subject): static
+    {
+        $this->subject = $subject;
 
         return $this;
     }

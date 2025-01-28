@@ -187,6 +187,7 @@ class LearnMzansiApi extends AbstractController
             $question->setImagePath($data['image_path'] ?? null);
             $question->setExplanation($data['explanation'] ?? null);
             $question->setYear($data['year'] ?? null);
+            $question->setCapturer($data['capturer'] ?? null);
 
             // Persist and flush the new entity
             $this->em->persist($question);
