@@ -581,7 +581,7 @@ class LearnMzansiApi extends AbstractController
             return array(
                 'status' => 'OK',
                 'is_correct' => $isCorrect,
-                'correct_answers' => implode(', ', $correctAnswers)
+                'correct_answers' => implode(', ', json_decode($question->getAnswer(), true))
             );
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
