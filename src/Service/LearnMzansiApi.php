@@ -223,12 +223,7 @@ class LearnMzansiApi extends AbstractController
 
                 $question = $query->getOneOrNullResult();
                 if ($question) {
-                    return array(
-                        'status' => 'OK',
-                        'question' => $question,
-                        'context' => $question->getContext(),
-                        'image_path' => $question->getImagePath()
-                    );
+                    return $question;
                 } else {
                     return array(
                         'status' => 'NOK',
