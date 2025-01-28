@@ -92,7 +92,8 @@ class LearnMzansiApiController extends AbstractController
         $this->logger->info("Starting Method: " . __METHOD__);
         $subjectId = $request->query->get('subject_id');
         $uid = $request->query->get('uid');
-        $response = $this->api->getRandomQuestionBySubjectId($subjectId, $uid);
+        $questionId = $request->query->get('question_id');
+        $response = $this->api->getRandomQuestionBySubjectId($subjectId, $uid, $questionId);
         $serializer = SerializerBuilder::create()->build();
         $jsonContent = $serializer->serialize($response, 'json');
         return new JsonResponse($jsonContent, 200, array('Access-Control-Allow-Origin' => '*'), true);

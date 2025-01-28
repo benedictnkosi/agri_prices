@@ -206,19 +206,57 @@ class LearnMzansiApi extends AbstractController
         }
     }
 
-    public function getRandomQuestionBySubjectId(int $subjectId, string $uid)
+    public function getRandomQuestionBySubjectId(int $subjectId, string $uid, int $questionId)
     {
         $this->logger->info("Starting Method: " . __METHOD__);
 
-        $learner = $this->em->getRepository(Learner::class)->findOneBy(['uid' => $uid]);
-        $learnerSubject = $this->em->getRepository(Learnersubjects::class)->findOneBy(['learner' => $learner, 'subject' => $subjectId]);
+
+
         try {
             $currentMonth = (int)date('m');
             $termCondition = '';
 
+
+
+            if ($questionId !== null) {
+                $query = $this->em->createQuery(
+                    'SELECT q
+                    FROM App\Entity\Question q
+                    WHERE q.id = :id'
+                )->setParameter('id', $questionId);
+
+                $question = $query->getOneOrNullResult();
+                if ($question) {
+                    return array(
+                        'status' => 'OK',
+                        'question' => $question,
+                        'context' => $question->getContext(),
+                        'image_path' => $question->getImagePath()
+                    );
+                } else {
+                    return array(
+                        'status' => 'NOK',
+                        'message' => 'Question not found'
+                    );
+                }
+            }
+
+            $learner = $this->em->getRepository(Learner::class)->findOneBy(['uid' => $uid]);
+            $learnerSubject = $this->em->getRepository(Learnersubjects::class)->findOneBy(['learner' => $learner, 'subject' => $subjectId]);
+
             if ($currentMonth < 7 && !$learnerSubject->isOverideterm()) {
                 $termCondition = 'AND q.term = 2';
             }
+
+
+            if (!$learnerSubject) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Learner subject not found'
+                );
+            }
+
+
 
             $query = $this->em->createQuery(
                 'SELECT q
