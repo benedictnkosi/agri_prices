@@ -182,7 +182,7 @@ class LearnMzansiApiController extends AbstractController
         return new JsonResponse($jsonContent, 200, array('Access-Control-Allow-Origin' => '*'), true);
     }
 
-     /**
+    /**
      * @Route("public/learn/learner/update-overide-term", name="updateOverideTerm", methods={"POST"})
      */
     public function updateOverideTerm(Request $request): JsonResponse
@@ -258,6 +258,18 @@ class LearnMzansiApiController extends AbstractController
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         $response = $this->api->setImageForQuestionAnswer($request);
+        $serializer = SerializerBuilder::create()->build();
+        $jsonContent = $serializer->serialize($response, 'json');
+        return new JsonResponse($jsonContent, 200, array('Access-Control-Allow-Origin' => '*'), true);
+    }
+
+    /**
+     * @Route("public/learn/questions/by-grade-subject", name="getQuestionsByGradeAndSubject", methods={"GET"})
+     */
+    public function getQuestionsByGradeAndSubject(Request $request): JsonResponse
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        $response = $this->api->getQuestionsByGradeAndSubject($request);
         $serializer = SerializerBuilder::create()->build();
         $jsonContent = $serializer->serialize($response, 'json');
         return new JsonResponse($jsonContent, 200, array('Access-Control-Allow-Origin' => '*'), true);

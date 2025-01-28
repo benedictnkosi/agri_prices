@@ -1002,4 +1002,49 @@ class LearnMzansiApi extends AbstractController
             );
         }
     }
+
+    public function getQuestionsByGradeAndSubject(Request $request): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        try {
+            $gradeNumber = $request->query->get('grade');
+            $subjectName = $request->query->get('subject');
+
+            if (empty($gradeNumber) || empty($subjectName)) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Grade and Subject are required'
+                );
+            }
+
+            $grade = $this->em->getRepository(Grade::class)->findOneBy(['number' => $gradeNumber]);
+            if (!$grade) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Grade not found'
+                );
+            }
+
+            $subject = $this->em->getRepository(Subject::class)->findOneBy(['name' => $subjectName, 'grade' => $grade]);
+            if (!$subject) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Subject not found'
+                );
+            }
+
+            $questions = $this->em->getRepository(Question::class)->findBy(['subject' => $subject]);
+
+            return array(
+                'status' => 'OK',
+                'questions' => $questions
+            );
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return array(
+                'status' => 'NOK',
+                'message' => 'Error getting questions'
+            );
+        }
+    }
 }
