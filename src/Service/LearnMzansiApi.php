@@ -491,6 +491,13 @@ class LearnMzansiApi extends AbstractController
             $learnerAnswers = trim($requestBody['answer']);
             $multiLearnerAnswers = $requestBody['answers'];
 
+            $learnerAnswers = str_replace(' ', '', $learnerAnswers);
+            if (is_array($multiLearnerAnswers)) {
+                $multiLearnerAnswers = array_map(function ($answer) {
+                    return str_replace(' ', '', $answer);
+                }, $multiLearnerAnswers);
+            }
+
             $uid = $requestBody['uid'];
 
             if (empty($questionId) || empty($uid)) {
@@ -542,6 +549,11 @@ class LearnMzansiApi extends AbstractController
             if (!is_array($correctAnswers)) {
                 throw new \Exception('Invalid correct answers format');
             }
+
+            $correctAnswers = array_map(function ($answer) {
+                return str_replace(' ', '', $answer);
+            }, $correctAnswers);
+
             $isCorrect = !array_udiff($learnerAnswers, $correctAnswers, function ($a, $b) {
                 return strcasecmp($a, $b);
             });
