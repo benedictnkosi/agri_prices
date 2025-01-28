@@ -210,15 +210,11 @@ class LearnMzansiApi extends AbstractController
     {
         $this->logger->info("Starting Method: " . __METHOD__);
 
-
-
         try {
             $currentMonth = (int)date('m');
             $termCondition = '';
 
-
-
-            if ($questionId !== null) {
+            if ($questionId !== 0) {
                 $query = $this->em->createQuery(
                     'SELECT q
                     FROM App\Entity\Question q

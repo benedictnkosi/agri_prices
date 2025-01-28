@@ -93,6 +93,9 @@ class LearnMzansiApiController extends AbstractController
         $subjectId = $request->query->get('subject_id');
         $uid = $request->query->get('uid');
         $questionId = $request->query->get('question_id');
+        if ($questionId == null) {
+            $questionId = 0;
+        }
         $response = $this->api->getRandomQuestionBySubjectId($subjectId, $uid, $questionId);
         $serializer = SerializerBuilder::create()->build();
         $jsonContent = $serializer->serialize($response, 'json');
