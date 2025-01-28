@@ -144,7 +144,7 @@ class LearnMzansiApi extends AbstractController
         $this->logger->info("Starting Method: " . __METHOD__);
         try {
             // Validate required fields
-            if (empty($data['question']) || empty($data['type']) || empty($data['subject']) || empty($data['year']) || empty($data['term']) || empty($data['answer']) ) {
+            if (empty($data['question']) || empty($data['type']) || empty($data['subject']) || empty($data['year']) || empty($data['term']) || empty($data['answer'])) {
                 return array(
                     'status' => 'NOK',
                     'message' => "Missing required fields."
@@ -556,6 +556,12 @@ class LearnMzansiApi extends AbstractController
             $this->em->flush();
 
             $learnerSubject = $this->em->getRepository(Learnersubjects::class)->findOneBy(['learner' => $learner, 'subject' => $question->getSubject()]);
+            if (!$learnerSubject) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Learner subject not found ' . $question->getSubject()->getId() . ' ' . $learner->getId()
+                );
+            }
             $learnerSubject->setLastUpdated(new \DateTime());
             $this->em->persist($learnerSubject);
             $this->em->flush();
@@ -875,7 +881,7 @@ class LearnMzansiApi extends AbstractController
 
             $file->move($uploadDir, $newFilename);
 
-            if($imageType == 'question') {
+            if ($imageType == 'question') {
                 $question->setImagePath($newFilename);
             } else {
                 $question->setAnswerImage($newFilename);
