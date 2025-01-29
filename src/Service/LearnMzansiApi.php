@@ -428,10 +428,7 @@ class LearnMzansiApi extends AbstractController
                 );
             }
 
-            return array(
-                'status' => 'OK',
-                'subjects' => $returnArray
-            );
+            return $returnArray;
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
             return array(
