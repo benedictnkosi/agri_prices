@@ -394,9 +394,42 @@ class LearnMzansiApi extends AbstractController
 
             $learnerSubjects = $this->em->getRepository(Learnersubjects::class)->findBy(['learner' => $learner], ['lastUpdated' => 'DESC']);
 
+            $totalQuestions = count($learnerSubjects);
+            $answeredQuestions = 0;
+
+            $returnArray = array();
+            foreach ($learnerSubjects as $learnerSubject) {
+                $query = $this->em->createQueryBuilder()
+                    ->select('r, q')
+                    ->from('App\Entity\Result', 'r')
+                    ->join('r.question', 'q')
+                    ->where('r.learner = :learner')
+                    ->andWhere('q.subject = :subject')
+                    ->setParameter('learner', $learner)
+                    ->setParameter('subject', $learnerSubject)
+                    ->getQuery();
+
+
+                $results = $query->getResult();
+                $answeredQuestions += count($results);
+
+                $totalSubjectQuestion = $this->em->getRepository(Question::class)->createQueryBuilder('q')
+                    ->select('count(q.id)')
+                    ->where('q.subject = :subject')
+                    ->setParameter('subject', $learnerSubject->getSubject())
+                    ->getQuery()
+                    ->getSingleScalarResult();
+
+                $returnArray[] = array(
+                    'subject' => $learnerSubject,
+                    'total_questions' => $totalSubjectQuestion,
+                    'answered_questions' => $answeredQuestions
+                );
+            }
+
             return array(
                 'status' => 'OK',
-                'subjects' => $learnerSubjects,
+                'subjects' => $returnArray
             );
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
@@ -1091,6 +1124,46 @@ class LearnMzansiApi extends AbstractController
             return array(
                 'status' => 'NOK',
                 'message' => 'Error getting questions'
+            );
+        }
+    }
+
+
+    public function setQuestionInactive(Request $request): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        try {
+            $requestBody = json_decode($request->getContent(), true);
+            $questionId = $requestBody['question_id'];
+
+            if (empty($questionId)) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Question ID is required'
+                );
+            }
+
+            $question = $this->em->getRepository(Question::class)->find($questionId);
+            if (!$question) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Question not found'
+                );
+            }
+
+            $question->setActive(0);
+            $this->em->persist($question);
+            $this->em->flush();
+
+            return array(
+                'status' => 'OK',
+                'message' => 'Successfully set question to inactive'
+            );
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return array(
+                'status' => 'NOK',
+                'message' => 'Error setting question to inactive'
             );
         }
     }
