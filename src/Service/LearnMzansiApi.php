@@ -520,7 +520,7 @@ class LearnMzansiApi extends AbstractController
             $questionId = $requestBody['question_id'];
             $learnerAnswers = trim($requestBody['answer']);
             $multiLearnerAnswers = $requestBody['answers'];
-            $RequestType = $requestBody['mock'];
+            $RequestType = $requestBody['requesting_type'];
 
             $learnerAnswers = str_replace(' ', '', $learnerAnswers);
             if (is_array($multiLearnerAnswers)) {
