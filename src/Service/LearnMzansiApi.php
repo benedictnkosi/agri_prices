@@ -176,7 +176,19 @@ class LearnMzansiApi extends AbstractController
             $this->logger->info("Creating new question with data: " . json_encode($data));
 
             // Create a new Question entity
-            $question = new Question();
+            $questionId = $data['question_id'] ?? null;
+            if ($questionId) {
+                $question = $this->em->getRepository(Question::class)->find($questionId);
+                if (!$question) {
+                    return array(
+                        'status' => 'NOK',
+                        'message' => 'Question not found'
+                    );
+                }
+            } else {
+                $question = new Question();
+            }
+
             $question->setQuestion($data['question']);
             $question->setType($data['type']);
             $question->setSubject($subject);
