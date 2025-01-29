@@ -407,7 +407,7 @@ class LearnMzansiApi extends AbstractController
                     ->where('r.learner = :learner')
                     ->andWhere('q.subject = :subject')
                     ->setParameter('learner', $learner)
-                    ->setParameter('subject', $learnerSubject)
+                    ->setParameter('subject', $learnerSubject->getSubject())
                     ->getQuery();
 
 
