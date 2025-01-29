@@ -520,6 +520,7 @@ class LearnMzansiApi extends AbstractController
             $questionId = $requestBody['question_id'];
             $learnerAnswers = trim($requestBody['answer']);
             $multiLearnerAnswers = $requestBody['answers'];
+            $RequestType = $requestBody['mock'];
 
             $learnerAnswers = str_replace(' ', '', $learnerAnswers);
             if (is_array($multiLearnerAnswers)) {
@@ -596,23 +597,25 @@ class LearnMzansiApi extends AbstractController
             $outcome = $isCorrect ? 'correct' : 'incorrect';
 
             // Save the result in the Result entity
-            $result = new Result();
-            $result->setLearner($learner);
-            $result->setQuestion($question);
-            $result->setOutcome($outcome);
-            $this->em->persist($result);
-            $this->em->flush();
+            if ($RequestType !== 'mock') {
+                $result = new Result();
+                $result->setLearner($learner);
+                $result->setQuestion($question);
+                $result->setOutcome($outcome);
+                $this->em->persist($result);
+                $this->em->flush();
 
-            $learnerSubject = $this->em->getRepository(Learnersubjects::class)->findOneBy(['learner' => $learner, 'subject' => $question->getSubject()]);
-            if (!$learnerSubject) {
-                return array(
-                    'status' => 'NOK',
-                    'message' => 'Learner subject not found ' . $question->getSubject()->getId() . ' ' . $learner->getId()
-                );
+                $learnerSubject = $this->em->getRepository(Learnersubjects::class)->findOneBy(['learner' => $learner, 'subject' => $question->getSubject()]);
+                if (!$learnerSubject) {
+                    return array(
+                        'status' => 'NOK',
+                        'message' => 'Learner subject not found ' . $question->getSubject()->getId() . ' ' . $learner->getId()
+                    );
+                }
+                $learnerSubject->setLastUpdated(new \DateTime());
+                $this->em->persist($learnerSubject);
+                $this->em->flush();
             }
-            $learnerSubject->setLastUpdated(new \DateTime());
-            $this->em->persist($learnerSubject);
-            $this->em->flush();
 
             return array(
                 'status' => 'OK',
