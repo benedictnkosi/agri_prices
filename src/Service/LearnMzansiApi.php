@@ -250,7 +250,7 @@ class LearnMzansiApi extends AbstractController
             $learner = $this->em->getRepository(Learner::class)->findOneBy(['uid' => $uid]);
             $learnerSubject = $this->em->getRepository(Learnersubjects::class)->findOneBy(['learner' => $learner, 'subject' => $subjectId]);
 
-            if ($currentMonth < 7 && !$learnerSubject->isOverideterm()) {
+            if ($currentMonth < 7 && !$learner->isOverideterm()) {
                 $termCondition = 'AND q.term = 2';
             }
 
