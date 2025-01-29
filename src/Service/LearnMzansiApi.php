@@ -824,10 +824,9 @@ class LearnMzansiApi extends AbstractController
         try {
             $requestBody = json_decode($request->getContent(), true);
             $uid = $requestBody['uid'];
-            $learnerSubjectId = $requestBody['learner_subject_id'];
             $override = $requestBody['override'];
 
-            if (empty($uid) || empty($learnerSubjectId)) {
+            if (empty($uid)) {
                 return array(
                     'status' => 'NOK',
                     'message' => 'Mandatory values missing'
@@ -842,16 +841,9 @@ class LearnMzansiApi extends AbstractController
                 );
             }
 
-            $learnerSubject = $this->em->getRepository(Learnersubjects::class)->findOneBy(['learner' => $learner, 'id' => $learnerSubjectId]);
-            if (!$learnerSubject) {
-                return array(
-                    'status' => 'NOK',
-                    'message' => 'Learner subject not found'
-                );
-            }
 
-            $learnerSubject->setOverideterm($override);
-            $this->em->persist($learnerSubject);
+            $learner->setOverideTerm($override);
+            $this->em->persist($learner);
             $this->em->flush();
 
             return array(

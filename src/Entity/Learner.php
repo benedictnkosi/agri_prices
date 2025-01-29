@@ -43,6 +43,13 @@ class Learner
     private $name;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="overide_term", type="boolean", nullable=false)
+     */
+    private $overideTerm;
+
+    /**
      * @var \Grade
      *
      * @ORM\ManyToOne(targetEntity="Grade")
@@ -89,6 +96,18 @@ class Learner
     public function setName(?string $name): static
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function isOverideTerm(): ?bool
+    {
+        return $this->overideTerm;
+    }
+
+    public function setOverideTerm(bool $overideTerm): static
+    {
+        $this->overideTerm = $overideTerm;
 
         return $this;
     }

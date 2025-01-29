@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Question
  *
- * @ORM\Table(name="question", indexes={@ORM\Index(name="question_subject_idx", columns={"subject"}), @ORM\Index(name="question_learner_idx", columns={"higher_grade"})})
+ * @ORM\Table(name="question", indexes={@ORM\Index(name="question_learner_idx", columns={"higher_grade"}), @ORM\Index(name="question_subject_idx", columns={"subject"})})
  * @ORM\Entity
  */
 class Question
@@ -107,9 +107,9 @@ class Question
     private $answerImage;
 
     /**
-     * @var string
+     * @var string|null
      *
-     * @ORM\Column(name="capturer", type="string", length=50, nullable=false)
+     * @ORM\Column(name="capturer", type="string", length=50, nullable=true)
      */
     private $capturer;
 
@@ -277,7 +277,7 @@ class Question
         return $this->capturer;
     }
 
-    public function setCapturer(string $capturer): static
+    public function setCapturer(?string $capturer): static
     {
         $this->capturer = $capturer;
 
