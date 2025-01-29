@@ -143,6 +143,8 @@ class LearnMzansiApi extends AbstractController
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         try {
+            $questionId = $data['question_id'] ?? null;
+
             // Validate required fields
             if (empty($data['question']) || empty($data['type']) || empty($data['subject']) || empty($data['year']) || empty($data['term']) || empty($data['answer'])) {
                 return array(
@@ -166,18 +168,19 @@ class LearnMzansiApi extends AbstractController
                 'question' => $data['question']
             ]);
 
-            if ($existingQuestion) {
+            if ($existingQuestion && $existingQuestion->getId() != $questionId) {
+
                 return array(
                     'status' => 'NOK',
-                    'message' => 'A question with the same subject and text already exists.'
+                    'message' => 'A question with the same subject and text already exists. ' . $questionId . ' ' . $existingQuestion->getId()
                 );
             }
 
             $this->logger->info("Creating new question with data: " . json_encode($data));
 
             // Create a new Question entity
-            $questionId = $data['question_id'] ?? null;
-            if ($questionId) {
+
+            if ($questionId == "0") {
                 $question = $this->em->getRepository(Question::class)->find($questionId);
                 if (!$question) {
                     return array(
