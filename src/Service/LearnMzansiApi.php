@@ -377,6 +377,7 @@ class LearnMzansiApi extends AbstractController
         try {
             $uid = $request->query->get('uid');
 
+            //test
             if (empty($uid)) {
                 return array(
                     'status' => 'NOK',
