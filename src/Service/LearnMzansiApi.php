@@ -322,7 +322,7 @@ class LearnMzansiApi extends AbstractController
                 );
             }
             $this->logger->info("0");
-            //get grade entity
+
             $gradeName = str_replace('Grade ', '', $gradeName);
             $grade = $this->em->getRepository(Grade::class)->findOneBy(['number' => $gradeName]);
             $this->logger->info("1");
