@@ -180,7 +180,7 @@ class LearnMzansiApi extends AbstractController
 
             // Create a new Question entity
 
-            if ($questionId == "0") {
+            if ($questionId !== "0") {
                 $question = $this->em->getRepository(Question::class)->find($questionId);
                 if (!$question) {
                     return array(
