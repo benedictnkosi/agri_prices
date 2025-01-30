@@ -406,7 +406,12 @@ class LearnMzansiApi extends AbstractController
 
             $learnerSubjects = $this->em->getRepository(Learnersubjects::class)->findBy(['learner' => $learner], ['lastUpdated' => 'DESC']);
 
-            $totalQuestions = count($learnerSubjects);
+            if (empty($learnerSubjects)) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'No subjects found for learner'
+                );
+            }
             $answeredQuestions = 0;
 
             $returnArray = array();
