@@ -1157,4 +1157,74 @@ class LearnMzansiApi extends AbstractController
             );
         }
     }
+
+    public function removeSubjectFromLearner(Request $request): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        try {
+            $requestBody = json_decode($request->getContent(), true);
+            $uid = $requestBody['uid'];
+            $subjectId = $requestBody['subject_id'];
+
+            if (empty($uid) || empty($subjectId)) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Mandatory values missing'
+                );
+            }
+
+            $learner = $this->em->getRepository(Learner::class)->findOneBy(['uid' => $uid]);
+            if (!$learner) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Learner not found'
+                );
+            }
+
+            $subject = $this->em->getRepository(Subject::class)->find($subjectId);
+            if (!$subject) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Subject not found'
+                );
+            }
+
+            $learnerSubject = $this->em->getRepository(Learnersubjects::class)->findOneBy(['learner' => $learner, 'subject' => $subject]);
+            if (!$learnerSubject) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Learner subject not found'
+                );
+            }
+
+            // Remove all results for the learner and subject
+            $results = $this->em->getRepository(Result::class)->createQueryBuilder('r')
+                ->join('r.question', 'q')
+                ->where('r.learner = :learner')
+                ->andWhere('q.subject = :subject')
+                ->setParameter('learner', $learner)
+                ->setParameter('subject', $subject)
+                ->getQuery()
+                ->getResult();
+
+            foreach ($results as $result) {
+                $this->em->remove($result);
+            }
+
+            // Remove the learner subject
+            $this->em->remove($learnerSubject);
+            $this->em->flush();
+
+            return array(
+                'status' => 'OK',
+                'message' => 'Successfully removed subject from learner and deleted related results'
+            );
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return array(
+                'status' => 'NOK',
+                'message' => 'Error removing subject from learner'
+            );
+        }
+    }
 }
