@@ -321,7 +321,6 @@ class LearnMzansiApi extends AbstractController
                     'message' => 'Learner not found'
                 );
             }
-            $this->logger->info("0");
 
             $gradeName = str_replace('Grade ', '', $gradeName);
             $grade = $this->em->getRepository(Grade::class)->findOneBy(['number' => $gradeName]);
@@ -333,13 +332,25 @@ class LearnMzansiApi extends AbstractController
                 );
             }
 
-            $this->logger->info("2");
             $learner->setName($name);
             $learner->setGrade($grade);
             $this->em->persist($learner);
             $this->em->flush();
 
-            $this->logger->info("3");
+            //remove all learner subject and results
+            $learnerSubjects = $this->em->getRepository(Learnersubjects::class)->findBy(['learner' => $learner]);
+            foreach ($learnerSubjects as $learnerSubject) {
+                $this->em->remove($learnerSubject);
+            }
+            $this->em->flush();
+
+            $results = $this->em->getRepository(Result::class)->findBy(['learner' => $learner]);
+            foreach ($results as $result) {
+                $this->em->remove($result);
+            }
+            $this->em->flush();
+
+
             return array(
                 'status' => 'OK',
                 'message' => 'Successfully updated learner'
