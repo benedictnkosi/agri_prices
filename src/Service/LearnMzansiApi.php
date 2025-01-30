@@ -192,6 +192,22 @@ class LearnMzansiApi extends AbstractController
                 $question = new Question();
             }
 
+            $data['options']['option1'] = str_replace('{"answers":"', '', $data['options']['option1']);
+            $data['options']['option1'] = rtrim($data['options']['option1'], '"}');
+
+            $data['options']['option2'] = str_replace('{"answers":"', '', $data['options']['option2']);
+            $data['options']['option2'] = rtrim($data['options']['option2'], '"}');
+
+
+            $data['options']['option3'] = str_replace('{"answers":"', '', $data['options']['option3']);
+            $data['options']['option3'] = rtrim($data['options']['option3'], '"}');
+
+
+            $data['options']['option4'] = str_replace('{"answers":"', '', $data['options']['option4']);
+            $data['options']['option4'] = rtrim($data['options']['option4'], '"}');
+
+
+
             $question->setQuestion($data['question']);
             $question->setType($data['type']);
             $question->setSubject($subject);
@@ -219,6 +235,22 @@ class LearnMzansiApi extends AbstractController
             error_log($e->getMessage());
             return null;
         }
+    }
+
+
+    function cleanOptions($options)
+    {
+        $cleanedOptions = [];
+        foreach ($options as $key => $value) {
+            // Remove the unwanted string
+            $value = str_replace(['{\"answers\":\"', '\"}'], '', $value);
+            $value = str_replace(['\"}'], '', $value);
+
+            // Trim any leading or trailing whitespace
+            $value = trim($value);
+            $cleanedOptions[$key] = $value;
+        }
+        return $cleanedOptions;
     }
 
     public function getRandomQuestionBySubjectId(int $subjectId, string $uid, int $questionId)
