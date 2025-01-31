@@ -580,8 +580,10 @@ class LearnMzansiApi extends AbstractController
                 $query = $this->em->createQuery(
                     'SELECT s
                     FROM App\Entity\Subject s
-                    WHERE s.active = 1'
-                );
+                    WHERE s.active = 1
+                    AND s.grade  = :grade'
+                )
+                    ->setParameter('grade', $learner->getGrade());
             } else {
                 $query = $this->em->createQuery(
                     'SELECT s
