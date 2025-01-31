@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * MarketDelivery
  *
- * @ORM\Table(name="market_delivery", indexes={@ORM\Index(name="market_delivery_packaging_idx", columns={"packaging"}), @ORM\Index(name="market_delivery_customer_fk_idx", columns={"customer"}), @ORM\Index(name="market_delivery_farm_idx", columns={"farm"}), @ORM\Index(name="market_deliverys_crop_fk_idx", columns={"crop"})})
+ * @ORM\Table(name="market_delivery", indexes={@ORM\Index(name="market_delivery_farm_idx", columns={"farm"}), @ORM\Index(name="market_deliverys_crop_fk_idx", columns={"crop"}), @ORM\Index(name="market_delivery_packaging_idx", columns={"packaging"}), @ORM\Index(name="market_delivery_customer_fk_idx", columns={"customer"})})
  * @ORM\Entity
  */
 class MarketDelivery
@@ -35,6 +35,16 @@ class MarketDelivery
      * @ORM\Column(name="quantity", type="integer", nullable=true)
      */
     private $quantity;
+
+    /**
+     * @var \Farm
+     *
+     * @ORM\ManyToOne(targetEntity="Farm")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="farm", referencedColumnName="id")
+     * })
+     */
+    private $farm;
 
     /**
      * @var \Crop
@@ -66,16 +76,6 @@ class MarketDelivery
      */
     private $customer;
 
-    /**
-     * @var \Farm
-     *
-     * @ORM\ManyToOne(targetEntity="Farm")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="farm", referencedColumnName="id")
-     * })
-     */
-    private $farm;
-
     public function getId(): ?int
     {
         return $this->id;
@@ -101,6 +101,18 @@ class MarketDelivery
     public function setQuantity(?int $quantity): static
     {
         $this->quantity = $quantity;
+
+        return $this;
+    }
+
+    public function getFarm(): ?Farm
+    {
+        return $this->farm;
+    }
+
+    public function setFarm(?Farm $farm): static
+    {
+        $this->farm = $farm;
 
         return $this;
     }
@@ -137,18 +149,6 @@ class MarketDelivery
     public function setCustomer(?Customer $customer): static
     {
         $this->customer = $customer;
-
-        return $this;
-    }
-
-    public function getFarm(): ?Farm
-    {
-        return $this->farm;
-    }
-
-    public function setFarm(?Farm $farm): static
-    {
-        $this->farm = $farm;
 
         return $this;
     }

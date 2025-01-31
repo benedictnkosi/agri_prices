@@ -12,6 +12,7 @@ use App\Entity\Learnersubjects;
 use App\Entity\Question;
 use App\Entity\Result;
 use App\Entity\Subject;
+use App\Entity\Issue;
 use phpDocumentor\Reflection\Types\Boolean;
 
 class LearnMzansiApi extends AbstractController
@@ -1272,6 +1273,82 @@ class LearnMzansiApi extends AbstractController
             return array(
                 'status' => 'NOK',
                 'message' => 'Error removing subject from learner'
+            );
+        }
+    }
+
+    public function logIssue(Request $request): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        try {
+            $requestBody = json_decode($request->getContent(), true);
+            $comment = $requestBody['comment'];
+            $learner = $requestBody['learner'];
+            $questionId = $requestBody['question_id'];
+
+            if (empty($description)) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Description is required'
+                );
+            }
+
+            $learner = $this->em->getRepository(Learner::class)->findOneBy(['uid' => $learner]);
+            if (!$learner) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Learner not found'
+                );
+            }
+
+            $question = $this->em->getRepository(Question::class)->find($questionId);
+            if (!$question) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Question not found'
+                );
+            }
+
+            // Create a new Issue entity
+            $issue = new Issue();
+            $issue->setComment($comment);
+            $issue->setLearner($learner);
+            $issue->setCreated(new \DateTime());
+            $issue->setQuestion($question);
+
+            // Persist and flush the new entity
+            $this->em->persist($issue);
+            $this->em->flush();
+
+            $this->logger->info("Logged new issue with ID {$issue->getId()}.");
+            return array(
+                'status' => 'OK',
+                'message' => 'Successfully logged issue',
+                'issue_id' => $issue->getId()
+            );
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return array(
+                'status' => 'NOK',
+                'message' => 'Error logging issue'
+            );
+        }
+    }
+
+    public function getAllActiveIssues(): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        try {
+            $issues = $this->em->getRepository(Issue::class)->findBy(['status' => 'active']);
+            return array(
+                'status' => 'OK',
+                'issues' => $issues
+            );
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return array(
+                'status' => 'NOK',
+                'message' => 'Error getting active issues'
             );
         }
     }
