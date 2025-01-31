@@ -587,8 +587,10 @@ class LearnMzansiApi extends AbstractController
                     'SELECT s
                     FROM App\Entity\Subject s
                     WHERE s.id NOT IN (:enrolledSubjectIds)
-                    AND s.active = 1'
-                )->setParameter('enrolledSubjectIds', $enrolledSubjectIds);
+                    AND s.active = 1
+                    AND s.grade  = :grade'
+                )->setParameter('enrolledSubjectIds', $enrolledSubjectIds)
+                    ->setParameter('grade', $learner->getGrade());
             }
 
             $subjects = $query->getResult();
