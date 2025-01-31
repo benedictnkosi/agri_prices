@@ -1283,17 +1283,17 @@ class LearnMzansiApi extends AbstractController
         try {
             $requestBody = json_decode($request->getContent(), true);
             $comment = $requestBody['comment'];
-            $learner = $requestBody['learner'];
+            $uid = $requestBody['uid'];
             $questionId = $requestBody['question_id'];
 
-            if (empty($description)) {
+            if (empty($comment)) {
                 return array(
                     'status' => 'NOK',
-                    'message' => 'Description is required'
+                    'message' => 'comment is required'
                 );
             }
 
-            $learner = $this->em->getRepository(Learner::class)->findOneBy(['uid' => $learner]);
+            $learner = $this->em->getRepository(Learner::class)->findOneBy(['uid' => $uid]);
             if (!$learner) {
                 return array(
                     'status' => 'NOK',
@@ -1339,7 +1339,7 @@ class LearnMzansiApi extends AbstractController
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         try {
-            $issues = $this->em->getRepository(Issue::class)->findBy(['status' => 'active']);
+            $issues = $this->em->getRepository(Issue::class)->findBy(['status' => 'new']);
             return array(
                 'status' => 'OK',
                 'issues' => $issues
