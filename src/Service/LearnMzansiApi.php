@@ -606,6 +606,14 @@ class LearnMzansiApi extends AbstractController
         }
     }
 
+    function normalizeString($string)
+    {
+        // Replace different types of hyphens and minus signs with a standard hyphen
+        $string = str_replace(['−', '–', '—', '―', '−'], '-', $string);
+        // Remove any leading or trailing whitespace
+        return trim($string);
+    }
+
     public function checkLearnerAnswer(Request $request): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
@@ -679,15 +687,23 @@ class LearnMzansiApi extends AbstractController
                 return str_replace(' ', '', $answer);
             }, $correctAnswers);
 
+            $correctAnswers = array_map(function ($answer) {
+                return $this->normalizeString(str_replace(' ', '', $answer));
+            }, $correctAnswers);
+
             $isCorrect = !array_udiff($learnerAnswers, $correctAnswers, function ($a, $b) {
                 $bParts = explode('|', $b);
                 foreach ($bParts as $part) {
-                    if (strcasecmp($a, $part) === 0) {
+                    if (strcasecmp($this->normalizeString(urldecode($a)), $this->normalizeString(urldecode($part))) === 0) {
+                        $this->logger->info("a: $a, b: $part");
                         return 0;
+                    } else {
+                        $this->logger->info("a: $a, b: $b");
                     }
                 }
                 return 1;
             });
+
             $outcome = $isCorrect ? 'correct' : 'incorrect';
 
             // Save the result in the Result entity
@@ -724,6 +740,8 @@ class LearnMzansiApi extends AbstractController
             );
         }
     }
+
+
 
     public function removeLearnerResultsBySubject(Request $request): array
     {
