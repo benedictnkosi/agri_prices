@@ -152,6 +152,11 @@ class LearnMzansiApiController extends AbstractController
         $response = $this->api->getSubjectsNotEnrolledByLearner($request);
         $serializer = SerializerBuilder::create()->build();
         $jsonContent = $serializer->serialize($response, 'json');
+
+        if (isset($response['status']) && $response['status'] === 'NOK') {
+            return new JsonResponse($jsonContent, 404, array('Access-Control-Allow-Origin' => '*'), true);
+        }
+
         return new JsonResponse($jsonContent, 200, array('Access-Control-Allow-Origin' => '*'), true);
     }
 
