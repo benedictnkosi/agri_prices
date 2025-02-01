@@ -1249,11 +1249,12 @@ class LearnMzansiApi extends AbstractController
             $requestBody = json_decode($request->getContent(), true);
             $questionId = $requestBody['question_id'];
             $status = $requestBody['status'];
+            $reviewerEmail = $requestBody['email'];
 
-            if (empty($questionId)) {
+            if (empty($questionId) || empty($status) || empty($reviewerEmail)) {
                 return array(
                     'status' => 'NOK',
-                    'message' => 'Question ID is required'
+                    'message' => 'fields are required'
                 );
             }
 
@@ -1266,6 +1267,7 @@ class LearnMzansiApi extends AbstractController
             }
 
             $question->setStatus($status);
+            $question->setReviewer($reviewerEmail);
             $this->em->persist($question);
             $this->em->flush();
 

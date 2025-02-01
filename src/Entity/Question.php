@@ -121,6 +121,13 @@ class Question
     private $status = 'new';
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="reviewer", type="string", length=50, nullable=false)
+     */
+    private $reviewer;
+
+    /**
      * @var \Subject
      *
      * @ORM\ManyToOne(targetEntity="Subject")
@@ -299,6 +306,18 @@ class Question
     public function setStatus(string $status): static
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    public function getReviewer(): ?string
+    {
+        return $this->reviewer;
+    }
+
+    public function setReviewer(string $reviewer): static
+    {
+        $this->reviewer = $reviewer;
 
         return $this;
     }
