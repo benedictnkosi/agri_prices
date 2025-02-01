@@ -44,16 +44,6 @@ class Issue
     private $created = 'CURRENT_TIMESTAMP';
 
     /**
-     * @var \Question
-     *
-     * @ORM\ManyToOne(targetEntity="Question")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="question", referencedColumnName="id")
-     * })
-     */
-    private $question;
-
-    /**
      * @var \Learner
      *
      * @ORM\ManyToOne(targetEntity="Learner")
@@ -62,6 +52,16 @@ class Issue
      * })
      */
     private $learner;
+
+    /**
+     * @var \Question
+     *
+     * @ORM\ManyToOne(targetEntity="Question")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="question", referencedColumnName="id")
+     * })
+     */
+    private $question;
 
     public function getId(): ?int
     {
@@ -104,18 +104,6 @@ class Issue
         return $this;
     }
 
-    public function getQuestion(): ?Question
-    {
-        return $this->question;
-    }
-
-    public function setQuestion(?Question $question): static
-    {
-        $this->question = $question;
-
-        return $this;
-    }
-
     public function getLearner(): ?Learner
     {
         return $this->learner;
@@ -124,6 +112,18 @@ class Issue
     public function setLearner(?Learner $learner): static
     {
         $this->learner = $learner;
+
+        return $this;
+    }
+
+    public function getQuestion(): ?Question
+    {
+        return $this->question;
+    }
+
+    public function setQuestion(?Question $question): static
+    {
+        $this->question = $question;
 
         return $this;
     }

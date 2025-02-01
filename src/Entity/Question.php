@@ -114,6 +114,13 @@ class Question
     private $capturer;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="status", type="string", length=10, nullable=false, options={"default"="new"})
+     */
+    private $status = 'new';
+
+    /**
      * @var \Subject
      *
      * @ORM\ManyToOne(targetEntity="Subject")
@@ -280,6 +287,18 @@ class Question
     public function setCapturer(?string $capturer): static
     {
         $this->capturer = $capturer;
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): static
+    {
+        $this->status = $status;
 
         return $this;
     }

@@ -280,6 +280,12 @@ class LearnMzansiApi extends AbstractController
             }
 
             $learner = $this->em->getRepository(Learner::class)->findOneBy(['uid' => $uid]);
+            if (!$learner) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Learner not found'
+                );
+            }
             $learnerSubject = $this->em->getRepository(Learnersubjects::class)->findOneBy(['learner' => $learner, 'subject' => $subjectId]);
 
             if ($currentMonth < 7 && !$learner->isOverideterm()) {
@@ -302,7 +308,8 @@ class LearnMzansiApi extends AbstractController
             JOIN q.subject s
             LEFT JOIN App\Entity\Result r WITH r.question = q AND r.learner = :learner
             WHERE s.id = :subjectId AND r.id IS NULL
-            AND q.active = 1 ' . $termCondition
+            AND q.active = 1 
+             AND q.status = \'approved\' ' . $termCondition
             )->setParameters([
                 'subjectId' => $subjectId,
                 'learner' => $learner
@@ -596,6 +603,13 @@ class LearnMzansiApi extends AbstractController
             }
 
             $subjects = $query->getResult();
+
+            if (empty($subjects)) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'No subjects found for grade'
+                );
+            }
 
             return array(
                 'status' => 'OK',
@@ -1212,6 +1226,46 @@ class LearnMzansiApi extends AbstractController
             }
 
             $question->setActive(0);
+            $this->em->persist($question);
+            $this->em->flush();
+
+            return array(
+                'status' => 'OK',
+                'message' => 'Successfully set question to inactive'
+            );
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return array(
+                'status' => 'NOK',
+                'message' => 'Error setting question to inactive'
+            );
+        }
+    }
+
+    public function setQuestionStatus(Request $request): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        try {
+            $requestBody = json_decode($request->getContent(), true);
+            $questionId = $requestBody['question_id'];
+            $status = $requestBody['status'];
+
+            if (empty($questionId)) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Question ID is required'
+                );
+            }
+
+            $question = $this->em->getRepository(Question::class)->find($questionId);
+            if (!$question) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Question not found'
+                );
+            }
+
+            $question->setStatus($status);
             $this->em->persist($question);
             $this->em->flush();
 
