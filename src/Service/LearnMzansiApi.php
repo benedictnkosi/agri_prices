@@ -868,7 +868,6 @@ class LearnMzansiApi extends AbstractController
                 }
             }
 
-            $percentage = ($correctAnswers / $totalQuestions);
 
             $learnerSubject = $this->em->getRepository(Learnersubjects::class)->findOneBy(['learner' => $learner, 'subject' => $subject]);
 
@@ -881,7 +880,7 @@ class LearnMzansiApi extends AbstractController
 
             if (empty($results)) {
 
-                $learnerSubject->setPercentage($percentage);
+                $learnerSubject->setPercentage(0);
                 $this->em->persist($learnerSubject);
                 $this->em->flush();
 
@@ -892,6 +891,7 @@ class LearnMzansiApi extends AbstractController
             }
 
 
+            $percentage = ($correctAnswers / $totalQuestions);
             $learnerSubject->setPercentage($percentage);
             $this->em->persist($learnerSubject);
             $this->em->flush();
