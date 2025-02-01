@@ -472,6 +472,7 @@ class LearnMzansiApi extends AbstractController
                 $totalSubjectQuestion = $this->em->getRepository(Question::class)->createQueryBuilder('q')
                     ->select('count(q.id)')
                     ->where('q.subject = :subject')
+                    ->andWhere('q.status = \'approved\'')
                     ->setParameter('subject', $learnerSubject->getSubject())
                     ->getQuery()
                     ->getSingleScalarResult();
@@ -891,6 +892,7 @@ class LearnMzansiApi extends AbstractController
 
             return array(
                 'status' => 'OK',
+                'learner_subject' => $learnerSubject,
                 'percentage' => $percentage
             );
         } catch (\Exception $e) {
