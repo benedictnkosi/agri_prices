@@ -859,13 +859,6 @@ class LearnMzansiApi extends AbstractController
                 ->getQuery()
                 ->getResult();
 
-            if (empty($results)) {
-                return array(
-                    'status' => 'OK',
-                    'percentage' => 0
-                );
-            }
-
             $totalQuestions = count($results);
             $correctAnswers = 0;
 
@@ -885,6 +878,19 @@ class LearnMzansiApi extends AbstractController
                     'message' => 'Learner subject not found'
                 );
             }
+
+            if (empty($results)) {
+
+                $learnerSubject->setPercentage($percentage);
+                $this->em->persist($learnerSubject);
+                $this->em->flush();
+
+                return array(
+                    'status' => 'OK',
+                    'percentage' => 0
+                );
+            }
+
 
             $learnerSubject->setPercentage($percentage);
             $this->em->persist($learnerSubject);
