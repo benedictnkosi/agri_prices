@@ -44,6 +44,7 @@ class LearnMzansiApi extends AbstractController
             if (!$learner) {
                 $learner = new Learner();
                 $learner->setUid($uid);
+                $learner->setOverideTerm(true);
                 $this->em->persist($learner);
                 $this->em->flush();
 
