@@ -605,22 +605,26 @@ class LearnMzansiApi extends AbstractController
             }, $enrolledSubjects);
 
             if (empty($enrolledSubjectIds)) {
-                $query = $this->em->createQuery(
-                    'SELECT s
-                    FROM App\Entity\Subject s
-                    WHERE s.active = 1
-                    AND s.grade  = :grade'
-                )
-                    ->setParameter('grade', $learner->getGrade());
+                $queryBuilder = $this->em->createQueryBuilder();
+                $queryBuilder->select('s')
+                    ->from('App\Entity\Subject', 's')
+                    ->where('s.active = 1')
+                    ->andWhere('s.grade = :grade')
+                    ->setParameter('grade', $learner->getGrade())
+                    ->orderBy('s.name');
+
+                $query = $queryBuilder->getQuery();
             } else {
-                $query = $this->em->createQuery(
-                    'SELECT s
-                    FROM App\Entity\Subject s
-                    WHERE s.id NOT IN (:enrolledSubjectIds)
-                    AND s.active = 1
-                    AND s.grade  = :grade'
-                )->setParameter('enrolledSubjectIds', $enrolledSubjectIds)
-                    ->setParameter('grade', $learner->getGrade());
+                $queryBuilder = $this->em->createQueryBuilder();
+                $query = $queryBuilder->select('s')
+                    ->from('App\Entity\Subject', 's')
+                    ->where('s.id NOT IN (:enrolledSubjectIds)')
+                    ->andWhere('s.active = 1')
+                    ->andWhere('s.grade = :grade')
+                    ->setParameter('enrolledSubjectIds', $enrolledSubjectIds)
+                    ->setParameter('grade', $learner->getGrade())
+                    ->orderBy('s.name')
+                    ->getQuery();
             }
 
             $subjects = $query->getResult();
