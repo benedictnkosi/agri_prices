@@ -260,6 +260,7 @@ class LearnMzansiApi extends AbstractController
         try {
             $currentMonth = (int)date('m');
             $termCondition = '';
+            $statusCondition = '';
 
             if ($questionId !== 0) {
                 $query = $this->em->createQuery(
@@ -286,12 +287,17 @@ class LearnMzansiApi extends AbstractController
                     'message' => 'Learner not found'
                 );
             }
+
+
             $learnerSubject = $this->em->getRepository(Learnersubjects::class)->findOneBy(['learner' => $learner, 'subject' => $subjectId]);
 
             if ($currentMonth < 7 && !$learner->isOverideterm()) {
-                $termCondition = 'AND q.term = 2';
+                $termCondition = 'AND q.term = 2 ';
             }
 
+            if ($learner->getName() == 'admin') {
+                $statusCondition = ' AND q.status = \'new\' ';
+            }
 
             if (!$learnerSubject) {
                 return array(
@@ -309,7 +315,7 @@ class LearnMzansiApi extends AbstractController
             LEFT JOIN App\Entity\Result r WITH r.question = q AND r.learner = :learner
             WHERE s.id = :subjectId AND r.id IS NULL
             AND q.active = 1 
-             AND q.status = \'approved\' ' . $termCondition
+             AND q.status = \'approved\' ' . $termCondition . $statusCondition
             )->setParameters([
                 'subjectId' => $subjectId,
                 'learner' => $learner
