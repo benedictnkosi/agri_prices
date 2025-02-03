@@ -154,6 +154,15 @@ class LearnMzansiApi extends AbstractController
                 );
             }
 
+            // Validate that options are not empty for multiple_choice or multi_select types
+            if (($data['type'] == 'multiple_choice' || $data['type'] == 'multi_select')) {
+                if (empty($data['options']['option1']) || empty($data['options']['option2']) || empty($data['options']['option3']) || empty($data['options']['option4'])) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => "Options cannot be empty for multiple_choice or multi_select types."
+                );
+            }
+
             //check that the expected answer is not too long
             //spit answer by |
             $answers = explode('|', $data['answer']);
@@ -205,6 +214,7 @@ class LearnMzansiApi extends AbstractController
             } else {
                 $question = new Question();
             }
+
 
             $this->logger->info("debug 1");
 
@@ -328,8 +338,6 @@ class LearnMzansiApi extends AbstractController
                     'message' => 'Learner subject not found'
                 );
             }
-
-
 
             $query = $this->em->createQuery(
                 'SELECT q
