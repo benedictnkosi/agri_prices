@@ -297,6 +297,8 @@ class LearnMzansiApi extends AbstractController
 
             if ($learner->getName() == 'admin') {
                 $statusCondition = ' AND q.status = \'new\' ';
+            } else {
+                $statusCondition = ' AND q.status = \'approved\' ';
             }
 
             if (!$learnerSubject) {
@@ -314,8 +316,7 @@ class LearnMzansiApi extends AbstractController
             JOIN q.subject s
             LEFT JOIN App\Entity\Result r WITH r.question = q AND r.learner = :learner
             WHERE s.id = :subjectId AND r.id IS NULL
-            AND q.active = 1 
-             AND q.status = \'approved\' ' . $termCondition . $statusCondition
+            AND q.active = 1 ' . $termCondition . $statusCondition
             )->setParameters([
                 'subjectId' => $subjectId,
                 'learner' => $learner
