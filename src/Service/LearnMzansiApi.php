@@ -250,6 +250,7 @@ class LearnMzansiApi extends AbstractController
                 'question_id' => $question->getId()
             );
         } catch (\Exception $e) {
+            $this->logger->info($e->getMessage());
             // Log the error or handle as needed
             error_log($e->getMessage());
             return null;
