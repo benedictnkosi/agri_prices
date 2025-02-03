@@ -121,11 +121,18 @@ class Question
     private $status = 'new';
 
     /**
-     * @var string
+     * @var string|null
      *
-     * @ORM\Column(name="reviewer", type="string", length=50, nullable=false)
+     * @ORM\Column(name="reviewer", type="string", length=50, nullable=true)
      */
     private $reviewer;
+
+    /**
+     * @var \DateTime|null
+     *
+     * @ORM\Column(name="created", type="datetime", nullable=true, options={"default"="CURRENT_TIMESTAMP"})
+     */
+    private $created = 'CURRENT_TIMESTAMP';
 
     /**
      * @var \Subject
@@ -315,9 +322,21 @@ class Question
         return $this->reviewer;
     }
 
-    public function setReviewer(string $reviewer): static
+    public function setReviewer(?string $reviewer): static
     {
         $this->reviewer = $reviewer;
+
+        return $this;
+    }
+
+    public function getCreated(): ?\DateTimeInterface
+    {
+        return $this->created;
+    }
+
+    public function setCreated(?\DateTimeInterface $created): static
+    {
+        $this->created = $created;
 
         return $this;
     }
