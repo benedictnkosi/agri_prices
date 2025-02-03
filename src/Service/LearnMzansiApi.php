@@ -154,7 +154,7 @@ class LearnMzansiApi extends AbstractController
                 );
             }
 
-            // Validate that options are not empty for multiple_choice or multi_select types
+            // Validate that options are not empty for multiple_choice or multi_select types - fixed
             if (($data['type'] == 'multiple_choice' || $data['type'] == 'multi_select')) {
                 if (empty($data['options']['option1']) || empty($data['options']['option2']) || empty($data['options']['option3']) || empty($data['options']['option4'])) {
                     return array(
