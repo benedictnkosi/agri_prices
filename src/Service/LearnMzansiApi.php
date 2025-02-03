@@ -329,7 +329,7 @@ class LearnMzansiApi extends AbstractController
             }
 
             if ($learner->getName() == 'admin') {
-                $statusCondition = ' AND q.status = \'approved\' ';
+                $statusCondition = '';
             } else {
                 $statusCondition = ' AND q.status = \'approved\' ';
             }
