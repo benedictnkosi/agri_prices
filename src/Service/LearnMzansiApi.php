@@ -154,6 +154,19 @@ class LearnMzansiApi extends AbstractController
                 );
             }
 
+            //check that the expected answer is not too long
+            //spit answer by |
+            $answers = explode('|', $data['answer']);
+            foreach ($answers as $answer) {
+                $numberOfWords = str_word_count($answer);
+                if ($numberOfWords > 4 && $data['type'] == 'single') {
+                    return array(
+                        'status' => 'NOK',
+                        'message' => "Too many words in the expected answer, use multiple choice instead."
+                    );
+                }
+            }
+
             // Fetch the associated Subject entity
             $subject = $this->em->getRepository(Subject::class)->findOneBy(['name' => $data['subject']]);
             if (!$subject) {
