@@ -234,7 +234,7 @@ class LearnMzansiApi extends AbstractController
             $question->setExplanation($data['explanation'] ?? null);
             $question->setYear($data['year'] ?? null);
             $question->setCapturer($data['capturer'] ?? null);
-            $question->setCapturer($data['capturer'] ?? null);
+            $question->setReviewer($data['capturer'] ?? null);
 
             $this->logger->info("debug 2");
             // Persist and flush the new entity
