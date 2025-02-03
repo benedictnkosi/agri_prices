@@ -163,7 +163,6 @@ class LearnMzansiApi extends AbstractController
                     );
                 }
             }
-            //
 
 
             //check that the expected answer is not too long
