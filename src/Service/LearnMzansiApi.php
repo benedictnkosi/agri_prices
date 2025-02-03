@@ -206,6 +206,8 @@ class LearnMzansiApi extends AbstractController
                 $question = new Question();
             }
 
+            $this->logger->info("debug 1");
+
             $data['options']['option1'] = str_replace('{"answers":"', '', $data['options']['option1']);
             $data['options']['option1'] = rtrim($data['options']['option1'], '"}');
 
@@ -234,9 +236,12 @@ class LearnMzansiApi extends AbstractController
             $question->setCapturer($data['capturer'] ?? null);
             $question->setCapturer($data['capturer'] ?? null);
 
+            $this->logger->info("debug 2");
             // Persist and flush the new entity
             $this->em->persist($question);
             $this->em->flush();
+
+            $this->logger->info("debug 3");
 
             $this->logger->info("Created new question with ID {$question->getId()}.");
             return array(
