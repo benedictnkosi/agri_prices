@@ -148,7 +148,7 @@ class LearnMzansiApi extends AbstractController
             $questionId = $data['question_id'] ?? null;
 
             // Validate required fields
-            if (empty($data['question']) || empty($data['type']) || empty($data['subject']) || empty($data['year']) || empty($data['term']) || empty($data['answer'])) {
+            if (empty($data['type']) || empty($data['subject']) || empty($data['year']) || empty($data['term']) || empty($data['answer'])) {
                 return array(
                     'status' => 'NOK',
                     'message' => "Missing required fields."
@@ -236,8 +236,11 @@ class LearnMzansiApi extends AbstractController
             $data['options']['option4'] = rtrim($data['options']['option4'], '"}');
 
 
-
-            $question->setQuestion($data['question']);
+            if (!empty($data['type'])) {
+                $question->setQuestion($data['question']);
+            } else {
+                $question->setQuestion("");
+            }
             $question->setType($data['type']);
             $question->setSubject($subject);
             $question->setContext($data['context'] ?? null);
