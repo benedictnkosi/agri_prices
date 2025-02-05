@@ -510,7 +510,16 @@ class LearnMzansiApi extends AbstractController
 
 
                 $results = $query->getResult();
-                $answeredQuestions += count($results);
+                $answeredQuestions = 0;
+
+                //number of correct answers
+                $correctAnswers = 0;
+                foreach ($results as $result) {
+                    $answeredQuestions++;
+                    if ($result->getOutcome() === 'correct') {
+                        $correctAnswers++;
+                    }
+                }
 
                 $totalSubjectQuestion = $this->em->getRepository(Question::class)->createQueryBuilder('q')
                     ->select('count(q.id)')
@@ -523,7 +532,8 @@ class LearnMzansiApi extends AbstractController
                 $returnArray[] = array(
                     'subject' => $learnerSubject,
                     'total_questions' => $totalSubjectQuestion,
-                    'answered_questions' => $answeredQuestions
+                    'answered_questions' => $answeredQuestions,
+                    'correct_answers' => $correctAnswers
                 );
             }
 
