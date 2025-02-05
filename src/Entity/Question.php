@@ -135,6 +135,13 @@ class Question
     private $created = 'CURRENT_TIMESTAMP';
 
     /**
+     * @var string|null
+     *
+     * @ORM\Column(name="question_image_path", type="string", length=50, nullable=true)
+     */
+    private $questionImagePath;
+
+    /**
      * @var \Subject
      *
      * @ORM\ManyToOne(targetEntity="Subject")
@@ -341,6 +348,18 @@ class Question
         return $this;
     }
 
+    public function getQuestionImagePath(): ?string
+    {
+        return $this->questionImagePath;
+    }
+
+    public function setQuestionImagePath(?string $questionImagePath): static
+    {
+        $this->questionImagePath = $questionImagePath;
+
+        return $this;
+    }
+
     public function getSubject(): ?Subject
     {
         return $this->subject;
@@ -352,6 +371,4 @@ class Question
 
         return $this;
     }
-
-
 }

@@ -1105,11 +1105,14 @@ class LearnMzansiApi extends AbstractController
 
             $file->move($uploadDir, $newFilename);
 
-            if ($imageType == 'question') {
+            if ($imageType == 'question_context') {
                 $question->setImagePath($newFilename);
-            } else {
+            } elseif ($imageType == 'question') {
+                $question->setQuestionImagePath($newFilename);
+            } elseif ($imageType == 'answer') {
                 $question->setAnswerImage($newFilename);
             }
+            
             $this->em->persist($question);
             $this->em->flush();
 
