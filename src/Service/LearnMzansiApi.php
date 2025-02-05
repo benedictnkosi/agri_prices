@@ -651,16 +651,27 @@ class LearnMzansiApi extends AbstractController
 
             $subjects = $query->getResult();
 
-            if (empty($subjects)) {
-                return array(
-                    'status' => 'NOK',
-                    'message' => 'No subjects found for grade'
-                );
+            $subjectDetails = [];
+            foreach ($subjects as $subject) {
+                $queryBuilder = $this->em->createQueryBuilder();
+                $queryBuilder->select('count(q.id)')
+                    ->from('App\Entity\Question', 'q')
+                    ->where('q.subject = :subject')
+                    ->setParameter('subject', $subject);
+
+                $totalQuestions = $queryBuilder->getQuery()->getSingleScalarResult();
+                $subjectDetails[] = [
+                    'id' => $subject->getId(),
+                    'name' => $subject->getName(),
+                    'active' => $subject->isActive(),
+                    'grade' => $subject->getGrade(),
+                    'totalQuestions' => $totalQuestions
+                ];
             }
 
             return array(
                 'status' => 'OK',
-                'subjects' => $subjects
+                'subjects' => $subjectDetails
             );
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
