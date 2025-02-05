@@ -1063,7 +1063,7 @@ class LearnMzansiApi extends AbstractController
                 );
             }
 
-            $subjects = $this->em->getRepository(Subject::class)->findBy(['active' => true, 'grade' => $grade]);
+            $subjects = $this->em->getRepository(Subject::class)->findBy(['active' => true, 'grade' => $grade], ['name' => 'ASC']);
             return array(
                 'status' => 'OK',
                 'subjects' => $subjects
@@ -1112,7 +1112,7 @@ class LearnMzansiApi extends AbstractController
             } elseif ($imageType == 'answer') {
                 $question->setAnswerImage($newFilename);
             }
-            
+
             $this->em->persist($question);
             $this->em->flush();
 
