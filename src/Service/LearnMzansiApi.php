@@ -405,8 +405,22 @@ class LearnMzansiApi extends AbstractController
 
             $gradeName = str_replace('Grade ', '', $gradeName);
             $grade = $this->em->getRepository(Grade::class)->findOneBy(['number' => $gradeName]);
-            $this->logger->info("1");
-            if (!$grade) {
+            if ($grade) {
+                if ($grade->getNumber() !== $learner->getGrade()->getNumber()) {
+                    //remove all learner subject and results
+                    $learnerSubjects = $this->em->getRepository(Learnersubjects::class)->findBy(['learner' => $learner]);
+                    foreach ($learnerSubjects as $learnerSubject) {
+                        $this->em->remove($learnerSubject);
+                    }
+                    $this->em->flush();
+
+                    $results = $this->em->getRepository(Result::class)->findBy(['learner' => $learner]);
+                    foreach ($results as $result) {
+                        $this->em->remove($result);
+                    }
+                    $this->em->flush();
+                }
+            } else {
                 return array(
                     'status' => 'NOK',
                     'message' => 'Grade not found'
@@ -416,19 +430,6 @@ class LearnMzansiApi extends AbstractController
             $learner->setName($name);
             $learner->setGrade($grade);
             $this->em->persist($learner);
-            $this->em->flush();
-
-            //remove all learner subject and results
-            $learnerSubjects = $this->em->getRepository(Learnersubjects::class)->findBy(['learner' => $learner]);
-            foreach ($learnerSubjects as $learnerSubject) {
-                $this->em->remove($learnerSubject);
-            }
-            $this->em->flush();
-
-            $results = $this->em->getRepository(Result::class)->findBy(['learner' => $learner]);
-            foreach ($results as $result) {
-                $this->em->remove($result);
-            }
             $this->em->flush();
 
 
