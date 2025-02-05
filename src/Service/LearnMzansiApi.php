@@ -406,7 +406,7 @@ class LearnMzansiApi extends AbstractController
             $gradeName = str_replace('Grade ', '', $gradeName);
             $grade = $this->em->getRepository(Grade::class)->findOneBy(['number' => $gradeName]);
             if ($grade) {
-                if ($grade->getNumber() !== $learner->getGrade()->getNumber()) {
+                if ($grade !== $learner->getGrade()) {
                     //remove all learner subject and results
                     $learnerSubjects = $this->em->getRepository(Learnersubjects::class)->findBy(['learner' => $learner]);
                     foreach ($learnerSubjects as $learnerSubject) {
