@@ -1347,6 +1347,14 @@ class LearnMzansiApi extends AbstractController
                 );
             }
 
+            //reviewer can not be the same as capturer
+            if ($question->getCapturer() === $reviewerEmail) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Reviewer can not be the same as capturer'
+                );
+            }
+
             $question->setStatus($status);
             $question->setReviewer($reviewerEmail);
             $this->em->persist($question);
