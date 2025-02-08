@@ -262,7 +262,7 @@ class LearnMzansiApi extends AbstractController
 
             $this->logger->info("Created new question with ID {$question->getId()}.");
 
-            if ($question->getId() == 0) {
+            if ($questionId == 0) {
                 return array(
                     'status' => 'OK',
                     'message' => 'Successfully created question',
