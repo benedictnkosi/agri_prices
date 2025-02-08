@@ -261,11 +261,20 @@ class LearnMzansiApi extends AbstractController
             $this->logger->info("debug 3");
 
             $this->logger->info("Created new question with ID {$question->getId()}.");
-            return array(
-                'status' => 'OK',
-                'message' => 'Successfully created question',
-                'question_id' => $question->getId()
-            );
+
+            if ($question->getId() == 0) {
+                return array(
+                    'status' => 'OK',
+                    'message' => 'Successfully created question',
+                    'question_id' => $question->getId()
+                );
+            } else {
+                return array(
+                    'status' => 'OK',
+                    'message' => 'Successfully updated question',
+                    'question_id' => $question->getId()
+                );
+            }
         } catch (\Exception $e) {
             $this->logger->info($e->getMessage());
             // Log the error or handle as needed
