@@ -1274,7 +1274,7 @@ class LearnMzansiApi extends AbstractController
                 );
             }
 
-            $questions = $this->em->getRepository(Question::class)->findBy(['subject' => $subject, 'status' => $status]);
+            $questions = $this->em->getRepository(Question::class)->findBy(['subject' => $subject, 'status' => $status, 'active' => 1]);
 
             return array(
                 'status' => 'OK',
