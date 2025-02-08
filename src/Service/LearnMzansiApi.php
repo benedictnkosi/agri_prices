@@ -1131,7 +1131,7 @@ class LearnMzansiApi extends AbstractController
             $newFilename = uniqid() . '.' . $file->guessExtension();
 
             $file->move($uploadDir, $newFilename);
-
+            $this->logger->debug("File uploaded: $newFilename");
             if ($imageType == 'question_context') {
                 $question->setImagePath($newFilename);
             } elseif ($imageType == 'question') {
