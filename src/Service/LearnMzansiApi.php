@@ -198,7 +198,7 @@ class LearnMzansiApi extends AbstractController
 
                 return array(
                     'status' => 'NOK',
-                    'message' => 'A question with the same subject and text already exists. ' . $questionId . ' ' . $existingQuestion->getId()
+                    'message' => 'A question with the same subject and text already exists. Question ID: '  . $existingQuestion->getId()
                 );
             }
 
@@ -1138,6 +1138,11 @@ class LearnMzansiApi extends AbstractController
                 $question->setQuestionImagePath($newFilename);
             } elseif ($imageType == 'answer') {
                 $question->setAnswerImage($newFilename);
+            } else {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Invalid image type'
+                );
             }
 
             $this->em->persist($question);
