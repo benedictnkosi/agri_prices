@@ -250,4 +250,59 @@ class LearnMzansiApiTest extends KernelTestCase
         $this->assertEquals(4, $result['data'][3]['incorrect_count']);
         $this->assertEquals(2, $result['data'][4]['incorrect_count']);
     }
+
+    public function testGetLearnersCreatedPerWeek(): void
+    {
+        // Create learners with different creation dates
+        $dates = [
+            'monday this week',
+            'tuesday this week',
+            'wednesday this week'
+        ];
+
+        $expectedCounts = [
+            'monday this week' => 3,
+            'tuesday this week' => 2,
+            'wednesday this week' => 1
+        ];
+
+        foreach ($dates as $date) {
+            $dateObj = new \DateTime($date);
+            // Create multiple learners for each date
+            for ($i = 0; $i < $expectedCounts[$date]; $i++) {
+                $learner = new Learner();
+                $learner->setUid('learner_' . uniqid());
+                $learner->setOverideTerm(true);
+                $learner->setCreated($dateObj);
+                $this->entityManager->persist($learner);
+            }
+        }
+
+        $this->entityManager->flush();
+
+        // Execute test
+        $request = new Request();
+        $result = $this->learnMzansiApi->getLearnersCreatedPerWeek($request);
+
+        // Assert results
+        $this->assertEquals('OK', $result['status']);
+        $this->assertCount(3, $result['data']); // Should have 3 days of data
+        $this->assertEquals(6, $result['total_learners']); // Total of all learners
+
+        // Verify daily counts
+        $mondayCount = array_values(array_filter($result['data'], function ($item) {
+            return date('l', strtotime($item['date'])) === 'Monday';
+        }))[0]['count'];
+        $this->assertEquals(3, $mondayCount);
+
+        $tuesdayCount = array_values(array_filter($result['data'], function ($item) {
+            return date('l', strtotime($item['date'])) === 'Tuesday';
+        }))[0]['count'];
+        $this->assertEquals(2, $tuesdayCount);
+
+        $wednesdayCount = array_values(array_filter($result['data'], function ($item) {
+            return date('l', strtotime($item['date'])) === 'Wednesday';
+        }))[0]['count'];
+        $this->assertEquals(1, $wednesdayCount);
+    }
 }

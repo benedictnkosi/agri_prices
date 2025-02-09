@@ -422,4 +422,16 @@ class LearnMzansiApiController extends AbstractController
         $jsonContent = $serializer->serialize($response, 'json');
         return new JsonResponse($jsonContent, 200, array('Access-Control-Allow-Origin' => '*'), true);
     }
+
+    /**
+     * @Route("public/learn/learners/created-per-week", name="getLearnersCreatedPerWeek", methods={"GET"})
+     */
+    public function getLearnersCreatedPerWeek(Request $request): JsonResponse
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        $response = $this->api->getLearnersCreatedPerWeek($request);
+        $serializer = SerializerBuilder::create()->build();
+        $jsonContent = $serializer->serialize($response, 'json');
+        return new JsonResponse($jsonContent, 200, array('Access-Control-Allow-Origin' => '*'), true);
+    }
 }

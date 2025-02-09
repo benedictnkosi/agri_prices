@@ -1878,4 +1878,52 @@ class LearnMzansiApi extends AbstractController
             );
         }
     }
+
+    public function getLearnersCreatedPerWeek(Request $request): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        try {
+            // Get start and end dates for the current week
+            $startDate = new \DateTime('monday this week');
+            $endDate = new \DateTime('sunday this week');
+            $startDate->setTime(0, 0, 0);
+            $endDate->setTime(23, 59, 59);
+
+            // Create query builder
+            $queryBuilder = $this->em->createQueryBuilder();
+            $queryBuilder->select('SUBSTRING(l.created, 1, 10) as date, COUNT(l.id) as learner_count')
+                ->from('App\Entity\Learner', 'l')
+                ->where('l.created BETWEEN :startDate AND :endDate')
+                ->groupBy('date')
+                ->orderBy('date', 'ASC')
+                ->setParameter('startDate', $startDate)
+                ->setParameter('endDate', $endDate);
+
+            $results = $queryBuilder->getQuery()->getResult();
+
+            // Format the results
+            $formattedResults = [];
+            $totalLearners = 0;
+            foreach ($results as $result) {
+                $formattedResults[] = [
+                    'date' => $result['date'],
+                    'count' => $result['learner_count']
+                ];
+                $totalLearners += $result['learner_count'];
+            }
+
+            return array(
+                'status' => 'OK',
+                'data' => $formattedResults,
+                'total_learners' => $totalLearners,
+                'week' => $startDate->format('Y-m-d') . ' to ' . $endDate->format('Y-m-d')
+            );
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return array(
+                'status' => 'NOK',
+                'message' => 'Error getting learners created per week'
+            );
+        }
+    }
 }
