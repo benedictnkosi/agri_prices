@@ -6,6 +6,7 @@ use App\Entity\Grade;
 use App\Entity\Learner;
 use App\Entity\Subject;
 use App\Entity\Question;
+use App\Entity\Result;
 use App\Service\LearnMzansiApi;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,11 +42,11 @@ class LearnMzansiApiTest extends KernelTestCase
 
         // Prepare test data
         $request = new Request(
-            [], 
-            [], 
-            [], 
-            [], 
-            [], 
+            [],
+            [],
+            [],
+            [],
+            [],
             [],
             json_encode([
                 'name' => 'Test Subject ' . uniqid(),
@@ -87,11 +88,11 @@ class LearnMzansiApiTest extends KernelTestCase
 
         // Prepare request
         $request = new Request(
-            [], 
-            [], 
-            [], 
-            [], 
-            [], 
+            [],
+            [],
+            [],
+            [],
+            [],
             [],
             json_encode([
                 'subject_id' => $subject->getId(),
@@ -133,7 +134,7 @@ class LearnMzansiApiTest extends KernelTestCase
         $subject->setGrade($grade);
         $subject->setActive(true);
         $this->entityManager->persist($subject);
-        
+
         $this->entityManager->flush();
 
         // Create some test questions
@@ -182,4 +183,71 @@ class LearnMzansiApiTest extends KernelTestCase
         $this->assertEquals(3, $capturerCounts[$capturer1]);
         $this->assertEquals(2, $capturerCounts[$capturer2]);
     }
-} 
+
+    public function testGetTopIncorrectQuestions(): void
+    {
+        // Create test data
+        $grade = new Grade();
+        $grade->setNumber('10');
+        $grade->setActive(true);
+        $this->entityManager->persist($grade);
+
+        $subject = new Subject();
+        $subject->setName('Test Subject');
+        $subject->setGrade($grade);
+        $subject->setActive(true);
+        $this->entityManager->persist($subject);
+
+        $learner = new Learner();
+        $learner->setUid('test_learner');
+        $learner->setOverideTerm(true);
+        $this->entityManager->persist($learner);
+
+        // Create questions with different incorrect answer counts
+        $questions = [];
+        for ($i = 0; $i < 6; $i++) {
+            $question = new Question();
+            $question->setQuestion("Test question $i");
+            $question->setType('multiple_choice');
+            $question->setSubject($subject);
+            $question->setAnswer(json_encode(['answer']));
+            $question->setActive(true);
+            $question->setStatus('approved');
+            $question->setCreated(new \DateTime());
+            $this->entityManager->persist($question);
+            $questions[] = $question;
+        }
+
+        $this->entityManager->flush();
+
+        // Create incorrect results with different counts
+        $incorrectCounts = [10, 8, 6, 4, 2, 1]; // First 5 should be returned
+        foreach ($questions as $index => $question) {
+            for ($i = 0; $i < $incorrectCounts[$index]; $i++) {
+                $result = new Result();
+                $result->setLearner($learner);
+                $result->setQuestion($question);
+                $result->setOutcome('incorrect');
+                $result->setCreated(new \DateTime());
+                $this->entityManager->persist($result);
+            }
+        }
+
+        $this->entityManager->flush();
+
+        // Execute test
+        $request = new Request();
+        $result = $this->learnMzansiApi->getTopIncorrectQuestions($request);
+
+        // Assert results
+        $this->assertEquals('OK', $result['status']);
+        $this->assertCount(5, $result['data']); // Should only return top 5
+
+        // Verify order and counts
+        $this->assertEquals(10, $result['data'][0]['incorrect_count']);
+        $this->assertEquals(8, $result['data'][1]['incorrect_count']);
+        $this->assertEquals(6, $result['data'][2]['incorrect_count']);
+        $this->assertEquals(4, $result['data'][3]['incorrect_count']);
+        $this->assertEquals(2, $result['data'][4]['incorrect_count']);
+    }
+}

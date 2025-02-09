@@ -1822,4 +1822,60 @@ class LearnMzansiApi extends AbstractController
             );
         }
     }
+
+    public function getTopIncorrectQuestions(Request $request): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        try {
+            // Get start and end dates for the current week
+            $startDate = new \DateTime('monday this week');
+            $endDate = new \DateTime('sunday this week');
+            $startDate->setTime(0, 0, 0);
+            $endDate->setTime(23, 59, 59);
+
+            // Create query builder
+            $queryBuilder = $this->em->createQueryBuilder();
+            $queryBuilder->select('q as question, COUNT(r.id) as incorrect_count')
+                ->from('App\Entity\Question', 'q')
+                ->join('App\Entity\Result', 'r', 'WITH', 'r.question = q')
+                ->where('r.outcome = :outcome')
+                ->andWhere('q.active = :active')
+                ->andWhere('q.status = :status')
+                ->groupBy('q.id')
+                ->orderBy('incorrect_count', 'DESC')
+                ->setMaxResults(5)
+                ->setParameters([
+                    'outcome' => 'incorrect',
+                    'active' => true,
+                    'status' => 'approved'
+                ]);
+
+            $results = $queryBuilder->getQuery()->getResult();
+
+            // Format the results
+            $formattedResults = [];
+            foreach ($results as $result) {
+                $question = $result['question'];
+                $formattedResults[] = [
+                    'question_id' => $question->getId(),
+                    'question_text' => $question->getQuestion(),
+                    'subject' => $question->getSubject()->getName(),
+                    'grade' => $question->getSubject()->getGrade()->getNumber(),
+                    'incorrect_count' => $result['incorrect_count'],
+                    'week' => $startDate->format('Y-m-d') . ' to ' . $endDate->format('Y-m-d')
+                ];
+            }
+
+            return array(
+                'status' => 'OK',
+                'data' => $formattedResults
+            );
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return array(
+                'status' => 'NOK',
+                'message' => 'Error getting top incorrect questions'
+            );
+        }
+    }
 }
