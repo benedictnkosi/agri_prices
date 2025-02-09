@@ -29,16 +29,6 @@ class Result
     private $outcome;
 
     /**
-     * @var \Learner
-     *
-     * @ORM\ManyToOne(targetEntity="Learner")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="learner", referencedColumnName="id")
-     * })
-     */
-    private $learner;
-
-    /**
      * @var \Question
      *
      * @ORM\ManyToOne(targetEntity="Question")
@@ -47,6 +37,16 @@ class Result
      * })
      */
     private $question;
+
+    /**
+     * @var \Learner
+     *
+     * @ORM\ManyToOne(targetEntity="Learner")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="learner", referencedColumnName="id")
+     * })
+     */
+    private $learner;
 
     public function getId(): ?int
     {
@@ -65,18 +65,6 @@ class Result
         return $this;
     }
 
-    public function getLearner(): ?Learner
-    {
-        return $this->learner;
-    }
-
-    public function setLearner(?Learner $learner): static
-    {
-        $this->learner = $learner;
-
-        return $this;
-    }
-
     public function getQuestion(): ?Question
     {
         return $this->question;
@@ -85,6 +73,18 @@ class Result
     public function setQuestion(?Question $question): static
     {
         $this->question = $question;
+
+        return $this;
+    }
+
+    public function getLearner(): ?Learner
+    {
+        return $this->learner;
+    }
+
+    public function setLearner(?Learner $learner): static
+    {
+        $this->learner = $learner;
 
         return $this;
     }

@@ -111,20 +111,20 @@ class Commuter
      *
      * @ORM\ManyToOne(targetEntity="CommuterAddress")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="work_address", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="home_address", referencedColumnName="id")
      * })
      */
-    private $workAddress;
+    private $homeAddress;
 
     /**
      * @var \CommuterAddress
      *
      * @ORM\ManyToOne(targetEntity="CommuterAddress")
      * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="home_address", referencedColumnName="id")
+     *   @ORM\JoinColumn(name="work_address", referencedColumnName="id")
      * })
      */
-    private $homeAddress;
+    private $workAddress;
 
     public function getId(): ?int
     {
@@ -275,18 +275,6 @@ class Commuter
         return $this;
     }
 
-    public function getWorkAddress(): ?CommuterAddress
-    {
-        return $this->workAddress;
-    }
-
-    public function setWorkAddress(?CommuterAddress $workAddress): static
-    {
-        $this->workAddress = $workAddress;
-
-        return $this;
-    }
-
     public function getHomeAddress(): ?CommuterAddress
     {
         return $this->homeAddress;
@@ -295,6 +283,18 @@ class Commuter
     public function setHomeAddress(?CommuterAddress $homeAddress): static
     {
         $this->homeAddress = $homeAddress;
+
+        return $this;
+    }
+
+    public function getWorkAddress(): ?CommuterAddress
+    {
+        return $this->workAddress;
+    }
+
+    public function setWorkAddress(?CommuterAddress $workAddress): static
+    {
+        $this->workAddress = $workAddress;
 
         return $this;
     }

@@ -50,6 +50,13 @@ class Learner
     private $overideTerm;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="role", type="string", length=10, nullable=false, options={"default"="learner"})
+     */
+    private $role = 'learner';
+
+    /**
      * @var \Grade
      *
      * @ORM\ManyToOne(targetEntity="Grade")
@@ -108,6 +115,18 @@ class Learner
     public function setOverideTerm(bool $overideTerm): static
     {
         $this->overideTerm = $overideTerm;
+
+        return $this;
+    }
+
+    public function getRole(): ?string
+    {
+        return $this->role;
+    }
+
+    public function setRole(string $role): static
+    {
+        $this->role = $role;
 
         return $this;
     }
