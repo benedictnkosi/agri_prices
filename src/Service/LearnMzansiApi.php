@@ -141,10 +141,15 @@ class LearnMzansiApi extends AbstractController
      * @param array $data The JSON request body as an associative array.
      * @return Question|null The created question or null on failure.
      */
-    public function createQuestion(array $data)
+    public function createQuestion(array $data, Request $request)
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         try {
+            $adminCheck = $this->validateAdminAccess($request);
+            if ($adminCheck['status'] === 'NOK') {
+                return $adminCheck;
+            }
+
             $questionId = $data['question_id'] ?? null;
 
             // Validate required fields
@@ -1176,6 +1181,11 @@ class LearnMzansiApi extends AbstractController
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         try {
+            $adminCheck = $this->validateAdminAccess($request);
+            if ($adminCheck['status'] === 'NOK') {
+                return $adminCheck;
+            }
+
             $requestBody = json_decode($request->getContent(), true);
             $questionId = $requestBody['question_id'];
             $imageName = $requestBody['image_name'];
@@ -1216,6 +1226,11 @@ class LearnMzansiApi extends AbstractController
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         try {
+            $adminCheck = $this->validateAdminAccess($request);
+            if ($adminCheck['status'] === 'NOK') {
+                return $adminCheck;
+            }
+
             $requestBody = json_decode($request->getContent(), true);
             $questionId = $requestBody['question_id'];
             $imageName = $requestBody['image_name'];
@@ -1307,6 +1322,11 @@ class LearnMzansiApi extends AbstractController
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         try {
+            $adminCheck = $this->validateAdminAccess($request);
+            if ($adminCheck['status'] === 'NOK') {
+                return $adminCheck;
+            }
+
             $requestBody = json_decode($request->getContent(), true);
             $questionId = $requestBody['question_id'];
 
@@ -1346,6 +1366,11 @@ class LearnMzansiApi extends AbstractController
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         try {
+            $adminCheck = $this->validateAdminAccess($request);
+            if ($adminCheck['status'] === 'NOK') {
+                return $adminCheck;
+            }
+
             $requestBody = json_decode($request->getContent(), true);
             $questionId = $requestBody['question_id'];
             $status = $requestBody['status'];
@@ -1538,98 +1563,35 @@ class LearnMzansiApi extends AbstractController
         }
     }
 
-    public function updateLearnerRole(Request $request): array
+    /**
+     * Helper method to check if a user has admin role
+     */
+    private function isAdmin(string $uid): bool
     {
-        $this->logger->info("Starting Method: " . __METHOD__);
-        try {
-            $requestBody = json_decode($request->getContent(), true);
-            $uid = $requestBody['uid'];
-            $role = $requestBody['role'];
-            $requestingUid = $requestBody['requesting_uid'];
-
-            if (empty($uid) || empty($role) || empty($requestingUid)) {
-                return array(
-                    'status' => 'NOK',
-                    'message' => 'UID, role and requesting_uid are required'
-                );
-            }
-
-            // Check if user is trying to update their own role to admin
-            if ($uid === $requestingUid && $role === 'admin') {
-                return array(
-                    'status' => 'NOK',
-                    'message' => 'Users cannot update their own role to admin'
-                );
-            }
-
-            $learner = $this->em->getRepository(Learner::class)->findOneBy(['uid' => $uid]);
-            if (!$learner) {
-                return array(
-                    'status' => 'NOK',
-                    'message' => 'Learner not found'
-                );
-            }
-
-            // Validate role is one of the allowed values
-            $allowedRoles = ['learner', 'admin', 'admin_pending'];
-            if (!in_array($role, $allowedRoles)) {
-                return array(
-                    'status' => 'NOK',
-                    'message' => 'Invalid role. Allowed roles are: ' . implode(', ', $allowedRoles)
-                );
-            }
-
-            $learner->setRole($role);
-            $this->em->persist($learner);
-            $this->em->flush();
-
-            return array(
-                'status' => 'OK',
-                'message' => 'Successfully updated learner role'
-            );
-        } catch (\Exception $e) {
-            $this->logger->error($e->getMessage());
-            return array(
-                'status' => 'NOK',
-                'message' => 'Error updating learner role'
-            );
-        }
+        $learner = $this->em->getRepository(Learner::class)->findOneBy(['uid' => $uid]);
+        return $learner && $learner->getRole() === 'admin';
     }
 
-    public function getLearnersByRole(Request $request): array
+    /**
+     * Helper method to validate admin access using header uid
+     */
+    private function validateAdminAccess(Request $request): array
     {
-        $this->logger->info("Starting Method: " . __METHOD__);
-        try {
-            $role = $request->query->get('role');
+        $uid = $request->headers->get('X-User-ID');
 
-            if (empty($role)) {
-                return array(
-                    'status' => 'NOK',
-                    'message' => 'Role parameter is required'
-                );
-            }
-
-            // Validate role is one of the allowed values
-            $allowedRoles = ['learner', 'admin', 'admin_pending'];
-            if (!in_array($role, $allowedRoles)) {
-                return array(
-                    'status' => 'NOK',
-                    'message' => 'Invalid role. Allowed roles are: ' . implode(', ', $allowedRoles)
-                );
-            }
-
-            $learners = $this->em->getRepository(Learner::class)->findBy(['role' => $role]);
-
-            return array(
-                'status' => 'OK',
-                'learners' => $learners
-            );
-        } catch (\Exception $e) {
-            $this->logger->error($e->getMessage());
+        if (empty($uid)) {
             return array(
                 'status' => 'NOK',
-                'message' => 'Error getting learners by role'
+                'message' => 'User ID header is required'
             );
         }
+
+        if (!$this->isAdmin($uid)) {
+            return array(
+                'status' => 'NOK',
+                'message' => 'Unauthorized: Admin access required'
+            );
+        }
+        return array('status' => 'OK');
     }
 }

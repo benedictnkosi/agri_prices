@@ -78,7 +78,7 @@ class LearnMzansiApiController extends AbstractController
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         $data = json_decode($request->getContent(), true);
-        $response = $this->api->createQuestion($data);
+        $response = $this->api->createQuestion($data, $request);
         $this->logger->info("Response: " . json_encode($response));
         $serializer = SerializerBuilder::create()->build();
         $jsonContent = $serializer->serialize($response, 'json');
@@ -346,28 +346,6 @@ class LearnMzansiApiController extends AbstractController
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         $response = $this->api->setQuestionStatus($request);
-        $serializer = SerializerBuilder::create()->build();
-        $jsonContent = $serializer->serialize($response, 'json');
-        return new JsonResponse($jsonContent, 200, array('Access-Control-Allow-Origin' => '*'), true);
-    }
-
-    /**
-     * @Route("public/learner/role/update", name="update_learner_role", methods={"POST"})
-     */
-    public function updateLearnerRole(Request $request): JsonResponse
-    {
-        $this->logger->info("Starting Method: " . __METHOD__);
-        $response = $this->api->updateLearnerRole($request);
-        return new JsonResponse($response);
-    }
-
-    /**
-     * @Route("public/learners/by-role", name="get_learners_by_role", methods={"GET"})
-     */
-    public function getLearnersByRole(Request $request): JsonResponse
-    {
-        $this->logger->info("Starting Method: " . __METHOD__);
-        $response = $this->api->getLearnersByRole($request);
         $serializer = SerializerBuilder::create()->build();
         $jsonContent = $serializer->serialize($response, 'json');
         return new JsonResponse($jsonContent, 200, array('Access-Control-Allow-Origin' => '*'), true);
