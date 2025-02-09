@@ -1577,16 +1577,17 @@ class LearnMzansiApi extends AbstractController
     }
 
     /**
-     * Helper method to validate admin access using header uid
+     * Helper method to validate admin access using uid from request body
      */
     private function validateAdminAccess(Request $request): array
     {
-        $uid = $request->headers->get('X-User-ID');
+        $requestBody = json_decode($request->getContent(), true);
+        $uid = $requestBody['uid'] ?? null;
 
         if (empty($uid)) {
             return array(
                 'status' => 'NOK',
-                'message' => 'User ID header is required'
+                'message' => 'User ID is required'
             );
         }
 
