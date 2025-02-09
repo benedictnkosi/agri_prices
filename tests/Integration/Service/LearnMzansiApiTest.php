@@ -203,7 +203,7 @@ class LearnMzansiApiTest extends KernelTestCase
         $learner->setOverideTerm(true);
         $this->entityManager->persist($learner);
 
-        // Create questions with different incorrect answer counts
+        // Create questions with different failure rates
         $questions = [];
         for ($i = 0; $i < 6; $i++) {
             $question = new Question();
@@ -220,14 +220,37 @@ class LearnMzansiApiTest extends KernelTestCase
 
         $this->entityManager->flush();
 
-        // Create incorrect results with different counts
-        $incorrectCounts = [10, 8, 6, 4, 2, 1]; // First 5 should be returned
+        // Create results with different failure rates
+        $testData = [
+            // [total attempts, incorrect attempts] - resulting in different failure rates
+            [10, 9],  // 90% failure rate
+            [10, 8],  // 80% failure rate
+            [10, 7],  // 70% failure rate
+            [10, 6],  // 60% failure rate
+            [10, 5],  // 50% failure rate
+            [10, 4]   // 40% failure rate - shouldn't appear in top 5
+        ];
+
         foreach ($questions as $index => $question) {
-            for ($i = 0; $i < $incorrectCounts[$index]; $i++) {
+            $totalAttempts = $testData[$index][0];
+            $incorrectAttempts = $testData[$index][1];
+
+            // Create incorrect attempts
+            for ($i = 0; $i < $incorrectAttempts; $i++) {
                 $result = new Result();
                 $result->setLearner($learner);
                 $result->setQuestion($question);
                 $result->setOutcome('incorrect');
+                $result->setCreated(new \DateTime());
+                $this->entityManager->persist($result);
+            }
+
+            // Create correct attempts
+            for ($i = 0; $i < ($totalAttempts - $incorrectAttempts); $i++) {
+                $result = new Result();
+                $result->setLearner($learner);
+                $result->setQuestion($question);
+                $result->setOutcome('correct');
                 $result->setCreated(new \DateTime());
                 $this->entityManager->persist($result);
             }
@@ -243,12 +266,12 @@ class LearnMzansiApiTest extends KernelTestCase
         $this->assertEquals('OK', $result['status']);
         $this->assertCount(5, $result['data']); // Should only return top 5
 
-        // Verify order and counts
-        $this->assertEquals(10, $result['data'][0]['incorrect_count']);
-        $this->assertEquals(8, $result['data'][1]['incorrect_count']);
-        $this->assertEquals(6, $result['data'][2]['incorrect_count']);
-        $this->assertEquals(4, $result['data'][3]['incorrect_count']);
-        $this->assertEquals(2, $result['data'][4]['incorrect_count']);
+        // Verify order and failure rates
+        $this->assertEquals(90, $result['data'][0]['failure_rate']);
+        $this->assertEquals(80, $result['data'][1]['failure_rate']);
+        $this->assertEquals(70, $result['data'][2]['failure_rate']);
+        $this->assertEquals(60, $result['data'][3]['failure_rate']);
+        $this->assertEquals(50, $result['data'][4]['failure_rate']);
     }
 
     public function testGetLearnersCreatedPerWeek(): void

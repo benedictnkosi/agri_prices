@@ -1838,21 +1838,27 @@ class LearnMzansiApi extends AbstractController
             $startDate->setTime(0, 0, 0);
             $endDate->setTime(23, 59, 59);
 
-            // Create query builder
+            // Create query builder for total attempts and incorrect counts
             $queryBuilder = $this->em->createQueryBuilder();
-            $queryBuilder->select('q as question, COUNT(r.id) as incorrect_count')
+            $queryBuilder->select('q as question, 
+                                 COUNT(r.id) as total_attempts,
+                                 SUM(CASE WHEN r.outcome = :incorrect THEN 1 ELSE 0 END) as incorrect_count')
                 ->from('App\Entity\Question', 'q')
                 ->join('App\Entity\Result', 'r', 'WITH', 'r.question = q')
-                ->where('r.outcome = :outcome')
+                ->where('r.created BETWEEN :startDate AND :endDate')
                 ->andWhere('q.active = :active')
                 ->andWhere('q.status = :status')
                 ->groupBy('q.id')
-                ->orderBy('incorrect_count', 'DESC')
+                ->having('total_attempts >= :min_attempts') // Only include questions with minimum attempts
+                ->orderBy('incorrect_count / total_attempts', 'DESC') // Order by failure rate
                 ->setMaxResults(5)
                 ->setParameters([
-                    'outcome' => 'incorrect',
+                    'incorrect' => 'incorrect',
+                    'startDate' => $startDate,
+                    'endDate' => $endDate,
                     'active' => true,
-                    'status' => 'approved'
+                    'status' => 'approved',
+                    'min_attempts' => 5 // Minimum attempts required to be included
                 ]);
 
             $results = $queryBuilder->getQuery()->getResult();
@@ -1861,12 +1867,18 @@ class LearnMzansiApi extends AbstractController
             $formattedResults = [];
             foreach ($results as $result) {
                 $question = $result['question'];
+                $totalAttempts = $result['total_attempts'];
+                $incorrectCount = $result['incorrect_count'];
+                $failureRate = ($totalAttempts > 0) ? round(($incorrectCount / $totalAttempts) * 100, 2) : 0;
+
                 $formattedResults[] = [
                     'question_id' => $question->getId(),
                     'question_text' => $question->getQuestion(),
                     'subject' => $question->getSubject()->getName(),
                     'grade' => $question->getSubject()->getGrade()->getNumber(),
-                    'incorrect_count' => $result['incorrect_count'],
+                    'total_attempts' => $totalAttempts,
+                    'incorrect_count' => $incorrectCount,
+                    'failure_rate' => $failureRate,
                     'week' => $startDate->format('Y-m-d') . ' to ' . $endDate->format('Y-m-d')
                 ];
             }
