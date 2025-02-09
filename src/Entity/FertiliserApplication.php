@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * FertiliserApplication
  *
- * @ORM\Table(name="fertiliser_application", indexes={@ORM\Index(name="fertiliser_app_fertiliser_idx", columns={"fertiliser"}), @ORM\Index(name="fertiliser_app_batch_idx", columns={"batch"})})
+ * @ORM\Table(name="fertiliser_application", indexes={@ORM\Index(name="fertiliser_app_batch_idx", columns={"batch"}), @ORM\Index(name="fertiliser_app_fertiliser_idx", columns={"fertiliser"})})
  * @ORM\Entity
  */
 class FertiliserApplication
@@ -37,16 +37,6 @@ class FertiliserApplication
     private $date;
 
     /**
-     * @var \Fertilizer
-     *
-     * @ORM\ManyToOne(targetEntity="Fertilizer")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="fertiliser", referencedColumnName="id")
-     * })
-     */
-    private $fertiliser;
-
-    /**
      * @var \Seedling
      *
      * @ORM\ManyToOne(targetEntity="Seedling")
@@ -55,6 +45,16 @@ class FertiliserApplication
      * })
      */
     private $batch;
+
+    /**
+     * @var \Fertilizer
+     *
+     * @ORM\ManyToOne(targetEntity="Fertilizer")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="fertiliser", referencedColumnName="id")
+     * })
+     */
+    private $fertiliser;
 
     public function getId(): ?int
     {
@@ -85,18 +85,6 @@ class FertiliserApplication
         return $this;
     }
 
-    public function getFertiliser(): ?Fertilizer
-    {
-        return $this->fertiliser;
-    }
-
-    public function setFertiliser(?Fertilizer $fertiliser): static
-    {
-        $this->fertiliser = $fertiliser;
-
-        return $this;
-    }
-
     public function getBatch(): ?Seedling
     {
         return $this->batch;
@@ -105,6 +93,18 @@ class FertiliserApplication
     public function setBatch(?Seedling $batch): static
     {
         $this->batch = $batch;
+
+        return $this;
+    }
+
+    public function getFertiliser(): ?Fertilizer
+    {
+        return $this->fertiliser;
+    }
+
+    public function setFertiliser(?Fertilizer $fertiliser): static
+    {
+        $this->fertiliser = $fertiliser;
 
         return $this;
     }

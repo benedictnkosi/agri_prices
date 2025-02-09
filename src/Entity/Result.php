@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -27,6 +28,13 @@ class Result
      * @ORM\Column(name="outcome", type="string", length=10, nullable=true)
      */
     private $outcome;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="created", type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
+     */
+    private $created = 'CURRENT_TIMESTAMP';
 
     /**
      * @var \Question
@@ -61,6 +69,18 @@ class Result
     public function setOutcome(?string $outcome): static
     {
         $this->outcome = $outcome;
+
+        return $this;
+    }
+
+    public function getCreated(): ?\DateTimeInterface
+    {
+        return $this->created;
+    }
+
+    public function setCreated(\DateTimeInterface $created): static
+    {
+        $this->created = $created;
 
         return $this;
     }

@@ -1842,15 +1842,16 @@ class LearnMzansiApi extends AbstractController
             $queryBuilder = $this->em->createQueryBuilder();
             $queryBuilder->select('q as question, 
                                  COUNT(r.id) as total_attempts,
-                                 SUM(CASE WHEN r.outcome = :incorrect THEN 1 ELSE 0 END) as incorrect_count')
+                                 SUM(CASE WHEN r.outcome = :incorrect THEN 1 ELSE 0 END) as incorrect_count,
+                                 (SUM(CASE WHEN r.outcome = :incorrect THEN 1 ELSE 0 END) * 100.0 / COUNT(r.id)) as failure_rate')
                 ->from('App\Entity\Question', 'q')
                 ->join('App\Entity\Result', 'r', 'WITH', 'r.question = q')
                 ->where('r.created BETWEEN :startDate AND :endDate')
                 ->andWhere('q.active = :active')
                 ->andWhere('q.status = :status')
                 ->groupBy('q.id')
-                ->having('total_attempts >= :min_attempts') // Only include questions with minimum attempts
-                ->orderBy('incorrect_count / total_attempts', 'DESC') // Order by failure rate
+                ->having('COUNT(r.id) >= :min_attempts') // Only include questions with minimum attempts
+                ->orderBy('failure_rate', 'DESC') // Order by calculated failure rate
                 ->setMaxResults(5)
                 ->setParameters([
                     'incorrect' => 'incorrect',
@@ -1869,7 +1870,7 @@ class LearnMzansiApi extends AbstractController
                 $question = $result['question'];
                 $totalAttempts = $result['total_attempts'];
                 $incorrectCount = $result['incorrect_count'];
-                $failureRate = ($totalAttempts > 0) ? round(($incorrectCount / $totalAttempts) * 100, 2) : 0;
+                $failureRate = round($result['failure_rate'], 2);
 
                 $formattedResults[] = [
                     'question_id' => $question->getId(),
@@ -1896,13 +1897,13 @@ class LearnMzansiApi extends AbstractController
         }
     }
 
-    public function getLearnersCreatedPerWeek(Request $request): array
+    public function getLearnersCreatedPerMonth(Request $request): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         try {
-            // Get start and end dates for the current week
-            $startDate = new \DateTime('monday this week');
-            $endDate = new \DateTime('sunday this week');
+            // Get start and end dates for the current month
+            $startDate = new \DateTime('first day of this month');
+            $endDate = new \DateTime('last day of this month');
             $startDate->setTime(0, 0, 0);
             $endDate->setTime(23, 59, 59);
 
@@ -1933,13 +1934,13 @@ class LearnMzansiApi extends AbstractController
                 'status' => 'OK',
                 'data' => $formattedResults,
                 'total_learners' => $totalLearners,
-                'week' => $startDate->format('Y-m-d') . ' to ' . $endDate->format('Y-m-d')
+                'month' => $startDate->format('F Y') // e.g., "February 2024"
             );
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
             return array(
                 'status' => 'NOK',
-                'message' => 'Error getting learners created per week'
+                'message' => 'Error getting learners created per month'
             );
         }
     }

@@ -328,4 +328,56 @@ class LearnMzansiApiTest extends KernelTestCase
         }))[0]['count'];
         $this->assertEquals(1, $wednesdayCount);
     }
+
+    public function testGetLearnersCreatedPerMonth(): void
+    {
+        // Create learners with different creation dates
+        $dates = [
+            'first day of this month',
+            'first day of this month +5 days',
+            'first day of this month +10 days'
+        ];
+
+        $expectedCounts = [
+            'first day of this month' => 3,
+            'first day of this month +5 days' => 2,
+            'first day of this month +10 days' => 1
+        ];
+
+        foreach ($dates as $date) {
+            $dateObj = new \DateTime($date);
+            // Create multiple learners for each date
+            for ($i = 0; $i < $expectedCounts[$date]; $i++) {
+                $learner = new Learner();
+                $learner->setUid('learner_' . uniqid());
+                $learner->setOverideTerm(true);
+                $learner->setCreated($dateObj);
+                $this->entityManager->persist($learner);
+            }
+        }
+
+        $this->entityManager->flush();
+
+        // Execute test
+        $request = new Request();
+        $result = $this->learnMzansiApi->getLearnersCreatedPerMonth($request);
+
+        // Assert results
+        $this->assertEquals('OK', $result['status']);
+        $this->assertCount(3, $result['data']); // Should have 3 days of data
+        $this->assertEquals(6, $result['total_learners']); // Total of all learners
+
+        // Verify the month is correct
+        $this->assertEquals((new \DateTime())->format('F Y'), $result['month']);
+
+        // Sort results by date for easier testing
+        $sortedData = array_values(array_sort($result['data'], function ($item) {
+            return $item['date'];
+        }));
+
+        // Verify daily counts
+        $this->assertEquals(3, $sortedData[0]['count']); // First day
+        $this->assertEquals(2, $sortedData[1]['count']); // Day 6
+        $this->assertEquals(1, $sortedData[2]['count']); // Day 11
+    }
 }
