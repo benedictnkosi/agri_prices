@@ -1537,4 +1537,90 @@ class LearnMzansiApi extends AbstractController
             );
         }
     }
+
+    public function updateLearnerRole(Request $request): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        try {
+            $requestBody = json_decode($request->getContent(), true);
+            $uid = $requestBody['uid'];
+            $role = $requestBody['role'];
+
+            if (empty($uid) || empty($role)) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'UID and role are required'
+                );
+            }
+
+            $learner = $this->em->getRepository(Learner::class)->findOneBy(['uid' => $uid]);
+            if (!$learner) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Learner not found'
+                );
+            }
+
+            // Validate role is one of the allowed values
+            $allowedRoles = ['learner', 'admin', 'admin_pending'];
+            if (!in_array($role, $allowedRoles)) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Invalid role. Allowed roles are: ' . implode(', ', $allowedRoles)
+                );
+            }
+
+            $learner->setRole($role);
+            $this->em->persist($learner);
+            $this->em->flush();
+
+            return array(
+                'status' => 'OK',
+                'message' => 'Successfully updated learner role'
+            );
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return array(
+                'status' => 'NOK',
+                'message' => 'Error updating learner role'
+            );
+        }
+    }
+
+    public function getLearnersByRole(Request $request): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        try {
+            $role = $request->query->get('role');
+
+            if (empty($role)) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Role parameter is required'
+                );
+            }
+
+            // Validate role is one of the allowed values
+            $allowedRoles = ['learner', 'admin', 'admin_pending'];
+            if (!in_array($role, $allowedRoles)) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Invalid role. Allowed roles are: ' . implode(', ', $allowedRoles)
+                );
+            }
+
+            $learners = $this->em->getRepository(Learner::class)->findBy(['role' => $role]);
+
+            return array(
+                'status' => 'OK',
+                'learners' => $learners
+            );
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return array(
+                'status' => 'NOK',
+                'message' => 'Error getting learners by role'
+            );
+        }
+    }
 }

@@ -350,4 +350,26 @@ class LearnMzansiApiController extends AbstractController
         $jsonContent = $serializer->serialize($response, 'json');
         return new JsonResponse($jsonContent, 200, array('Access-Control-Allow-Origin' => '*'), true);
     }
+
+    /**
+     * @Route("public/learner/role/update", name="update_learner_role", methods={"POST"})
+     */
+    public function updateLearnerRole(Request $request): JsonResponse
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        $response = $this->api->updateLearnerRole($request);
+        return new JsonResponse($response);
+    }
+
+    /**
+     * @Route("public/learners/by-role", name="get_learners_by_role", methods={"GET"})
+     */
+    public function getLearnersByRole(Request $request): JsonResponse
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        $response = $this->api->getLearnersByRole($request);
+        $serializer = SerializerBuilder::create()->build();
+        $jsonContent = $serializer->serialize($response, 'json');
+        return new JsonResponse($jsonContent, 200, array('Access-Control-Allow-Origin' => '*'), true);
+    }
 }
