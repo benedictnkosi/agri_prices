@@ -1545,11 +1545,20 @@ class LearnMzansiApi extends AbstractController
             $requestBody = json_decode($request->getContent(), true);
             $uid = $requestBody['uid'];
             $role = $requestBody['role'];
+            $requestingUid = $requestBody['requesting_uid'];
 
-            if (empty($uid) || empty($role)) {
+            if (empty($uid) || empty($role) || empty($requestingUid)) {
                 return array(
                     'status' => 'NOK',
-                    'message' => 'UID and role are required'
+                    'message' => 'UID, role and requesting_uid are required'
+                );
+            }
+
+            // Check if user is trying to update their own role to admin
+            if ($uid === $requestingUid && $role === 'admin') {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Users cannot update their own role to admin'
                 );
             }
 
