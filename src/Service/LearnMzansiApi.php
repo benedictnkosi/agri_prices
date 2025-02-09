@@ -1901,21 +1901,27 @@ class LearnMzansiApi extends AbstractController
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         try {
-            // Get start and end dates for the current month
-            $startDate = new \DateTime('first day of this month');
-            $endDate = new \DateTime('last day of this month');
-            $startDate->setTime(0, 0, 0);
-            $endDate->setTime(23, 59, 59);
-
-            // Create query builder
+            // Create query builder to get the first and last learner creation dates
             $queryBuilder = $this->em->createQueryBuilder();
-            $queryBuilder->select('SUBSTRING(l.created, 1, 10) as date, COUNT(l.id) as learner_count')
+            $queryBuilder->select('MIN(SUBSTRING(l.created, 1, 7)) as first_month, MAX(SUBSTRING(l.created, 1, 7)) as last_month')
+                ->from('App\Entity\Learner', 'l');
+
+            $dateRange = $queryBuilder->getQuery()->getSingleResult();
+
+            if (!$dateRange['first_month']) {
+                return array(
+                    'status' => 'OK',
+                    'data' => [],
+                    'total_learners' => 0
+                );
+            }
+
+            // Create query builder for monthly counts
+            $queryBuilder = $this->em->createQueryBuilder();
+            $queryBuilder->select('SUBSTRING(l.created, 1, 7) as month, COUNT(l.id) as learner_count')
                 ->from('App\Entity\Learner', 'l')
-                ->where('l.created BETWEEN :startDate AND :endDate')
-                ->groupBy('date')
-                ->orderBy('date', 'ASC')
-                ->setParameter('startDate', $startDate)
-                ->setParameter('endDate', $endDate);
+                ->groupBy('month')
+                ->orderBy('month', 'ASC');
 
             $results = $queryBuilder->getQuery()->getResult();
 
@@ -1923,18 +1929,29 @@ class LearnMzansiApi extends AbstractController
             $formattedResults = [];
             $totalLearners = 0;
             foreach ($results as $result) {
-                $formattedResults[] = [
-                    'date' => $result['date'],
-                    'count' => $result['learner_count']
-                ];
-                $totalLearners += $result['learner_count'];
+                $date = \DateTime::createFromFormat('Y-m', $result['month']);
+                if ($date) {
+                    $formattedResults[] = [
+                        'month' => $date->format('F Y'),
+                        'month_key' => $result['month'], // YYYY-MM format for sorting
+                        'count' => $result['learner_count']
+                    ];
+                    $totalLearners += $result['learner_count'];
+                }
             }
+
+            // Format the date range
+            $startDate = \DateTime::createFromFormat('Y-m', $dateRange['first_month']);
+            $endDate = \DateTime::createFromFormat('Y-m', $dateRange['last_month']);
 
             return array(
                 'status' => 'OK',
                 'data' => $formattedResults,
                 'total_learners' => $totalLearners,
-                'month' => $startDate->format('F Y') // e.g., "February 2024"
+                'date_range' => [
+                    'start' => $startDate ? $startDate->format('F Y') : '',
+                    'end' => $endDate ? $endDate->format('F Y') : ''
+                ]
             );
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
