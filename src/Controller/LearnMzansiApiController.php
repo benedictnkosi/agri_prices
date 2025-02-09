@@ -350,4 +350,52 @@ class LearnMzansiApiController extends AbstractController
         $jsonContent = $serializer->serialize($response, 'json');
         return new JsonResponse($jsonContent, 200, array('Access-Control-Allow-Origin' => '*'), true);
     }
+
+    /**
+     * @Route("public/learn/subject/create", name="createSubject", methods={"POST"})
+     */
+    public function createSubject(Request $request): JsonResponse
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        $response = $this->api->createSubject($request);
+        $serializer = SerializerBuilder::create()->build();
+        $jsonContent = $serializer->serialize($response, 'json');
+        return new JsonResponse($jsonContent, 200, array('Access-Control-Allow-Origin' => '*'), true);
+    }
+
+    /**
+     * @Route("public/learn/subject/update-active", name="updateSubjectActive", methods={"POST"})
+     */
+    public function updateSubjectActive(Request $request): JsonResponse
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        $response = $this->api->updateSubjectActive($request);
+        $serializer = SerializerBuilder::create()->build();
+        $jsonContent = $serializer->serialize($response, 'json');
+        return new JsonResponse($jsonContent, 200, array('Access-Control-Allow-Origin' => '*'), true);
+    }
+
+    /**
+     * @Route("public/learn/subjects/by-grade", name="getSubjectsByGrade", methods={"GET"})
+     */
+    public function getSubjectsByGrade(Request $request): JsonResponse
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        $response = $this->api->getSubjectsByGrade($request);
+        $serializer = SerializerBuilder::create()->build();
+        $jsonContent = $serializer->serialize($response, 'json');
+        return new JsonResponse($jsonContent, 200, array('Access-Control-Allow-Origin' => '*'), true);
+    }
+
+    /**
+     * @Route("public/learn/subjects/names", name="getDistinctSubjectNames", methods={"GET"})
+     */
+    public function getDistinctSubjectNames(): JsonResponse
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        $response = $this->api->getDistinctSubjectNames();
+        $serializer = SerializerBuilder::create()->build();
+        $jsonContent = $serializer->serialize($response, 'json');
+        return new JsonResponse($jsonContent, 200, array('Access-Control-Allow-Origin' => '*'), true);
+    }
 }

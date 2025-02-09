@@ -32,6 +32,7 @@ class LearnMzansiApi extends AbstractController
         try {
             $requestBody = json_decode($request->getContent(), true);
             $uid = $requestBody['uid'];
+            $name = $requestBody['name'];
 
             if (empty($uid)) {
                 return array(
@@ -44,6 +45,9 @@ class LearnMzansiApi extends AbstractController
             if (!$learner) {
                 $learner = new Learner();
                 $learner->setUid($uid);
+                if ($name) {
+                    $learner->setName($name);
+                }
                 $learner->setOverideTerm(true);
                 $this->em->persist($learner);
                 $this->em->flush();
@@ -1593,5 +1597,181 @@ class LearnMzansiApi extends AbstractController
             );
         }
         return array('status' => 'OK');
+    }
+
+    public function createSubject(Request $request): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        try {
+            $adminCheck = $this->validateAdminAccess($request);
+            if ($adminCheck['status'] === 'NOK') {
+                return $adminCheck;
+            }
+
+            $requestBody = json_decode($request->getContent(), true);
+            $name = $requestBody['name'];
+            $gradeNumber = $requestBody['grade'];
+
+            if (empty($name) || empty($gradeNumber)) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Subject name and grade are required'
+                );
+            }
+
+            $grade = $this->em->getRepository(Grade::class)->findOneBy(['number' => $gradeNumber]);
+            if (!$grade) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Grade not found'
+                );
+            }
+
+            // Check if subject already exists for this grade
+            $existingSubject = $this->em->getRepository(Subject::class)->findOneBy([
+                'name' => $name,
+                'grade' => $grade
+            ]);
+
+            if ($existingSubject) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Subject already exists for this grade'
+                );
+            }
+
+            $subject = new Subject();
+            $subject->setName($name);
+            $subject->setGrade($grade);
+            $subject->setActive(true);
+
+            $this->em->persist($subject);
+            $this->em->flush();
+
+            return array(
+                'status' => 'OK',
+                'message' => 'Successfully created subject',
+                'subject_id' => $subject->getId()
+            );
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return array(
+                'status' => 'NOK',
+                'message' => 'Error creating subject'
+            );
+        }
+    }
+
+    public function updateSubjectActive(Request $request): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        try {
+            $adminCheck = $this->validateAdminAccess($request);
+            if ($adminCheck['status'] === 'NOK') {
+                return $adminCheck;
+            }
+
+            $requestBody = json_decode($request->getContent(), true);
+            $subjectId = $requestBody['subject_id'];
+            $active = $requestBody['active'];
+
+            if (empty($subjectId)) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Subject ID is required'
+                );
+            }
+
+            $subject = $this->em->getRepository(Subject::class)->find($subjectId);
+            if (!$subject) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Subject not found'
+                );
+            }
+
+            $subject->setActive($active);
+            $this->em->persist($subject);
+            $this->em->flush();
+
+            return array(
+                'status' => 'OK',
+                'message' => 'Successfully updated subject active status'
+            );
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return array(
+                'status' => 'NOK',
+                'message' => 'Error updating subject active status'
+            );
+        }
+    }
+
+    public function getSubjectsByGrade(Request $request): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        try {
+            $gradeNumber = $request->query->get('grade');
+
+            if (empty($gradeNumber)) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Grade number is required'
+                );
+            }
+
+            $grade = $this->em->getRepository(Grade::class)->findOneBy(['number' => $gradeNumber]);
+            if (!$grade) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Grade not found'
+                );
+            }
+
+            $subjects = $this->em->getRepository(Subject::class)->findBy(['grade' => $grade], ['name' => 'ASC']);
+
+            return array(
+                'status' => 'OK',
+                'subjects' => $subjects
+            );
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return array(
+                'status' => 'NOK',
+                'message' => 'Error getting subjects'
+            );
+        }
+    }
+
+    public function getDistinctSubjectNames(): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        try {
+            $queryBuilder = $this->em->createQueryBuilder();
+            $queryBuilder->select('DISTINCT s.name')
+                ->from('App\Entity\Subject', 's')
+                ->where('s.active = :active')
+                ->setParameter('active', true)
+                ->orderBy('s.name', 'ASC');
+
+            $query = $queryBuilder->getQuery();
+            $results = $query->getResult();
+
+            // Extract just the names from the result array
+            $subjectNames = array_map(function ($item) {
+                return $item['name'];
+            }, $results);
+
+            return array(
+                'status' => 'OK',
+                'subjects' => $subjectNames
+            );
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return array(
+                'status' => 'NOK',
+                'message' => 'Error getting subject names'
+            );
+        }
     }
 }
