@@ -49,6 +49,7 @@ class LearnMzansiApi extends AbstractController
                     $learner->setName($name);
                 }
                 $learner->setOverideTerm(true);
+                $learner->setCreated(new \DateTime());
                 $this->em->persist($learner);
                 $this->em->flush();
 

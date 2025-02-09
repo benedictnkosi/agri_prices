@@ -22,16 +22,6 @@ class PassengerLiftClub
     private $id;
 
     /**
-     * @var \Commuter
-     *
-     * @ORM\ManyToOne(targetEntity="Commuter")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="passenger", referencedColumnName="id")
-     * })
-     */
-    private $passenger;
-
-    /**
      * @var \Liftclub
      *
      * @ORM\ManyToOne(targetEntity="Liftclub")
@@ -41,21 +31,19 @@ class PassengerLiftClub
      */
     private $liftClub;
 
+    /**
+     * @var \Commuter
+     *
+     * @ORM\ManyToOne(targetEntity="Commuter")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="passenger", referencedColumnName="id")
+     * })
+     */
+    private $passenger;
+
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getPassenger(): ?Commuter
-    {
-        return $this->passenger;
-    }
-
-    public function setPassenger(?Commuter $passenger): static
-    {
-        $this->passenger = $passenger;
-
-        return $this;
     }
 
     public function getLiftClub(): ?Liftclub
@@ -66,6 +54,18 @@ class PassengerLiftClub
     public function setLiftClub(?Liftclub $liftClub): static
     {
         $this->liftClub = $liftClub;
+
+        return $this;
+    }
+
+    public function getPassenger(): ?Commuter
+    {
+        return $this->passenger;
+    }
+
+    public function setPassenger(?Commuter $passenger): static
+    {
+        $this->passenger = $passenger;
 
         return $this;
     }
