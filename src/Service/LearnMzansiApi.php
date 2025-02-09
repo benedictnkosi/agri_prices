@@ -1260,7 +1260,7 @@ class LearnMzansiApi extends AbstractController
             $subjectName = $request->query->get('subject');
             $status = $request->query->get('status');
 
-            if (empty($gradeNumber) || empty($subjectName) || empty($status)) {
+            if (empty($gradeNumber) || empty($subjectName)) {
                 return array(
                     'status' => 'NOK',
                     'message' => 'Grade and Subject and Status are required'
@@ -1283,7 +1283,11 @@ class LearnMzansiApi extends AbstractController
                 );
             }
 
-            $questions = $this->em->getRepository(Question::class)->findBy(['subject' => $subject, 'status' => $status, 'active' => 1]);
+            if (empty($status)) {
+                $questions = $this->em->getRepository(Question::class)->findBy(['subject' => $subject, 'active' => 1]);
+            } else {
+                $questions = $this->em->getRepository(Question::class)->findBy(['subject' => $subject, 'status' => $status, 'active' => 1]);
+            }
 
             return array(
                 'status' => 'OK',
