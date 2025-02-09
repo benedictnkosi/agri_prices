@@ -1133,7 +1133,16 @@ class LearnMzansiApi extends AbstractController
         $this->logger->info("Starting Method: " . __METHOD__);
         try {
             $uploadDir = __DIR__ . '/../../public/assets/images/learnMzansi/';
-            $file = $request->files->get('file');
+            $file = $request->files->get('image');
+
+            // Check if file was uploaded
+            if (!$file) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'No file uploaded'
+                );
+            }
+
             $fileName = $file->getClientOriginalName();
 
             // Check if file already exists
