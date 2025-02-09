@@ -1132,51 +1132,26 @@ class LearnMzansiApi extends AbstractController
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         try {
-            $file = $request->files->get('image');
-            $questionId = $request->request->get('question_id');
-            $imageType = $request->request->get('image_type');
+            $uploadDir = __DIR__ . '/../../public/assets/images/learnMzansi/';
+            $file = $request->files->get('file');
+            $fileName = $file->getClientOriginalName();
 
-            if (!$file) {
+            // Check if file already exists
+            if (file_exists($uploadDir . $fileName)) {
                 return array(
-                    'status' => 'NOK',
-                    'message' => 'No image file provided'
+                    'status' => 'OK',
+                    'message' => 'File already exists',
+                    'file_name' => $fileName
                 );
             }
 
-            $question = $this->em->getRepository(Question::class)->find($questionId);
-            if (!$question) {
-                return array(
-                    'status' => 'NOK',
-                    'message' => 'Question not found'
-                );
-            }
-
-            $uploadDir = $this->getParameter('kernel.project_dir') . '/public/assets/images/learnMzansi';
-            $newFilename = uniqid() . '.' . $file->guessExtension();
-
-            $file->move($uploadDir, $newFilename);
-            $this->logger->debug("File uploaded: $newFilename");
-            if ($imageType == 'question_context') {
-                $question->setImagePath($newFilename);
-            } elseif ($imageType == 'question') {
-                $question->setQuestionImagePath($newFilename);
-            } elseif ($imageType == 'answer') {
-                $question->setAnswerImage($newFilename);
-            } else {
-                return array(
-                    'status' => 'NOK',
-                    'message' => 'Invalid image type'
-                );
-            }
-
-            $this->em->persist($question);
-            $this->em->flush();
-
+            // Move file only if it doesn't exist
+            $file->move($uploadDir, $fileName);
 
             return array(
                 'status' => 'OK',
-                'message' => 'Image successfully uploaded',
-                'fileName' => $newFilename
+                'message' => 'Successfully uploaded image',
+                'file_name' => $fileName
             );
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
