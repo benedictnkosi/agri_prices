@@ -1776,4 +1776,50 @@ class LearnMzansiApi extends AbstractController
             );
         }
     }
+
+    public function getQuestionsCapturedPerWeek(Request $request): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        try {
+            // Get start and end dates for the current week
+            $startDate = new \DateTime('monday this week');
+            $endDate = new \DateTime('sunday this week');
+            $startDate->setTime(0, 0, 0);
+            $endDate->setTime(23, 59, 59);
+
+            // Create query builder
+            $queryBuilder = $this->em->createQueryBuilder();
+            $queryBuilder->select('q.capturer, COUNT(q.id) as questionCount')
+                ->from('App\Entity\Question', 'q')
+                ->where('q.created BETWEEN :startDate AND :endDate')
+                ->groupBy('q.capturer')
+                ->orderBy('questionCount', 'DESC')
+                ->setParameter('startDate', $startDate)
+                ->setParameter('endDate', $endDate);
+
+            $results = $queryBuilder->getQuery()->getResult();
+
+            // Format the results
+            $formattedResults = [];
+            foreach ($results as $result) {
+                $formattedResults[] = [
+                    'capturer' => $result['capturer'],
+                    'count' => $result['questionCount'],
+                    'week' => $startDate->format('Y-m-d') . ' to ' . $endDate->format('Y-m-d')
+                ];
+            }
+
+            return array(
+                'status' => 'OK',
+                'data' => $formattedResults,
+                'total_questions' => array_sum(array_column($formattedResults, 'count'))
+            );
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return array(
+                'status' => 'NOK',
+                'message' => 'Error getting questions captured per week'
+            );
+        }
+    }
 }
