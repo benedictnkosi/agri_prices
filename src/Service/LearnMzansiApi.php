@@ -50,6 +50,7 @@ class LearnMzansiApi extends AbstractController
                 }
                 $learner->setOverideTerm(true);
                 $learner->setCreated(new \DateTime());
+                $learner->setLastSeen(new \DateTime());
                 $this->em->persist($learner);
                 $this->em->flush();
 
@@ -58,9 +59,13 @@ class LearnMzansiApi extends AbstractController
                     'message' => 'Successfully created learner'
                 );
             } else {
+                $learner->setLastSeen(new \DateTime());
+                $this->em->persist($learner);
+                $this->em->flush();
                 if ($learner->getGrade()) {
                     return array(
                         'status' => 'NOK',
+
                         'message' => "Learner already exists $uid",
                         'grade' => $learner->getGrade()->getNumber()
                     );

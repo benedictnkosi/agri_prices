@@ -65,6 +65,13 @@ class Learner
     private $created = 'CURRENT_TIMESTAMP';
 
     /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="lastSeen", type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
+     */
+    private $lastseen = 'CURRENT_TIMESTAMP';
+
+    /**
      * @var \Grade
      *
      * @ORM\ManyToOne(targetEntity="Grade")
@@ -147,6 +154,18 @@ class Learner
     public function setCreated(\DateTimeInterface $created): static
     {
         $this->created = $created;
+
+        return $this;
+    }
+
+    public function getLastseen(): ?\DateTimeInterface
+    {
+        return $this->lastseen;
+    }
+
+    public function setLastseen(\DateTimeInterface $lastseen): static
+    {
+        $this->lastseen = $lastseen;
 
         return $this;
     }
