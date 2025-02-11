@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Issue
  *
- * @ORM\Table(name="issue", indexes={@ORM\Index(name="learner", columns={"learner"}), @ORM\Index(name="question", columns={"question"})})
+ * @ORM\Table(name="issue", indexes={@ORM\Index(name="learner", columns={"learner"})})
  * @ORM\Entity
  */
 class Issue
@@ -44,6 +44,13 @@ class Issue
     private $created = 'CURRENT_TIMESTAMP';
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="question", type="integer", nullable=false)
+     */
+    private $question;
+
+    /**
      * @var \Learner
      *
      * @ORM\ManyToOne(targetEntity="Learner")
@@ -52,16 +59,6 @@ class Issue
      * })
      */
     private $learner;
-
-    /**
-     * @var \Question
-     *
-     * @ORM\ManyToOne(targetEntity="Question")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="question", referencedColumnName="id")
-     * })
-     */
-    private $question;
 
     public function getId(): ?int
     {
@@ -104,6 +101,18 @@ class Issue
         return $this;
     }
 
+    public function getQuestion(): ?int
+    {
+        return $this->question;
+    }
+
+    public function setQuestion(int $question): static
+    {
+        $this->question = $question;
+
+        return $this;
+    }
+
     public function getLearner(): ?Learner
     {
         return $this->learner;
@@ -112,18 +121,6 @@ class Issue
     public function setLearner(?Learner $learner): static
     {
         $this->learner = $learner;
-
-        return $this;
-    }
-
-    public function getQuestion(): ?Question
-    {
-        return $this->question;
-    }
-
-    public function setQuestion(?Question $question): static
-    {
-        $this->question = $question;
 
         return $this;
     }

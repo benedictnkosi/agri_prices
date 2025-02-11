@@ -753,16 +753,9 @@ class LearnMzansiApi extends AbstractController
             $requestBody = json_decode($request->getContent(), true);
             $questionId = $requestBody['question_id'];
             $learnerAnswers = trim($requestBody['answer']);
-            $multiLearnerAnswers = $requestBody['answers'];
             $RequestType = $requestBody['requesting_type'];
 
             $learnerAnswers = str_replace(' ', '', $learnerAnswers);
-            if (is_array($multiLearnerAnswers)) {
-                $multiLearnerAnswers = array_map(function ($answer) {
-                    return str_replace(' ', '', $answer);
-                }, $multiLearnerAnswers);
-            }
-
             $uid = $requestBody['uid'];
 
             if (empty($questionId) || empty($uid)) {
@@ -788,22 +781,11 @@ class LearnMzansiApi extends AbstractController
                 );
             }
 
-            if ($question->getType() == 'multi_select') {
-                if (empty($multiLearnerAnswers)) {
-                    return array(
-                        'status' => 'NOK',
-                        'message' => 'Mandatory values missing - ' . $question->getType()
-                    );
-                }
-                $multiLearnerAnswers = array_map('trim', $multiLearnerAnswers);
-                $learnerAnswers = $multiLearnerAnswers;
-            } else {
-                if (empty($learnerAnswers)) {
-                    return array(
-                        'status' => 'NOK',
-                        'message' => 'Mandatory values missing - ' . $question->getType()
-                    );
-                }
+            if (empty($learnerAnswers)) {
+                return array(
+                    'status' => 'NOK',
+                    'message' => 'Mandatory values missing - ' . $question->getType()
+                );
             }
 
             if (!is_array($learnerAnswers)) {
@@ -1981,7 +1963,7 @@ class LearnMzansiApi extends AbstractController
         }
     }
 
-    	/**
+    /**
      * Get count of questions in new status
      * 
      * @return array Status and count of questions in new status
