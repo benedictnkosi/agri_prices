@@ -1980,4 +1980,34 @@ class LearnMzansiApi extends AbstractController
             );
         }
     }
+
+    	/**
+     * Get count of questions in new status
+     * 
+     * @return array Status and count of questions in new status
+     */
+    public function getNewQuestionsCount(): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        try {
+            $queryBuilder = $this->em->createQueryBuilder();
+            $queryBuilder->select('COUNT(q.id)')
+                ->from('App\Entity\Question', 'q')
+                ->where('q.status = :status')
+                ->setParameter('status', 'new');
+
+            $count = $queryBuilder->getQuery()->getSingleScalarResult();
+
+            return array(
+                'status' => 'OK',
+                'count' => $count
+            );
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return array(
+                'status' => 'NOK',
+                'message' => 'Error getting new questions count: ' . $e->getMessage()
+            );
+        }
+    }
 }
